@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/layout"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.naotosaito.clocktest.MainActivity"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <TextView
+            android:id="@+id/nowview_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="現在時刻 : " />
+        <TextView
+            android:id="@+id/nowview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <TextView
+            android:id="@+id/setalarmview_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="アラーム時刻 : " />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="yyyy年MM月dd日 HH時mm分ss秒"
+            android:id="@+id/setalarmview" />
+    </LinearLayout>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editalarm"
+        android:text="yyyy年MM月dd日 HH時mm分ss秒"
+        android:layout_below="@+id/setalarmview" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:layout_width="141dp"
+            android:layout_height="wrap_content"
+            android:text="AlarmSet"
+            android:id="@+id/setbutton" />
+
+        <Button
+            android:layout_width="141dp"
+            android:layout_height="wrap_content"
+            android:text="AlarmSave"
+            android:id="@+id/savebutton" />
+    </LinearLayout>
+    <Button
+        android:layout_width="141dp"
+        android:layout_height="wrap_content"
+        android:text="AlarmStop"
+        android:id="@+id/stopbutton" />
+</LinearLayout>
