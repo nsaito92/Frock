@@ -65,7 +65,7 @@ public class MyTimerTask extends TimerTask {
         if (diff == 0) {
             System.out.println("アラーム時刻になりました。");
             //Toast.makeText(this, "アラーム時刻になりました。", Toast.LENGTH_SHORT).show();
-            audioController.audioPlay();
+            //audioController.audioPlay();
         } else if (diff > 0) {
             System.out.println("アラーム実行日より過去の日付を指定しています。");
         } else {

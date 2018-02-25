@@ -1,8 +1,12 @@
 package com.example.naotosaito.clocktest;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,7 +38,35 @@ public class MainActivity extends AppCompatActivity {
         setbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimeSet();
+                //時間を設定するポップアップを表示させる。一時的にコメントアウト。
+                // TimeSet();
+
+                //時間をセットする
+                Calendar calender = Calendar.getInstance();
+
+                //Calenderを使って現在の時間を入り秒で取得
+                calender.setTimeInMillis(System.currentTimeMillis());
+
+                //アラームを5秒後に設定する
+                calender.add(Calendar.SECOND, 5);
+
+                //明示的BroadCast
+                Intent intent = new Intent(getApplicationContext(),
+                        AlarmBroadcastReceiver.class);
+
+                //Broadcastにメッセージを送るための設定
+                PendingIntent pending = PendingIntent.getBroadcast(
+                        getApplicationContext(), 0, intent, 0);
+
+                //アラームをセットする
+                AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+                if(am !=null) {
+                    am.setExact(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pending);
+
+                    Toast.makeText(getApplicationContext(),
+                            "Set Alarm ", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
