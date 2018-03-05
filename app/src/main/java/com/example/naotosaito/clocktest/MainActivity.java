@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //時間を設定するポップアップを表示させる。一時的にコメントアウト。
-                // TimeSet();
+                TimeSet();
 
                 //時間をセットする
                 Calendar calender = Calendar.getInstance();

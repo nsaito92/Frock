@@ -11,13 +11,12 @@ import java.io.IOException;
  */
 public class AudioController {
 
+    private MediaPlayer mediaPlayer;
+    private MainActivity mainActivity;
+
     public boolean audioSetup(){
 
-        //Alarm再生用MediaPlayerのインスタンス作成
-        MediaPlayer mediaPlayer = new MediaPlayer();
-
-        MainActivity mainActivity = new MainActivity();
-
+        mainActivity = new MainActivity();
         boolean filecheck = false;
 
         //Alarm時の音楽ファイル名を指定
@@ -44,7 +43,7 @@ public class AudioController {
     public void audioPlay(){
 
         //Alarm再生用MediaPlayerのインスタンス作成
-        MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer = new MediaPlayer();
 
         if(mediaPlayer == null){
             //audioファイルの呼び出し
@@ -69,7 +68,7 @@ public class AudioController {
     public void audioStop(){
 
         //Alarm再生用MediaPlayerのインスタンス作成
-        MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer = new MediaPlayer();
 
         //再生終了
         mediaPlayer.stop();
