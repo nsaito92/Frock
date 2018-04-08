@@ -15,8 +15,6 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.v("NSClockTest", "AlarmBroadcastReceiver#onReceive Start");
-
         //Toastで受け取りを確認
         Toast.makeText(context, "Received ", Toast.LENGTH_LONG).show();
 

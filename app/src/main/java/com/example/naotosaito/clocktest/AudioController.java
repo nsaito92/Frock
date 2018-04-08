@@ -16,7 +16,6 @@ public class AudioController {
 
     public boolean audioSetup(){
 
-        mainActivity = new MainActivity();
         boolean filecheck = false;
 
         //Alarm時の音楽ファイル名を指定
@@ -43,7 +42,6 @@ public class AudioController {
     public void audioPlay(){
 
         //Alarm再生用MediaPlayerのインスタンス作成
-        mediaPlayer = new MediaPlayer();
 
         if(mediaPlayer == null){
             //audioファイルの呼び出し
@@ -66,10 +64,6 @@ public class AudioController {
     }
 
     public void audioStop(){
-
-        //Alarm再生用MediaPlayerのインスタンス作成
-        mediaPlayer = new MediaPlayer();
-
         //再生終了
         mediaPlayer.stop();
         //リセット

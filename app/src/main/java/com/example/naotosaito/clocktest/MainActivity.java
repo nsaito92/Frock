@@ -3,6 +3,7 @@ package com.example.naotosaito.clocktest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
@@ -10,6 +11,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -38,35 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //時間を設定するポップアップを表示させる。一時的にコメントアウト。
-                TimeSet();
-
-                //時間をセットする
-                Calendar calender = Calendar.getInstance();
-
-                //Calenderを使って現在の時間を入り秒で取得
-                calender.setTimeInMillis(System.currentTimeMillis());
-
-                //アラームを5秒後に設定する
-                calender.add(Calendar.SECOND, 5);
-
-                //明示的BroadCast
-                Intent intent = new Intent(getApplicationContext(),
-                        AlarmBroadcastReceiver.class);
-
-                //Broadcastにメッセージを送るための設定
-                PendingIntent pending = PendingIntent.getBroadcast(
-                        getApplicationContext(), 0, intent, 0);
-
-                //アラームをセットする
-                AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-
-                if(am !=null) {
-                    am.setExact(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pending);
-
-                    Toast.makeText(getApplicationContext(),
-                            "Set Alarm ", Toast.LENGTH_SHORT).show();
-                }
+                alarmServiceStart();
             }
         });
 
@@ -97,6 +71,23 @@ public class MainActivity extends AppCompatActivity {
         Timer mTimer = new Timer(true);            //mTimerはコンストラクタ。スレッドの種類を指定する。
 
         mTimer.schedule(timerTask, 1000, 1000);      //100ミリ秒後に、100ミリ秒感覚でtimerTaskを実行する。
+    }
+
+    // アラームを実行するための設定を行う
+    private void alarmServiceStart() {
+        Log.d("nsaitotest", "alarmServiceStart");
+        Context context = getBaseContext();
+        Intent intent = new Intent(context, AlarmService.class);
+        PendingIntent pendingintent =
+                PendingIntent.getService(
+                        context, -1, intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmmanager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        context.getSystemService(ALARM_SERVICE);
+        alarmmanager.setInexactRepeating(
+                AlarmManager.RTC,
+                System.currentTimeMillis(),
+                5000, pendingintent);
     }
 
     //アラーム時間を設定するダイアログを表示させる
