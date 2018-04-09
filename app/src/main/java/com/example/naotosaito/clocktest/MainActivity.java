@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -76,18 +75,34 @@ public class MainActivity extends AppCompatActivity {
     // アラームを実行するための設定を行う
     private void alarmServiceStart() {
         Log.d("nsaitotest", "alarmServiceStart");
+
+        // AlarmService起動用のIntent、PendingIntentを作成
         Context context = getBaseContext();
         Intent intent = new Intent(context, AlarmService.class);
-        PendingIntent pendingintent =
-                PendingIntent.getService(
-                        context, -1, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarmmanager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        context.getSystemService(ALARM_SERVICE);
-        alarmmanager.setInexactRepeating(
-                AlarmManager.RTC,
-                System.currentTimeMillis(),
-                5000, pendingintent);
+        int requestcode = 1;
+        PendingIntent pendingintent = PendingIntent.getService(
+                context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // アラームを実行する時間の設定を準備
+        Calendar calender = Calendar.getInstance();
+        calender.setTimeInMillis(0);
+        calender.set(Calendar.YEAR, 2018);
+        calender.set(Calendar.MONTH, Calendar.APRIL);
+        calender.set(Calendar.DAY_OF_MONTH, 10);
+        calender.set(Calendar.HOUR_OF_DAY, 2);
+        calender.set(Calendar.MINUTE, 22);
+        calender.set(Calendar.SECOND, 0);
+
+        // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
+        AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        alarmmanager.set(AlarmManager.RTC, calender.getTimeInMillis(), pendingintent);
+        Log.d("nsaitotest", "AlarmSettingTime is "
+                + calender.YEAR
+                + calender.MONTH
+                + calender.DAY_OF_MONTH
+                + calender.HOUR_OF_DAY
+                + calender.MINUTE
+                + calender.SECOND + " !!");
     }
 
     //アラーム時間を設定するダイアログを表示させる
