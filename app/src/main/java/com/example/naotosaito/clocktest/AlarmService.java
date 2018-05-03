@@ -15,7 +15,7 @@ public class AlarmService extends IntentService {
         super(name);
     }
 
-    //Serviceクラスは中傷メソッドのため、コンストラクタとonBind()メソッドを必ず実装する必要がある
+    //Serviceクラスは抽象メソッドのため、コンストラクタとonBind()メソッドを必ず実装する必要がある
     public AlarmService() {
         super("AlarmService");
     }

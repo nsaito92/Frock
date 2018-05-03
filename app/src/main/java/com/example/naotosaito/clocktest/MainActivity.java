@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                alarmServiceStart();
+                alarmServiceSetting();
             }
         });
 
@@ -61,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         ViewGroup viewGroup = (ViewGroup)findViewById(R.id.layout);
-
         //アラームの音量調節を端末の調整ボタンに任せる
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -73,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // アラームを実行するための設定を行う
-    private void alarmServiceStart() {
-        Log.d("nsaitotest", "alarmServiceStart");
+    private void alarmServiceSetting() {
+        Log.d("nsaitotest", "alarmServiceSetting");
 
         // AlarmService起動用のIntent、PendingIntentを作成
         Context context = getBaseContext();
@@ -88,9 +88,9 @@ public class MainActivity extends AppCompatActivity {
         calender.setTimeInMillis(0);
         calender.set(Calendar.YEAR, 2018);
         calender.set(Calendar.MONTH, Calendar.APRIL);
-        calender.set(Calendar.DAY_OF_MONTH, 10);
-        calender.set(Calendar.HOUR_OF_DAY, 2);
-        calender.set(Calendar.MINUTE, 22);
+        calender.set(Calendar.DAY_OF_MONTH, 11);
+        calender.set(Calendar.HOUR_OF_DAY, 3);
+        calender.set(Calendar.MINUTE, 01);
         calender.set(Calendar.SECOND, 0);
 
         // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動

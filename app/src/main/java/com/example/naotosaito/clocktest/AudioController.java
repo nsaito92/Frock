@@ -1,6 +1,7 @@
 package com.example.naotosaito.clocktest;
 
 import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.media.MediaPlayer;
 
 import java.io.IOException;
@@ -12,18 +13,17 @@ import java.io.IOException;
 public class AudioController {
 
     private MediaPlayer mediaPlayer;
-    private MainActivity mainActivity;
 
-    public boolean audioSetup(){
-
+    public boolean audioSetup() {
         boolean filecheck = false;
+        AssetManager assetManager = MyApplication.getContext().getAssets();
 
         //Alarm時の音楽ファイル名を指定
         String filePath = "su650.mp3";
 
         try{
             //assetからMP3ファイルを読み込む
-            AssetFileDescriptor assetFileDescriptor = mainActivity.getAssets().openFd(filePath);
+            AssetFileDescriptor assetFileDescriptor = assetManager.openFd(filePath);
 
             //MediaPlayerに読み込んだ音楽ファイルを指定
             mediaPlayer.setDataSource(assetFileDescriptor.getFileDescriptor());
