@@ -8,9 +8,6 @@ import android.util.Log;
 
 public class AlarmService extends IntentService {
 
-    //アラーム音を操作するAudioControllerのインスタンスを作成
-    AudioController audioController = new AudioController();
-
     public AlarmService(String name){
         super(name);
     }
@@ -21,6 +18,9 @@ public class AlarmService extends IntentService {
     }
 
     protected void onHandleIntent(Intent intent) {
+        //アラーム音を操作するAudioControllerのインスタンスを作成
+        AudioController audioController = new AudioController();
+
         //非同期処理を行うメソッド
         Log.d("nsaitotest_AlarmService", "onHendletIntent start");
 
