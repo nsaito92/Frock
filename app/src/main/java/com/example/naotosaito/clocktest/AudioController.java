@@ -15,7 +15,7 @@ import java.io.IOException;
 public class AudioController {
 
     // アラーム実行音の再生用MediaPlayer
-    private MediaPlayer mediaPlayer;
+    private static MediaPlayer mediaPlayer;
 
     public boolean audioSetup() {
         mediaPlayer = new MediaPlayer(); // MP状態 → Idle
