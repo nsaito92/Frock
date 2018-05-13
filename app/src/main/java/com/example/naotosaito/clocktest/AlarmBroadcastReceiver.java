@@ -19,7 +19,7 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
         Toast.makeText(context, "Received ", Toast.LENGTH_LONG).show();
 
         //アラーム音を操作するAudioControllerのインスタンスを作成
-        AudioController audioController = new AudioController();
-        audioController.audioPlay();
+        // AudioController audioController = new AudioController();
+        // audioController.audioPlay();
     }
 }

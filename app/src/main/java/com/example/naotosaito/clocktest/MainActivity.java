@@ -6,7 +6,6 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -26,10 +25,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-
-    //アラーム音を操作するAudioControllerのインスタンスを作成
-    AudioController audioController = new AudioController();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,8 +51,11 @@ public class MainActivity extends AppCompatActivity {
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // アラーム音を再生しているServiceを終了する
+                Intent intent = new Intent(MainActivity.this, AlarmService.class);
+                stopService(intent);
                 //音楽停止
-                audioController.audioStop();
+//                alarmService.audioStop();
             }
         });
 
@@ -78,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
         // AlarmService起動用のIntent、PendingIntentを作成
         Context context = getBaseContext();
-        Intent intent = new Intent(context, AlarmService.class);
+        Intent intent = new Intent(MainActivity.this, AlarmService.class);
         int requestcode = 1;
         PendingIntent pendingintent = PendingIntent.getService(
                 context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
