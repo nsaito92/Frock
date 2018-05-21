@@ -25,6 +25,8 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
                 // アラーム音を再生しているServiceを終了する
                 Intent intent = new Intent(MainActivity.this, AlarmService.class);
                 stopService(intent);
-                //音楽停止
-//                alarmService.audioStop();
             }
         });
 
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
     // アラームを実行するための設定を行う
     private void alarmServiceSetting() {
-        Log.d("nsaitotest", "alarmServiceSetting");
+        Log.d(TAG, "alarmServiceSetting called");
 
         // AlarmService起動用のIntent、PendingIntentを作成
         Context context = getBaseContext();
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
         AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         alarmmanager.set(AlarmManager.RTC, calender.getTimeInMillis(), pendingintent);
-        Log.d("nsaitotest", "AlarmSettingTime is "
+        Log.d(TAG, "AlarmSettingTime is "
                 + calender.YEAR
                 + calender.MONTH
                 + calender.DAY_OF_MONTH
