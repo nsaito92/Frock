@@ -84,12 +84,12 @@ public class MainActivity extends AppCompatActivity {
         // アラームを実行する時間の設定を準備
         Calendar calender = Calendar.getInstance();
         calender.setTimeInMillis(0);
-        calender.set(Calendar.YEAR, 2018);
-        calender.set(Calendar.MONTH, Calendar.APRIL);
-        calender.set(Calendar.DAY_OF_MONTH, 11);
-        calender.set(Calendar.HOUR_OF_DAY, 3);
-        calender.set(Calendar.MINUTE, 01);
-        calender.set(Calendar.SECOND, 0);
+        calender.set(Calendar.YEAR, 2018);          // 年
+        calender.set(Calendar.MONTH, Calendar.MAY); // 月
+        calender.set(Calendar.DAY_OF_MONTH, 28);    // 日
+        calender.set(Calendar.HOUR_OF_DAY, 13);     // 時
+        calender.set(Calendar.MINUTE, 22);          // 分
+        calender.set(Calendar.SECOND, 0);           // 秒
 
         // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
         AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
