@@ -1,4 +1,17 @@
 <resources>
     <string name="app_name">NsaitoClock</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
+    <!-- menu used -->
+    <string name="opt_menu_01">My設定</string>
+    <string name="opt_menu_02">ヘルプ</string>
+
+    <!-- preference strings -->
+    <string name="preference_title">simple設定画面</string>
+
+    <string name="checkbox_01_title">ネットワーク通信許可</string>
+    <string name="checkbox_01_summary">ネットワーク通信を有効にします</string>
+    <string name="checkbox_02_title">GPS許可</string>
+    <string name="checkbox_02_summary">GPSを有効にします</string>
 </resources>
