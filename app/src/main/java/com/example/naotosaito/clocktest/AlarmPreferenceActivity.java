@@ -14,11 +14,10 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new AlarmPreferenceFragment()).commit();
-
-        Log.d(TAG, "onCreate");
 
         // ボタンの押したときの動作
         Preference button = findPreference(getString(R.string.alarmtime_key));
