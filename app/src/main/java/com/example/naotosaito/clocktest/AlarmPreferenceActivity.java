@@ -1,10 +1,14 @@
 package com.example.naotosaito.clocktest;
 
+import android.app.TimePickerDialog;
 import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TimePicker;
+
+import java.util.Calendar;
 
 /**
  * アラーム設定画面表示用のActivity
@@ -41,8 +45,26 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#onPreferencelick");
+                alarmTimeSetting();
                 return true;
             }
         });
+    }
+
+    // アラーム時間を設定するダイアログを表示する
+    private void alarmTimeSetting() {
+        Log.d(TAG, "alarmTimeSetting");
+        // ダイアログの初期選択状態を現在の時間にするため、Calender.getで現在時間を取得している。
+        Calendar calender = Calendar.getInstance();
+        int hour = calender.get(Calendar.HOUR_OF_DAY);
+        int minute = calender.get(Calendar.MINUTE);
+
+        TimePickerDialog dialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                Log.d(TAG, String.format("Alarm Start Time = %02d:%02d", hourOfDay, minute));
+            }
+        }, hour, minute, true);
+        dialog.show();
     }
 }
