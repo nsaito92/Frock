@@ -1,6 +1,7 @@
 package com.example.naotosaito.clocktest;
 
 import android.app.TimePickerDialog;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -63,6 +64,21 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 Log.d(TAG, String.format("Alarm Start Time = %02d:%02d", hourOfDay, minute));
+
+                // アラーム時間をPreferenceで保存する
+                // Preferenceへのアクセス
+                SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
+                SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
+
+                // Preferenceの保存
+                SharedPreferences.Editor editor_hour = prefer_hour.edit();
+                editor_hour.putInt("alarmtime_hour", hourOfDay);
+                editor_hour.commit();
+
+                SharedPreferences.Editor editor_minute = prefer_minute.edit();
+                editor_minute.putInt("alarmtime_minute", minute);
+                editor_minute.commit();
+
             }
         }, hour, minute, true);
         dialog.show();
