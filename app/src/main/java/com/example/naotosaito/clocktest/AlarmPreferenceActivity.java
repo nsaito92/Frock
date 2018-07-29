@@ -17,6 +17,9 @@ import java.util.Calendar;
 
 public class AlarmPreferenceActivity extends PreferenceActivity {
     private static final String TAG = "AlarmPreferenceActivity";
+
+    final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";
+
     AlarmPreferenceFragment mFragment;
 
     @Override
@@ -52,7 +55,42 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         });
     }
 
-    // アラーム時間を設定するダイアログを表示する
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
+
+        Log.d(TAG, "listene　= " + listener);
+        // Preferenceの値が変更された時に呼び出されるコールバック関数をregist
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(listener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+
+        // Preferenceの値が変更された時に呼び出されるコールバック関数unregist
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener (listener);
+    }
+
+    private SharedPreferences.OnSharedPreferenceChangeListener listener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                    Log.d(TAG, "onSharedPreferenceChanged");
+
+                    Preference button = null;
+                    button = mFragment.findPreference("alarmtime_key");
+
+                    if(ALARMTIME_HOUR_KEY.equals(key)) {
+                        button.setSummary(key);
+                    }
+                }
+            };
+
+    // アラーム時間を設定するダイアログを表示させ、入力された値をアラーム時刻として保存する
     private void alarmTimeSetting() {
         Log.d(TAG, "alarmTimeSetting");
         // ダイアログの初期選択状態を現在の時間にするため、Calender.getで現在時間を取得している。
