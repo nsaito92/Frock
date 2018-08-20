@@ -60,9 +60,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         super.onResume();
         Log.d(TAG, "onResume");
 
-        Log.d(TAG, "listene　= " + listener);
         // Preferenceの値が変更された時に呼び出されるコールバック関数をregist
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(listener);
+        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
+        prefer_hour.registerOnSharedPreferenceChangeListener(listener);
     }
 
     @Override
@@ -71,7 +71,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Log.d(TAG, "onPause");
 
         // Preferenceの値が変更された時に呼び出されるコールバック関数unregist
-        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener (listener);
+        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
+        prefer_hour.unregisterOnSharedPreferenceChangeListener(listener);
     }
 
     private SharedPreferences.OnSharedPreferenceChangeListener listener =
@@ -80,12 +81,14 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                     Log.d(TAG, "onSharedPreferenceChanged");
-
                     Preference button = null;
                     button = mFragment.findPreference("alarmtime_key");
 
                     if(ALARMTIME_HOUR_KEY.equals(key)) {
-                        button.setSummary(key);
+                        // 保存されているPreferenceの値を取得
+                        int sharedPreferencesInt = sharedPreferences.getInt(ALARMTIME_HOUR_KEY, MODE_PRIVATE);
+                        String valueOf = String.valueOf(sharedPreferencesInt);
+                        button.setSummary(valueOf);
                     }
                 }
             };
