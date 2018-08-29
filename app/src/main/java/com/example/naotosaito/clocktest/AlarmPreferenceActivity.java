@@ -19,6 +19,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private static final String TAG = "AlarmPreferenceActivity";
 
     final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";
+    final static String ALARMTIME_MINUTE_KEY = "alarmtime_minute";
 
     AlarmPreferenceFragment mFragment;
 
@@ -63,6 +64,10 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // Preferenceの値が変更された時に呼び出されるコールバック関数をregist
         SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
         prefer_hour.registerOnSharedPreferenceChangeListener(listener);
+
+        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
+        prefer_minute.registerOnSharedPreferenceChangeListener(listener);
+
     }
 
     @Override
@@ -73,6 +78,10 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // Preferenceの値が変更された時に呼び出されるコールバック関数unregist
         SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
         prefer_hour.unregisterOnSharedPreferenceChangeListener(listener);
+
+        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
+        prefer_minute.unregisterOnSharedPreferenceChangeListener(listener);
+
     }
 
     private SharedPreferences.OnSharedPreferenceChangeListener listener =
@@ -84,11 +93,27 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     Preference button = null;
                     button = mFragment.findPreference("alarmtime_key");
 
-                    if(ALARMTIME_HOUR_KEY.equals(key)) {
+                    // アラームの時間か分のキーの場合、サマリーを保存する処理を行う。
+                    if(ALARMTIME_HOUR_KEY.equals(key) || ALARMTIME_MINUTE_KEY.equals(key)) {
+
+                        // Preferenceへのアクセス
+                        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
+                        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
+
                         // 保存されているPreferenceの値を取得
-                        int sharedPreferencesInt = sharedPreferences.getInt(ALARMTIME_HOUR_KEY, MODE_PRIVATE);
-                        String valueOf = String.valueOf(sharedPreferencesInt);
-                        button.setSummary(valueOf);
+                        int spHourInt = prefer_hour.getInt(ALARMTIME_HOUR_KEY, MODE_PRIVATE);
+                        int spMinuteInt = prefer_minute.getInt(ALARMTIME_MINUTE_KEY, MODE_PRIVATE);
+
+                        // Preferenceを文字列に変換する。
+                        String valueOfH = String.valueOf(spHourInt);
+                        String valueOfM = String.valueOf(spMinuteInt);
+
+                        // 時間と分を、一つの文字列に統合して、画面に表示する。
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append(valueOfH);
+                        stringBuilder.append(":");
+                        stringBuilder.append(valueOfM);
+                        button.setSummary(stringBuilder.toString());
                     }
                 }
             };
