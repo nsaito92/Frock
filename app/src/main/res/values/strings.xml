@@ -10,6 +10,8 @@
     <!-- preference strings -->
     <string name="preference_title">アラーム設定画面</string>
 
+    <string name="alarmboolean_key">alarmboolean_key</string>
+
     <string name="alarmtime_key">alarmtime_key</string>
     <string name="alarmtime_setting">鳴動時間</string>
     <string name="alarmtime_summary">ここに現在時刻を表示したい</string>
