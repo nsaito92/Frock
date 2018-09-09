@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     // アラームを実行するための設定を行う
     private void alarmServiceSetting() {
-        Log.d(TAG, "alarmServiceSetting called");
+        Log.d(TAG, "alarmServiceSetting");
 
         // AlarmService起動用のIntent、PendingIntentを作成
         Context context = getBaseContext();

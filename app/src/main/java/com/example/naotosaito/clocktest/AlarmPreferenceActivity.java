@@ -6,6 +6,7 @@ import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.os.Bundle;
+import android.preference.SwitchPreference;
 import android.util.Log;
 import android.widget.TimePicker;
 
@@ -22,6 +23,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     final static String ALARMTIME_MINUTE_KEY = "alarmtime_minute";
 
     AlarmPreferenceFragment mFragment;
+    SwitchPreference alarmbutton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,19 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // メインスレッドで保留中となるため、AlarmPreferenceFragment#onCreateがコールされない。
         // findpreferenceを実行したいため、executePendingTransactionsを呼び出す。
         getFragmentManager().executePendingTransactions();
+
+        // アラーム設定の有効・無効を設定するトグルボタンを押した時の動作。
+        // (SwitchPreference)でキャストし、findPreferenceを実行。
+        alarmbutton = (SwitchPreference)mFragment.findPreference(getString(R.string.alarmboolean_key));
+        alarmbutton.setChecked(false); //初期値を指定。
+
+        alarmbutton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+            // ここでif(alarmbutton.isChecked())
+            public boolean onPreferenceClick(Preference pref) {
+                Log.d(TAG, "onCreate#alarmbutton onPreferencelick");
+                return true;
+            }
+        });
 
         /* ボタンの押したときの動作
          * PreferenceActivity#findPreferenceはAPIレベル11以降非推奨となっているため、
@@ -60,14 +75,12 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-
         // Preferenceの値が変更された時に呼び出されるコールバック関数をregist
         SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
         prefer_hour.registerOnSharedPreferenceChangeListener(listener);
 
         SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
         prefer_minute.registerOnSharedPreferenceChangeListener(listener);
-
     }
 
     @Override
@@ -81,7 +94,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
         SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
         prefer_minute.unregisterOnSharedPreferenceChangeListener(listener);
-
     }
 
     private SharedPreferences.OnSharedPreferenceChangeListener listener =
