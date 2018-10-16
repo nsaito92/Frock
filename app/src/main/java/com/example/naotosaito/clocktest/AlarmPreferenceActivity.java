@@ -1,6 +1,10 @@
 package com.example.naotosaito.clocktest;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.Preference;
@@ -157,8 +161,50 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 editor_minute.putInt("alarmtime_minute", minute);
                 editor_minute.commit();
 
+                // AlarmServiceを起動する時間を更新する
+                alarmServiceSetting();
             }
         }, hour, minute, true);
         dialog.show();
+    }
+
+    // アラームを実行するための設定を行う
+    private void alarmServiceSetting() {
+        Log.d(TAG, "alarmServiceSetting");
+
+        // AlarmService起動用のIntent、PendingIntentを作成
+        Context context = getBaseContext();
+        Intent intent = new Intent(AlarmPreferenceActivity.this, AlarmService.class);
+        int requestcode = 1;
+        PendingIntent pendingintent = PendingIntent.getService(
+                context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Preferenceへのアクセス
+        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
+        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
+
+        // 保存されているPreferenceの値を取得
+        int spHourInt = prefer_hour.getInt(ALARMTIME_HOUR_KEY, MODE_PRIVATE);
+        int spMinuteInt = prefer_minute.getInt(ALARMTIME_MINUTE_KEY, MODE_PRIVATE);
+
+        // アラームを実行する時間の設定を準備
+        Calendar calender = Calendar.getInstance();
+        calender.setTimeInMillis(0);
+        calender.set(Calendar.YEAR, 2018);         // 年
+        calender.set(Calendar.MONTH, Calendar.OCTOBER); // 月
+        calender.set(Calendar.DAY_OF_MONTH, 16);    // 日
+        calender.set(Calendar.HOUR_OF_DAY, prefer_hour.getInt(ALARMTIME_HOUR_KEY, MODE_PRIVATE));     // 時
+        calender.set(Calendar.MINUTE, prefer_minute.getInt(ALARMTIME_MINUTE_KEY, MODE_PRIVATE));          // 分
+
+        // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
+        AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        alarmmanager.set(AlarmManager.RTC, calender.getTimeInMillis(), pendingintent);
+        Log.d(TAG, "AlarmSettingTime is "
+                + calender.YEAR
+                + calender.MONTH
+                + calender.DAY_OF_MONTH
+                + calender.HOUR_OF_DAY
+                + calender.MINUTE
+                + calender.SECOND + " !!");
     }
 }
