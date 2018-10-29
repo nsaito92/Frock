@@ -58,18 +58,34 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
          * PreferenceActivity#findPreferenceはAPIレベル11以降非推奨となっているため、
          * APIレベルが11以上の場合、PreferenceFragment#findPreferenceをコールする。
          */
-        Preference button = null;
+        // TODO この辺の処理、同じようなこと書いているので、メソッド化したい。
+        Preference btn_alarmtime_key = null;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            button = mFragment.findPreference("alarmtime_key");
+            btn_alarmtime_key = mFragment.findPreference("alarmtime_key");
         } else {
-            button = findPreference(getString(R.string.alarmtime_key));
+            btn_alarmtime_key = findPreference(getString(R.string.alarmtime_key));
         }
 
-        button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+        btn_alarmtime_key.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
             @Override
             public boolean onPreferenceClick(Preference pref) {
-                Log.d(TAG, "onCreate#onPreferencelick");
+                Log.d(TAG, "onCreate#onPreferencelick_alarmtime_key");
                 alarmTimeSetting();
+                return true;
+            }
+        });
+
+        Preference btn_alarm_start_week_key = null;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            btn_alarm_start_week_key = mFragment.findPreference("alarm_start_week_key");
+        } else {
+            btn_alarm_start_week_key = findPreference(getString(R.string.alarm_start_week_key));
+        }
+
+        btn_alarm_start_week_key.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+            @Override
+            public boolean onPreferenceClick(Preference pref) {
+                Log.d(TAG, "onCreate#onPreferencelick_alarm_start_week_key");
                 return true;
             }
         });

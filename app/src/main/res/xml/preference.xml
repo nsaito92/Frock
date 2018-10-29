@@ -14,6 +14,11 @@
             android:title="@string/alarmtime_setting"
             android:summary="@string/alarmtime_summary" >
         </Preference>
+        <Preference
+            android:key="@string/alarm_start_week_key"
+            android:title="@string/alarm_start_week_setting"
+            android:summary="@string/alarm_start_week_summary" >
+        </Preference>
         <CheckBoxPreference
             android:key="checkbox_01_key"
             android:title="@string/checkbox_01_title"
