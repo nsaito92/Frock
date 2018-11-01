@@ -1,6 +1,7 @@
 package com.example.naotosaito.clocktest;
 
 import android.app.AlarmManager;
+import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -60,11 +61,15 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
          */
         // TODO この辺の処理、同じようなこと書いているので、メソッド化したい。
         Preference btn_alarmtime_key = null;
+
+        // ここから
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             btn_alarmtime_key = mFragment.findPreference("alarmtime_key");
         } else {
             btn_alarmtime_key = findPreference(getString(R.string.alarmtime_key));
         }
+        // ここまで
+
 
         btn_alarmtime_key.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
             @Override
@@ -75,6 +80,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             }
         });
 
+        // 曜日選択ボタンの設定
         Preference btn_alarm_start_week_key = null;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             btn_alarm_start_week_key = mFragment.findPreference("alarm_start_week_key");
@@ -86,6 +92,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#onPreferencelick_alarm_start_week_key");
+                alarmWeekSetting();
                 return true;
             }
         });
@@ -222,5 +229,17 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 + calender.HOUR_OF_DAY
                 + calender.MINUTE
                 + calender.SECOND + " !!");
+    }
+
+    /**
+     * アラームの曜日を設定するダイアログダイアログを表示させ、選択された曜日を保存する
+     */
+    private void alarmWeekSetting() {
+        Log.d(TAG, "alarmWeekSetting");
+
+        // ダイアログを表示する。
+        FragmentManager manager = getFragmentManager();
+        DatePickerDialogFragment dialog = new DatePickerDialogFragment();
+        dialog.show(manager, "dialog");
     }
 }
