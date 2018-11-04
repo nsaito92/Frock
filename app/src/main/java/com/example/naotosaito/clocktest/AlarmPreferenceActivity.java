@@ -8,6 +8,7 @@ import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -18,6 +19,7 @@ import android.preference.SwitchPreference;
 import android.util.Log;
 import android.widget.TimePicker;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -235,30 +237,53 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     }
 
     /**
-     * アラームの曜日を設定するダイアログダイアログを表示させ、選択された曜日を保存する
+     * アラームの曜日を設定するダイアログダイアログを表示させる
      */
     private void alarmWeekSetting() {
         Log.d(TAG, "alarmWeekSetting");
 
         // ダイアログを表示するため、FragmentManagerを取得する。
         FragmentManager manager = getFragmentManager();
-        DatePickerDialogFragment dialog = new DatePickerDialogFragment();
-        dialog.show(manager, "alarm_Week_Setting_dialog");
+        DatePickerDialogFragment alarmWeekSetting_dialog = new DatePickerDialogFragment();
+        alarmWeekSetting_dialog.show(manager, "alarm_Week_Setting_dialog");
     }
 
     /**
-     * アラームの動作する曜日を選択できるダイアログを表示させる。
+     * アラームの動作する曜日を選択できるダイアログの内容の設定、項目を選択した際の処理を行う
      */
     public class DatePickerDialogFragment extends DialogFragment {
+        // 選択したアイテムを格納する配列
+        ArrayList mSelectedWeeks = new ArrayList();
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
             //
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("曜日");
-            builder.setPositiveButton("OK", null);
-            builder.setNegativeButton("Cansel", null);
+
+            // ダイアログのタイトルの設定
+            builder.setTitle(R.string.alarm_Week_setting_title)
+                    // ダイアログに表示される項目の設定し、項目を選択した際の、リスナーを設定
+                    .setMultiChoiceItems(R.array.alarm_Week_setting_menulist, null,
+                            new DialogInterface.OnMultiChoiceClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                    Log.d(TAG, "alarm_Week_setting onClick");
+                                    // ユーザーがアイテムを選択した場合、アイテムを追加する
+                                    if (isChecked){
+                                        mSelectedWeeks.add(which);
+                                        Log.d(TAG, "mSelectedWeeks = " + mSelectedWeeks);
+                                    } else if(mSelectedWeeks.contains(which)) {
+                                        // アイテムがすでに配列内にある場合は、削除する
+                                        mSelectedWeeks.remove(Integer.valueOf(which));
+                                    }
+                                }
+                            });
+                    builder.setPositiveButton(R.string.alarm_Week_setting_NegativeButton,
+                            new DialogInterface().OnClickListener() {
+
+            })
+                    .setNegativeButton(R.string.alarm_Week_setting_NegativeButton, null);
 
             return builder.create();
         }
