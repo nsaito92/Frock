@@ -1,6 +1,9 @@
 package com.example.naotosaito.clocktest;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
@@ -237,9 +240,27 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private void alarmWeekSetting() {
         Log.d(TAG, "alarmWeekSetting");
 
-        // ダイアログを表示する。
+        // ダイアログを表示するため、FragmentManagerを取得する。
         FragmentManager manager = getFragmentManager();
         DatePickerDialogFragment dialog = new DatePickerDialogFragment();
-        dialog.show(manager, "dialog");
+        dialog.show(manager, "alarm_Week_Setting_dialog");
+    }
+
+    /**
+     * アラームの動作する曜日を選択できるダイアログを表示させる。
+     */
+    public class DatePickerDialogFragment extends DialogFragment {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            //
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("曜日");
+            builder.setPositiveButton("OK", null);
+            builder.setNegativeButton("Cansel", null);
+
+            return builder.create();
+        }
     }
 }
