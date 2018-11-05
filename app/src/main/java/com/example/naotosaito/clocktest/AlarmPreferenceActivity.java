@@ -31,6 +31,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
     final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";
     final static String ALARMTIME_MINUTE_KEY = "alarmtime_minute";
+    final static String ALARMTIME_WEEK_KEY = "alarmtime_week";
 
     AlarmPreferenceFragment mFragment;
     SwitchPreference alarmbutton;
@@ -182,11 +183,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
                 // Preferenceの保存
                 SharedPreferences.Editor editor_hour = prefer_hour.edit();
-                editor_hour.putInt("alarmtime_hour", hourOfDay);
+                editor_hour.putInt(ALARMTIME_HOUR_KEY, hourOfDay);
                 editor_hour.commit();
 
                 SharedPreferences.Editor editor_minute = prefer_minute.edit();
-                editor_minute.putInt("alarmtime_minute", minute);
+                editor_minute.putInt(ALARMTIME_MINUTE_KEY, minute);
                 editor_minute.commit();
 
                 // AlarmServiceを起動する時間を更新する
@@ -250,6 +251,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
     /**
      * アラームの動作する曜日を選択できるダイアログの内容の設定、項目を選択した際の処理を行う
+     * @return
      */
     public class DatePickerDialogFragment extends DialogFragment {
         // 選択したアイテムを格納する配列
@@ -268,7 +270,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                             new DialogInterface.OnMultiChoiceClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                                    Log.d(TAG, "alarm_Week_setting onClick");
                                     // ユーザーがアイテムを選択した場合、アイテムを追加する
                                     if (isChecked){
                                         mSelectedWeeks.add(which);
@@ -278,14 +279,33 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                                         mSelectedWeeks.remove(Integer.valueOf(which));
                                     }
                                 }
-                            });
-                    builder.setPositiveButton(R.string.alarm_Week_setting_NegativeButton,
-                            new DialogInterface().OnClickListener() {
-
-            })
+                            })
+                    .setPositiveButton(R.string.alarm_Week_setting_NegativeButton,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // mSelectedWeeksの結果を保存する
+                                    setSelectedWeeks(mSelectedWeeks);
+                                }
+                            })
                     .setNegativeButton(R.string.alarm_Week_setting_NegativeButton, null);
 
             return builder.create();
         }
+    }
+
+    /**
+     * アラームが動作する曜日設定の更新を行う
+     * @param mSelectedWeeks 保存する曜日設定
+     */
+    public void setSelectedWeeks(ArrayList mSelectedWeeks) {
+        // アラーム時間をPreferenceで保存する
+        // Preferenceへのアクセス
+        SharedPreferences prefer_week = getSharedPreferences("week", MODE_PRIVATE);
+
+        // Preferenceの保存
+        SharedPreferences.Editor editor_week = prefer_week.edit();
+        editor_week.putInt(ALARMTIME_WEEK_KEY, mSelectedWeeks);
+        editor_week.commit();
     }
 }
