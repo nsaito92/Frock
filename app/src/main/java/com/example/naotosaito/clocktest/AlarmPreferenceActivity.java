@@ -129,6 +129,10 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         prefer_minute.unregisterOnSharedPreferenceChangeListener(listener);
     }
 
+    /**
+     * 各Preferenceが変更されたことを検知するリスナー
+     * 渡されたkeyの情報でアラーム時間を設定し直す。
+     */
     private SharedPreferences.OnSharedPreferenceChangeListener listener =
             new SharedPreferences.OnSharedPreferenceChangeListener() {
 
@@ -197,7 +201,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         dialog.show();
     }
 
-    // アラームを実行するための設定を行う
+    /** アラームを実行するための設定を行う
+     */
     private void alarmServiceSetting() {
         Log.d(TAG, "alarmServiceSetting");
 
@@ -207,6 +212,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         int requestcode = 1;
         PendingIntent pendingintent = PendingIntent.getService(
                 context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // TODO 各Preference情報にアクセスする
 
         // Preferenceへのアクセス
         SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
@@ -280,7 +287,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                                     }
                                 }
                             })
-                    .setPositiveButton(R.string.alarm_Week_setting_NegativeButton,
+                    .setPositiveButton(R.string.alarm_Week_setting_PositiveButton,
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -295,17 +302,29 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     }
 
     /**
-     * アラームが動作する曜日設定の更新を行う
+     * アラームが動作する曜日設定のPreferenceを更新する
      * @param mSelectedWeeks 保存する曜日設定
      */
     public void setSelectedWeeks(ArrayList mSelectedWeeks) {
-        // アラーム時間をPreferenceで保存する
-        // Preferenceへのアクセス
-        SharedPreferences prefer_week = getSharedPreferences("week", MODE_PRIVATE);
+        Log.d(TAG, "setSelectedWeeks");
+
+        StringBuffer buffer = new StringBuffer();
+        String stringItem = null;
+
+        // 選択された曜日を確認し、StringBufferに「,」区切りで追加
+        for (Object item : mSelectedWeeks) {
+            buffer.append(item+",");
+        }
+        //
+        if (buffer != null) {
+            String buf = buffer.toString();
+            stringItem = buf.substring(0, buf.length() -1);
+        }
+        Log.d(TAG, "stringItem = " + stringItem);
 
         // Preferenceの保存
-        SharedPreferences.Editor editor_week = prefer_week.edit();
-        editor_week.putInt(ALARMTIME_WEEK_KEY, mSelectedWeeks);
-        editor_week.commit();
+        SharedPreferences prefer_week = getSharedPreferences("week", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefer_week.edit();
+        editor.putString(ALARMTIME_WEEK_KEY, stringItem).commit();
     }
 }
