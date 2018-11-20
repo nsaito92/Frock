@@ -81,7 +81,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#onPreferencelick_alarmtime_key");
-                alarmTimeSetting();
+                alarmTimeSetDialogShow();
                 return true;
             }
         });
@@ -98,7 +98,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#onPreferencelick_alarm_start_week_key");
-                alarmWeekSetting();
+                alarmWeekDialogshow();
                 return true;
             }
         });
@@ -167,9 +167,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 }
             };
 
-    // アラーム時間を設定するダイアログを表示させ、入力された値をアラーム時刻として保存する
-    private void alarmTimeSetting() {
-        Log.d(TAG, "alarmTimeSetting");
+    /**
+     * アラーム時間を設定するダイアログを表示させ、入力された値をアラーム時刻として保存する
+     */
+    private void alarmTimeSetDialogShow() {
+        Log.d(TAG, "alarmTimeSetDialogShow");
         // ダイアログの初期選択状態を現在の時間にするため、Calender.getで現在時間を取得している。
         Calendar calender = Calendar.getInstance();
         int hour = calender.get(Calendar.HOUR_OF_DAY);
@@ -181,30 +183,21 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 Log.d(TAG, String.format("Alarm Start Time = %02d:%02d", hourOfDay, minute));
 
                 // アラーム時間をPreferenceで保存する
-                // Preferenceへのアクセス
-                SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
-                SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
-
-                // Preferenceの保存
-                SharedPreferences.Editor editor_hour = prefer_hour.edit();
-                editor_hour.putInt(ALARMTIME_HOUR_KEY, hourOfDay);
-                editor_hour.commit();
-
-                SharedPreferences.Editor editor_minute = prefer_minute.edit();
-                editor_minute.putInt(ALARMTIME_MINUTE_KEY, minute);
-                editor_minute.commit();
+                setAlarmHour(hourOfDay);
+                setAlarmMinute(minute);
 
                 // AlarmServiceを起動する時間を更新する
-                alarmServiceSetting();
+                alarmServiceSet();
             }
         }, hour, minute, true);
         dialog.show();
     }
 
-    /** アラームを実行するための設定を行う
+    /**
+     * アラームが動作するサービスの設定を行う
      */
-    private void alarmServiceSetting() {
-        Log.d(TAG, "alarmServiceSetting");
+    private void alarmServiceSet() {
+        Log.d(TAG, "alarmServiceSet");
 
         // AlarmService起動用のIntent、PendingIntentを作成
         Context context = getBaseContext();
@@ -213,24 +206,16 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         PendingIntent pendingintent = PendingIntent.getService(
                 context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        // TODO 各Preference情報にアクセスする
-
-        // Preferenceへのアクセス
-        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
-        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
-
-        // 保存されているPreferenceの値を取得
-        int spHourInt = prefer_hour.getInt(ALARMTIME_HOUR_KEY, MODE_PRIVATE);
-        int spMinuteInt = prefer_minute.getInt(ALARMTIME_MINUTE_KEY, MODE_PRIVATE);
+        // TODO 各アラーム設定のPreferenceにアクセスする
 
         // アラームを実行する時間の設定を準備
         Calendar calender = Calendar.getInstance();
         calender.setTimeInMillis(0);
-        calender.set(Calendar.YEAR, 2018);         // 年
-        calender.set(Calendar.MONTH, Calendar.OCTOBER); // 月
-        calender.set(Calendar.DAY_OF_MONTH, 16);    // 日
-        calender.set(Calendar.HOUR_OF_DAY, prefer_hour.getInt(ALARMTIME_HOUR_KEY, MODE_PRIVATE));     // 時
-        calender.set(Calendar.MINUTE, prefer_minute.getInt(ALARMTIME_MINUTE_KEY, MODE_PRIVATE));          // 分
+        calender.set(Calendar.YEAR, 2018);                  // 年
+        calender.set(Calendar.MONTH, Calendar.OCTOBER);     // 月
+        calender.set(Calendar.DAY_OF_MONTH, 16);            // 日
+        calender.set(Calendar.HOUR_OF_DAY, getAlarmHour()); // 時
+        calender.set(Calendar.MINUTE, getAlarmMinute());    // 分
 
         // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
         AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
@@ -243,24 +228,22 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 + calender.MINUTE
                 + calender.SECOND + " !!");
     }
-
     /**
      * アラームの曜日を設定するダイアログダイアログを表示させる
      */
-    private void alarmWeekSetting() {
-        Log.d(TAG, "alarmWeekSetting");
+    private void alarmWeekDialogshow() {
+        Log.d(TAG, "alarmWeekDialogshow");
 
         // ダイアログを表示するため、FragmentManagerを取得する。
         FragmentManager manager = getFragmentManager();
-        DatePickerDialogFragment alarmWeekSetting_dialog = new DatePickerDialogFragment();
+        AlarmWeekDialogFragment alarmWeekSetting_dialog = new AlarmWeekDialogFragment();
         alarmWeekSetting_dialog.show(manager, "alarm_Week_Setting_dialog");
     }
 
     /**
      * アラームの動作する曜日を選択できるダイアログの内容の設定、項目を選択した際の処理を行う
-     * @return
      */
-    public class DatePickerDialogFragment extends DialogFragment {
+    public class AlarmWeekDialogFragment extends DialogFragment {
         // 選択したアイテムを格納する配列
         ArrayList mSelectedWeeks = new ArrayList();
 
@@ -302,7 +285,53 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     }
 
     /**
-     * アラームが動作する曜日設定のPreferenceを更新する
+     * Preferenceにアラームの時刻を保存する
+     * @param hourOfDay アラーム時刻
+     */
+    public void setAlarmHour(int hourOfDay) {
+        // Preferenceへのアクセス
+        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
+
+        // Preferenceの保存
+        SharedPreferences.Editor editor_hour = prefer_hour.edit();
+        editor_hour.putInt(ALARMTIME_HOUR_KEY, hourOfDay);
+        editor_hour.commit();
+    }
+
+    /**
+     * Preferenceの時間を取得する
+     * @return Preferenceに保存された「時」設定
+     */
+    public int getAlarmHour() {
+        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
+        return prefer_hour.getInt(ALARMTIME_HOUR_KEY, MODE_PRIVATE);
+    }
+
+    /**
+     * Preferenceにアラームの分を保存する
+     * @param minute アラームの分
+     */
+    private void setAlarmMinute(int minute) {
+        // Preferenceへのアクセス
+        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
+
+        // Preferenceの保存
+        SharedPreferences.Editor editor_minute = prefer_minute.edit();
+        editor_minute.putInt(ALARMTIME_MINUTE_KEY, minute);
+        editor_minute.commit();
+    }
+
+    /**
+     * Preferenceの時間を取得する
+     * @return Preferenceに保存された「分」設定
+     */
+    public int getAlarmMinute() {
+        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
+        return prefer_minute.getInt(ALARMTIME_MINUTE_KEY, MODE_PRIVATE);
+    }
+
+    /**
+     * アラームが動作する曜日設定のPreferenceの配列を文字列に変換・保存
      * @param mSelectedWeeks 保存する曜日設定
      */
     public void setSelectedWeeks(ArrayList mSelectedWeeks) {
@@ -315,7 +344,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         for (Object item : mSelectedWeeks) {
             buffer.append(item+",");
         }
-        //
+        // StringBufferを、一つの文字列に変換する。
         if (buffer != null) {
             String buf = buffer.toString();
             stringItem = buf.substring(0, buf.length() -1);
@@ -327,4 +356,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         SharedPreferences.Editor editor = prefer_week.edit();
         editor.putString(ALARMTIME_WEEK_KEY, stringItem).commit();
     }
+
+
+
 }
