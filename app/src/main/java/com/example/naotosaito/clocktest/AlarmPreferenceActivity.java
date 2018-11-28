@@ -32,6 +32,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";
     final static String ALARMTIME_MINUTE_KEY = "alarmtime_minute";
     final static String ALARMTIME_WEEK_KEY = "alarmtime_week";
+    final static int DAY_OF_WEEK = 7;
 
     AlarmPreferenceFragment mFragment;
     SwitchPreference alarmbutton;
@@ -109,6 +110,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         super.onResume();
         Log.d(TAG, "onResume");
         // Preferenceの値が変更された時に呼び出されるコールバック関数をregist
+        // TODO アラーム設定の更新も、ここでやるのがよさそう。
         SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
         prefer_hour.registerOnSharedPreferenceChangeListener(listener);
 
@@ -122,6 +124,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Log.d(TAG, "onPause");
 
         // Preferenceの値が変更された時に呼び出されるコールバック関数unregist
+        // TODO アラーム設定の更新も、ここでやるのがよさそう。
         SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
         prefer_hour.unregisterOnSharedPreferenceChangeListener(listener);
 
@@ -209,6 +212,54 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // TODO 各アラーム設定のPreferenceにアクセスする
 
         // アラームを実行する時間の設定を準備
+        // TODO ユーティリティクラスにした方が良さそう
+
+        // 選択された曜日データを取得
+        String week[] = getSelectedWeeks(ALARMTIME_WEEK_KEY);
+
+        // 今日の日時から、曜日を取得
+        Calendar cld = Calendar.getInstance();
+        cld.get(Calendar.YEAR);
+        cld.get(Calendar.MONTH);
+        cld.get(Calendar.DAY_OF_MONTH);
+
+        int weekday = 0;
+        switch(cld.get(Calendar.DAY_OF_WEEK)-1) {
+            case 1:
+                weekday = 0;    //月曜日
+                break;
+            case 2:
+                weekday = 1;    //火曜日
+                break;
+            case 3:
+                weekday = 2;    //水曜日
+                break;
+            case 4:
+                weekday = 3;    //木曜日
+                break;
+            case 5:
+                weekday = 4;    //金曜日
+                break;
+            case 6:
+                weekday = 5;    //土曜日
+                break;
+            case 7:
+                weekday = 6;    //日曜日
+                break;
+        }
+
+        // 今日の曜日と、保存曜日された曜日設定を比較し、何日後にアラームが動作しなくてはならないかを確認
+        int a = Integer.parseInt(week[0]) - weekday;
+
+        if (a > 0 ) {
+            Log.d(TAG, a + " 日後に、アラーム動作させる");
+        } else if (a == 0) {
+            Log.d(TAG, a + " 日後、つまり今日アラーム！");
+        } else if (0 > a) {
+            int i = DAY_OF_WEEK + a;
+            Log.d(TAG, i +" 日前の曜日で動作させる");
+        }
+
         Calendar calender = Calendar.getInstance();
         calender.setTimeInMillis(0);
         calender.set(Calendar.YEAR, 2018);                  // 年
@@ -357,6 +408,27 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         editor.putString(ALARMTIME_WEEK_KEY, stringItem).commit();
     }
 
+    /**
+     * 保存された曜日情報を取得し、何日後にアラームが動作すれば良いかを判定する。
+     * @param prefkey 取得対象のPreferenceキー
+     * @return 保存されたアラーム曜日情報
+     */
+    public String[] getSelectedWeeks(String prefkey) {
+        Log.d(TAG, "getSelectedWeeks");
+        // Preferenceの曜日の配列を取得
+        SharedPreferences prefer_week = getSharedPreferences("week", MODE_PRIVATE);
+        String stringitem = prefer_week.getString(prefkey, "");
 
+        Log.d(TAG, "stringitem = " + stringitem);
 
+        // Preferenceが、非null、文字数が0以上の場合、文字列を分割して返却する。
+        if (stringitem != null && stringitem.length() != 0 ) {
+            Log.d(TAG, "stringitem.split = " + stringitem.split(","));
+            return stringitem.split(",");
+        } else {
+            return null;
+        }
+        // 現在の日時、曜日を取得、何日後か確認
+        // 現在の日時から、何日後の日にちを確認
+    }
 }
