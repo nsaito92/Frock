@@ -218,7 +218,10 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         int alarmday = alarmWhatDaysAfter();
 
         Calendar calender = Calendar.getInstance();
-        calender.add(Calendar.DATE, alarmday);
+        calender.add(Calendar.DATE, alarmday);              // 何日後に動作させるか
+        calender.set(Calendar.HOUR_OF_DAY, getAlarmHour()); // 時
+        calender.set(Calendar.MINUTE, getAlarmMinute());    // 分
+        calender.set(Calendar.SECOND, 0);                   // 秒
 
         // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
         AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
