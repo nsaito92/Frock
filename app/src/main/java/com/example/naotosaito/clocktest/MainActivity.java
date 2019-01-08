@@ -11,6 +11,8 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -70,9 +72,29 @@ public class MainActivity extends AppCompatActivity {
         mTimer.schedule(timerTask, 1000, 1000);      //100ミリ秒後に、100ミリ秒感覚でtimerTaskを実行する。
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.optionsMenu_01:
+                Intent intent = new android.content.Intent(this, AlarmPreferenceActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.optionsMenu_02:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     // アラームを実行するための設定を行う
     private void alarmServiceSetting() {
-        Log.d(TAG, "alarmServiceSetting called");
+        Log.d(TAG, "alarmServiceSetting");
 
         // AlarmService起動用のIntent、PendingIntentを作成
         Context context = getBaseContext();
