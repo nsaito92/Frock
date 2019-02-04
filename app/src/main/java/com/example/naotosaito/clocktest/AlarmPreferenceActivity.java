@@ -103,6 +103,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 return true;
             }
         });
+
+        // アラーム鳴動時間表示を、最新に更新。
+        updateTimeView();
     }
 
     @Override
@@ -142,33 +145,36 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                     Log.d(TAG, "onSharedPreferenceChanged");
-                    Preference button = null;
-                    button = mFragment.findPreference("alarmtime_key");
 
                     // アラームの時間か分のキーの場合、サマリーを保存する処理を行う。
                     if(ALARMTIME_HOUR_KEY.equals(key) || ALARMTIME_MINUTE_KEY.equals(key)) {
-
-                        // Preferenceへのアクセス
-                        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
-                        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
-
-                        // 保存されているPreferenceの値を取得
-                        int spHourInt = prefer_hour.getInt(ALARMTIME_HOUR_KEY, MODE_PRIVATE);
-                        int spMinuteInt = prefer_minute.getInt(ALARMTIME_MINUTE_KEY, MODE_PRIVATE);
-
-                        // Preferenceを文字列に変換する。
-                        String valueOfH = String.valueOf(spHourInt);
-                        String valueOfM = String.valueOf(spMinuteInt);
-
-                        // 時間と分を、一つの文字列に統合して、画面に表示する。
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append(valueOfH);
-                        stringBuilder.append(":");
-                        stringBuilder.append(valueOfM);
-                        button.setSummary(stringBuilder.toString());
+                        updateTimeView();
                     }
                 }
             };
+
+    /**
+     * アラームが動作する時間の画面表示を更新する。
+     */
+    private void updateTimeView() {
+        Preference button = null;
+        button = mFragment.findPreference("alarmtime_key");
+
+        // 保存されているPreferenceの値を取得
+        int spHourInt = getAlarmHour();
+        int spMinuteInt = getAlarmMinute();
+
+        // Preferenceを文字列に変換する。
+        String valueOfH = String.valueOf(spHourInt);
+        String valueOfM = String.valueOf(spMinuteInt);
+
+        // 時間と分を、一つの文字列に統合して、画面に表示する。
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(valueOfH);
+        stringBuilder.append(":");
+        stringBuilder.append(valueOfM);
+        button.setSummary(stringBuilder.toString());
+    }
 
     /**
      * アラーム時間を設定するダイアログを表示させ、入力された値をアラーム時刻として保存する
