@@ -409,34 +409,35 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         cld.get(Calendar.DAY_OF_MONTH);
 
         int weekday = 0;
-        switch(cld.get(Calendar.DAY_OF_WEEK)-1) {
-            case 1:
-                weekday = 0;    //月曜日
+        switch(cld.get(Calendar.DAY_OF_WEEK)) {
+            case Calendar.SUNDAY:
+                weekday = 0;    //日曜日
                 break;
-            case 2:
-                weekday = 1;    //火曜日
+            case Calendar.MONDAY:
+                weekday = 1;    //月曜日
                 break;
-            case 3:
-                weekday = 2;    //水曜日
+            case Calendar.TUESDAY:
+                weekday = 2;    //火曜日
                 break;
-            case 4:
-                weekday = 3;    //木曜日
+            case Calendar.WEDNESDAY:
+                weekday = 3;    //水曜日
                 break;
-            case 5:
-                weekday = 4;    //金曜日
+            case Calendar.THURSDAY:
+                weekday = 4;    //木曜日
                 break;
-            case 6:
-                weekday = 5;    //土曜日
+            case Calendar.FRIDAY:
+                weekday = 5;    //金曜日
                 break;
-            case 7:
-                weekday = 6;    //日曜日
+            case Calendar.SATURDAY:
+                weekday = 6;    //土曜日
                 break;
         }
+        Log.d(TAG,"weekday = " + weekday);
 
         // 今日の曜日と、保存曜日された曜日設定を比較し、何日後にアラームが動作しなくてはならないかを確認
         int a = Integer.parseInt(week[0]) - weekday;
 
-        if (a > 0 || a == 0) {
+        if (a >= 0) {
             // 0以上であれば、今日か、今日から日曜日までのどこか
             Log.d(TAG, a + " 日後にアラーム動作させる");
             return a;
