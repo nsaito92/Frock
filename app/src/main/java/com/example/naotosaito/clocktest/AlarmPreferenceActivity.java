@@ -208,6 +208,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private void alarmServiceSet() {
         Log.d(TAG, "alarmServiceSet");
 
+        // AlarmServiceが起動中であるかどうかチェックし、起動中である場合は何もServiceを起動しない。
+        if (ClockUtil.isYourServiceWorking()) {
+            return;
+        }
+
         // AlarmService起動用のIntent、PendingIntentを作成
         Context context = getBaseContext();
         Intent intent = new Intent(AlarmPreferenceActivity.this, AlarmService.class);
