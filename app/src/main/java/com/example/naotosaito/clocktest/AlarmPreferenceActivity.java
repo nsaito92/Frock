@@ -21,6 +21,7 @@ import android.widget.TimePicker;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 /**
  * アラーム設定画面表示用のActivity
@@ -410,6 +411,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
         StringBuffer buffer = new StringBuffer();
         String stringItem = null;
+
+        // 曜日順に整列して保存したいため、配列の整列を行う。
+        Collections.sort(mSelectedWeeks);
 
         // 選択された曜日を確認し、StringBufferに「,」区切りで追加
         for (Object item : mSelectedWeeks) {
