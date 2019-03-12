@@ -21,6 +21,7 @@ import android.widget.TimePicker;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 /**
  * アラーム設定画面表示用のActivity
@@ -104,8 +105,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             }
         });
 
-        // アラーム鳴動時間表示を、最新に更新。
+        // アラーム鳴動時間、曜日設定の表示を、最新に更新。
         updateTimeView();
+        updateWeekView();
     }
 
     @Override
@@ -119,6 +121,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
         SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
         prefer_minute.registerOnSharedPreferenceChangeListener(listener);
+
+        SharedPreferences prefer_week = getSharedPreferences("week", MODE_PRIVATE);
+        prefer_week.registerOnSharedPreferenceChangeListener(listener);
     }
 
     @Override
@@ -133,6 +138,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
         SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
         prefer_minute.unregisterOnSharedPreferenceChangeListener(listener);
+
+        SharedPreferences prefer_week = getSharedPreferences("week", MODE_PRIVATE);
+        prefer_week.unregisterOnSharedPreferenceChangeListener(listener);
     }
 
     /**
@@ -149,6 +157,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     // アラームの時間か分のキーの場合、サマリーを保存する処理を行う。
                     if(ALARMTIME_HOUR_KEY.equals(key) || ALARMTIME_MINUTE_KEY.equals(key)) {
                         updateTimeView();
+                    } else if (ALARMTIME_WEEK_KEY.equals(key)) {
+                        updateWeekView();
                     }
                 }
             };
@@ -157,6 +167,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
      * アラームが動作する時間の画面表示を更新する。
      */
     private void updateTimeView() {
+        Log.d(TAG, "updateTimeView");
         Preference button = null;
         button = mFragment.findPreference("alarmtime_key");
 
@@ -173,6 +184,50 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         stringBuilder.append(valueOfH);
         stringBuilder.append(":");
         stringBuilder.append(valueOfM);
+        button.setSummary(stringBuilder.toString());
+    }
+
+    /**
+     * アラームが鳴動する曜日の画面表示を更新する。
+     */
+    private void updateWeekView() {
+        Log.d(TAG, "updateWeekView");
+        Preference button = null;
+        button = mFragment.findPreference("alarm_start_week_key");
+
+        String[] week = getSelectedWeeks(ALARMTIME_WEEK_KEY);
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Log.d(TAG, "week = " + week);
+
+        // 配列の値を一通りチェック
+        for (int i=0; i<week.length; i++) {
+            // 配列の中身をチェック、値によって曜日の文字列に変換する。
+            switch(week[i]) {
+                case "0":
+                    stringBuilder.append("日");
+                    break;
+                case "1":
+                    stringBuilder.append("月");
+                    break;
+                case "2":
+                    stringBuilder.append("火");
+                    break;
+                case "3":
+                    stringBuilder.append("水");
+                    break;
+                case "4":
+                    stringBuilder.append("木");
+                    break;
+                case "5":
+                    stringBuilder.append("金");
+                    break;
+                case "6":
+                    stringBuilder.append("土");
+                    break;
+            }
+        }
+        // 変換した文字列を統合して、画面に表示する。
         button.setSummary(stringBuilder.toString());
     }
 
@@ -357,6 +412,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         StringBuffer buffer = new StringBuffer();
         String stringItem = null;
 
+        // 曜日順に整列して保存したいため、配列の整列を行う。
+        Collections.sort(mSelectedWeeks);
+
         // 選択された曜日を確認し、StringBufferに「,」区切りで追加
         for (Object item : mSelectedWeeks) {
             buffer.append(item+",");
@@ -376,7 +434,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     /**
      * 保存された曜日情報を取得し、何日後にアラームが動作すれば良いかを判定する。
      * @param prefkey 取得対象のPreferenceキー
-     * @return 保存されたアラーム曜日情報
+     * @return 保存されたアラーム曜日情設定の配列
      */
     public String[] getSelectedWeeks(String prefkey) {
         Log.d(TAG, "getSelectedWeeks");
