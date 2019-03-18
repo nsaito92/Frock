@@ -59,7 +59,16 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             // ここでif(alarmbutton.isChecked())
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#alarmbutton onPreferencelick");
-                return true;
+
+                if (alarmbutton.isChecked()) {
+                    // trueになった場合は、有効なアラーム設定がある場合は、アラーム設定を行う。
+                    alarmServiceSet();
+
+                } else if (!alarmbutton.isChecked()) {
+                    // falseになった際場合は、有効なアラーム設定がある場合は、アラーム設定を行う。
+
+                }
+                return alarmbutton.isChecked();
             }
         });
 
@@ -192,10 +201,17 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
      */
     private void updateWeekView() {
         Log.d(TAG, "updateWeekView");
+
         Preference button = null;
         button = mFragment.findPreference("alarm_start_week_key");
 
         String[] week = getSelectedWeeks(ALARMTIME_WEEK_KEY);
+
+        // 曜日設定が無い場合は、画面の更新は行わない。
+        if (week == null) {
+            return;
+        }
+
         StringBuilder stringBuilder = new StringBuilder();
 
         Log.d(TAG, "week = " + week);
@@ -281,7 +297,13 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // TODO ユーティリティクラスにした方が良さそう
 
         // 何日後にアラームが鳴る必要があるか
-        int alarmday = alarmWhatDaysAfter();
+        int alarmday = 0;
+
+        // 曜日設定がすでに保存済みの場合は、何日後にアラームが鳴る必要があるかチェック。
+        // nullの場合は0(当日に鳴動)を返す。
+        if (getSelectedWeeks(ALARMTIME_WEEK_KEY) != null) {
+            alarmday = alarmWhatDaysAfter();
+        }
 
         Calendar calender = Calendar.getInstance();
         calender.add(Calendar.DATE, alarmday);              // 何日後に動作させるか
@@ -408,6 +430,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
      */
     public void setSelectedWeeks(ArrayList mSelectedWeeks) {
         Log.d(TAG, "setSelectedWeeks");
+
+        // 曜日が何も選択されていなかった場合は、保存処理は行わない。
+        if (mSelectedWeeks == null || mSelectedWeeks.size() == 0) {
+            return;
+        }
 
         StringBuffer buffer = new StringBuffer();
         String stringItem = null;
