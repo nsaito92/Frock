@@ -67,6 +67,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 } else if (!alarmbutton.isChecked()) {
                     // falseになった場合は、アラーム鳴動予定がある場合は、無効にする。
                     setAlarmServiceBoolean(alarmbutton.isChecked());
+                    alarmServiceCansel();
                 }
                 return alarmbutton.isChecked();
             }
@@ -324,6 +325,24 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 //                + calender.MINUTE
 //                + calender.SECOND + " !!");
     }
+
+    /**
+     * アラーム実行予定をキャンセルする。
+     */
+    private void alarmServiceCansel() {
+
+        Context context = getBaseContext();
+        int requestcode = 1;
+
+        AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(AlarmPreferenceActivity.this, AlarmService.class);
+        PendingIntent pendingintent = PendingIntent.getService(
+                context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        pendingintent.cancel();
+        alarmmanager.cancel(pendingintent);
+    }
+
     /**
      * アラームの曜日を設定するダイアログダイアログを表示させる
      */
