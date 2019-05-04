@@ -55,6 +55,8 @@ public class AlarmService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy called");
         audioStop();
+
+        // TODO Destroyされた直後に、setAlarmServiceBoolean(false)するのが一番正しい気がするので後ほど修正する。
     }
 
     private boolean audioSetup() {
