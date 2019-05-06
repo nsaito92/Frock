@@ -38,6 +38,9 @@ public class AlarmService extends Service {
         //非同期処理を行うメソッド
         Log.d(TAG, "onStartCommand called");
 
+        // PendingIntentによるServiceが起動したため、flagを無効化する
+        ClockUtil.setAlarmPendingIntent(false);
+
         //音楽再生
         audioPlay();
 

@@ -135,8 +135,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         SharedPreferences prefer_week = getSharedPreferences("week", MODE_PRIVATE);
         prefer_week.registerOnSharedPreferenceChangeListener(listener);
 
-        // AlarmServiceが起動中であるかどうかチェックし、起動中である場合は何もServiceを起動しない。
-        if (!ClockUtil.isYourServiceWorking()) {
+        // AlarmServiceが起動中・Pending中共にない場合は、トグルボタンを更新する。
+        if (!ClockUtil.isYourServiceWorking() && !ClockUtil.getAlarmPendingIntent()) {
             setAlarmServiceBoolean(false);
         }
         Log.d(TAG, "getAlarmServiceBoolean() = " + getAlarmServiceBoolean());
@@ -317,6 +317,10 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
         AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         alarmmanager.set(AlarmManager.RTC, calender.getTimeInMillis(), pendingintent);
+
+        // PendingIntentをセットしたためflagを有効化する
+        ClockUtil.setAlarmPendingIntent(true);
+
 //        Log.d(TAG, "AlarmSettingTime is "
 //                + calender.YEAR
 //                + calender.MONTH
@@ -341,6 +345,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
         pendingintent.cancel();
         alarmmanager.cancel(pendingintent);
+
+        // PendingIntentをキャンセルしたためflagを無効化する
+        ClockUtil.setAlarmPendingIntent(false);
     }
 
     /**
