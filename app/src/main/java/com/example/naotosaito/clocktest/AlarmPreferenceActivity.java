@@ -174,8 +174,14 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
                     // アラームの時間か分のキーの場合、サマリーを保存する処理を行う。
                     if(ALARMTIME_HOUR_KEY.equals(key) || ALARMTIME_MINUTE_KEY.equals(key)) {
+                        // Serviceを一度終了し、更新された時間で再設定する。
+                        alarmServiceCansel();
+                        alarmServiceSet();
                         updateTimeView();
                     } else if (ALARMTIME_WEEK_KEY.equals(key)) {
+                        // Serviceを一度終了し、更新された曜日で再設定する。
+                        alarmServiceCansel();
+                        alarmServiceSet();
                         updateWeekView();
                     }
                 }
