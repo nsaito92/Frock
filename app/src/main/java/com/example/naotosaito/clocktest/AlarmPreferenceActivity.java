@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.preference.SwitchPreference;
 import android.util.Log;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -275,7 +276,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         TimePickerDialog dialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                Log.d(TAG, String.format("Alarm Start Time = %02d:%02d", hourOfDay, minute));
 
                 // アラーム時間をPreferenceで保存する
                 setAlarmHour(hourOfDay);
@@ -326,6 +326,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
         // PendingIntentをセットしたためflagを有効化する
         ClockUtil.setAlarmPendingIntent(true);
+
+        Log.d(TAG, "The alarm was set at " + getAlarmHour() + ":" + getAlarmMinute() + " after " + alarmday + " days.");
+        Toast.makeText(MyApplication.getContext(),
+                alarmday + "日後の" + getAlarmHour() + ":" + getAlarmMinute() + "にアラーム設定しました。",
+                Toast.LENGTH_SHORT).show();
 
 //        Log.d(TAG, "AlarmSettingTime is "
 //                + calender.YEAR
