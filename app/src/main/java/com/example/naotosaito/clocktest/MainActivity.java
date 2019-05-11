@@ -35,22 +35,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //各ボタンの定義、リスナーをボタンに登録する
-        Button setbutton = (Button) findViewById(R.id.setbutton);
-        setbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alarmServiceSetting();
-            }
-        });
-
-        Button saveButton = (Button) findViewById(R.id.savebutton);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveButtonClick();
-            }
-        });
-
         Button stopButton = (Button) findViewById(R.id.stopbutton);
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,8 +68,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.optionsMenu_01:
                 Intent intent = new android.content.Intent(this, AlarmPreferenceActivity.class);
                 startActivity(intent);
-                return true;
-            case R.id.optionsMenu_02:
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -123,37 +105,5 @@ public class MainActivity extends AppCompatActivity {
                 + calender.HOUR_OF_DAY
                 + calender.MINUTE
                 + calender.SECOND + " !!");
-    }
-
-    //アラーム時間を設定するダイアログを表示させる
-    public void TimeSet() {
-        final Calendar calender = Calendar.getInstance();
-        final int hour = calender.get(Calendar.HOUR_OF_DAY); //現在時刻の取得
-        final int minute = calender.get(Calendar.MINUTE);    //現在時刻の取得
-
-        final TimePickerDialog timerPickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                Toast.makeText(MainActivity.this, hourOfDay + "時" + minute + "分", Toast.LENGTH_LONG).show();
-
-                //アラーム対象時刻を表示する
-                TextView textView = (TextView) findViewById(R.id.setalarmview);
-                textView.setText(hourOfDay + "時" + minute + "分");
-            }
-        }, hour, minute, true);
-        timerPickerDialog.show();
-    }
-
-    //入力された値の保存を行いつつ、アラーム対象時刻を表示する
-    public void saveButtonClick() {
-        //入力された値の保存を行う
-        EditText edittext = (EditText)findViewById(R.id.editalarm);
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        sp.edit().putString("SaveString", edittext.getText().toString()).commit();
-
-        //アラーム対象時刻を表示する
-        TextView textView = (TextView) findViewById(R.id.setalarmview);
-        SharedPreferences sp2 = PreferenceManager.getDefaultSharedPreferences(this);
-        textView.setText(sp2.getString("SaveString", null), BufferType.NORMAL);
     }
 }

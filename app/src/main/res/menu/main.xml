@@ -5,9 +5,4 @@
         android:title="@string/opt_menu_01"
         android:icon="@android:drawable/ic_menu_preferences"
         />
-    <item
-        android:id="@+id/optionsMenu_02"
-        android:title="@string/opt_menu_02"
-        android:icon="@android:drawable/ic_menu_edit"
-        />
 </menu>

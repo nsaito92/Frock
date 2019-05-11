@@ -19,13 +19,5 @@
             android:title="@string/alarm_start_week_setting"
             android:summary="@string/alarm_start_week_summary" >
         </Preference>
-        <CheckBoxPreference
-            android:key="checkbox_01_key"
-            android:title="@string/checkbox_01_title"
-            android:summary="@string/checkbox_01_summary" />
-        <CheckBoxPreference
-            android:key="checkbox_02_key"
-            android:title="@string/checkbox_02_title"
-            android:summary="@string/checkbox_02_summary" />
     </PreferenceCategory>
 </PreferenceScreen>
