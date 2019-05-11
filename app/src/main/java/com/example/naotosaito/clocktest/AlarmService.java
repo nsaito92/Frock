@@ -37,6 +37,8 @@ public class AlarmService extends Service {
      public int onStartCommand (Intent intent, int flags, int startId) {
         //非同期処理を行うメソッド
         Log.d(TAG, "onStartCommand called");
+        Toast.makeText(MyApplication.getContext(),
+                getString(R.string.started_the_alarm), Toast.LENGTH_SHORT).show();
 
         // PendingIntentによるServiceが起動したため、flagを無効化する
         ClockUtil.setAlarmPendingIntent(false);
@@ -57,6 +59,9 @@ public class AlarmService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy called");
+        Toast.makeText(MyApplication.getContext(),
+                getString(R.string.stopped_the_alarm), Toast.LENGTH_SHORT).show();
+
         audioStop();
 
         // TODO Destroyされた直後に、setAlarmServiceBoolean(false)するのが一番正しい気がするので後ほど修正する。
@@ -98,9 +103,9 @@ public class AlarmService extends Service {
         if(mediaPlayer == null){
             // audioファイルの呼び出し
             if(audioSetup()){
-                Toast.makeText(MyApplication.getContext(), "read Audio File", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "read Audio File");
             } else {
-                Toast.makeText(MyApplication.getContext(), "Error : read Audio File", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Error : read Audio File");
                 return;
             }
         } else {

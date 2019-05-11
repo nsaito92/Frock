@@ -41,7 +41,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // アラーム音を再生しているServiceを終了する
                 Intent intent = new Intent(MainActivity.this, AlarmService.class);
-                stopService(intent);
+
+                boolean stopServiceresult = stopService(intent);
+                Log.d(TAG, "stopServiceresult = " + stopServiceresult);
+                if (!stopServiceresult) {
+                    Toast.makeText(MyApplication.getContext(),
+                            R.string.No_alarm_to_stop, Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

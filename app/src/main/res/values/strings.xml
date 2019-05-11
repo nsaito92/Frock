@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Frock</string>
 
+    <!-- Alarm operation -->
+    <string name="started_the_alarm">アラームを開始しました。</string>
+    <string name="stopped_the_alarm">アラームを停止しました。</string>
+    <string name="No_alarm_to_stop">現在鳴動しているアラームはありません</string>
+
     <!-- menu used -->
     <string name="opt_menu_01">アラーム設定</string>
 
