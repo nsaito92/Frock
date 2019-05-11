@@ -293,6 +293,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private void alarmServiceSet() {
         Log.d(TAG, "alarmServiceSet");
 
+        // アラーム設定のトグルボタンが無効の場合は、アラーム設定が保存されていても設定しない。
+        if (!getAlarmServiceBoolean()) {
+            return;
+        }
+
         // AlarmService起動用のIntent、PendingIntentを作成
         Context context = getBaseContext();
         Intent intent = new Intent(AlarmPreferenceActivity.this, AlarmService.class);
