@@ -1,24 +1,26 @@
 <resources>
-    <string name="app_name">Frog song</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">Frock</string>
+
+    <!-- Alarm operation -->
+    <string name="started_the_alarm">アラームを開始しました。</string>
+    <string name="stopped_the_alarm">アラームを停止しました。</string>
+    <string name="No_alarm_to_stop">現在鳴動しているアラームはありません</string>
 
     <!-- menu used -->
-    <string name="opt_menu_01">My設定</string>
-    <string name="opt_menu_02">ヘルプ</string>
+    <string name="opt_menu_01">アラーム設定</string>
 
     <!-- Alarm Settings preference -->
-    <string name="preference_title">アラーム設定画面</string>
+    <string name="preference_title">アラーム設定</string>
 
     <string name="alarmboolean_key">alarmboolean_key</string>
 
     <string name="alarmtime_key">alarmtime_key</string>
     <string name="alarmtime_setting">鳴動時間</string>
-    <string name="alarmtime_summary">ここに現在時刻を表示したい</string>
+    <string name="alarmtime_summary">鳴動する時間を入力してください。</string>
 
     <string name="alarm_start_week_key">alarm_start_week_key</string>
     <string name="alarm_start_week_setting">曜日</string>
-    <string name="alarm_start_week_summary">ここに動作する曜日を表示したい</string>
+    <string name="alarm_start_week_summary">動作する曜日を入力してください。</string>
 
     <!-- alarm week setting dialog -->
     <string name="alarm_Week_setting_title">曜日</string>
@@ -35,9 +37,5 @@
     <string name="alarm_Week_setting_NegativeButton">Cansel</string>
 
     <!-- etc -->
-    <string name="checkbox_01_title">ネットワーク通信許可</string>
-    <string name="checkbox_01_summary">ネットワーク通信を有効にします</string>
 
-    <string name="checkbox_02_title">GPS許可</string>
-    <string name="checkbox_02_summary">GPSを有効にします</string>
 </resources>

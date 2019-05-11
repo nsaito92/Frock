@@ -293,8 +293,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private void alarmServiceSet() {
         Log.d(TAG, "alarmServiceSet");
 
-        // アラーム設定のトグルボタンが無効の場合は、アラーム設定が保存されていても設定しない。
-        if (!getAlarmServiceBoolean()) {
+        // 以下の場合、アラームサービスの起動を行わない。
+        // 1. アラーム設定のトグルボタンが無効の場合
+        // 2. アラームが鳴動中である場合
+        if (!getAlarmServiceBoolean() ||
+                ClockUtil.isYourServiceWorking()) {
             return;
         }
 
