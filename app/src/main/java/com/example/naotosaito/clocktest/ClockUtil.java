@@ -2,6 +2,7 @@ package com.example.naotosaito.clocktest;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 /**
@@ -12,6 +13,8 @@ import android.util.Log;
 
 public class ClockUtil {
     private static final String TAG = "ClockUtil";
+
+    final static String PENDING_ALARMSERVICE_KEY = "pendingalarmservice_boolean";
 
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
     private ClockUtil() {
@@ -35,5 +38,30 @@ public class ClockUtil {
         }
         Log.d(TAG, "isYourServiceWorking = " + false);
         return false;
+    }
+
+    /**
+     * AlarmServiceの起動するPendingIntentの状態をセットする。
+     * @param value PendingIntentを有無
+     */
+    public static void setAlarmPendingIntent(boolean value) {
+        // Preferenceへのアクセス
+        SharedPreferences pref_almvalue =
+                MyApplication.getContext().getSharedPreferences("PendingAlarm", Context.MODE_PRIVATE);
+
+        // Preferenceの保存
+        SharedPreferences.Editor editor_almvalue = pref_almvalue.edit();
+        editor_almvalue.putBoolean(PENDING_ALARMSERVICE_KEY, value);
+        editor_almvalue.commit();
+    }
+
+    /**
+     * Pending中のアラーム設定の有無を返す。
+     * @return Pending中のアラーム設定の有無
+     */
+    public static boolean getAlarmPendingIntent() {
+        SharedPreferences pref_almvalue =
+                MyApplication.getContext().getSharedPreferences("PendingAlarm", Context.MODE_PRIVATE);
+        return pref_almvalue.getBoolean(PENDING_ALARMSERVICE_KEY, false);
     }
 }
