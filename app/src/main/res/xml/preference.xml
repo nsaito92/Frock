@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/preference_title">
+        <SwitchPreference
+            android:key="@string/alarmboolean_key"
+            android:checked="false"
+            android:switchTextOff="OFF"
+            android:switchTextOn="ON"
+            android:title="アラームのON/OFF" >
+        </SwitchPreference>
+        <Preference
+            android:key="@string/alarmtime_key"
+            android:title="@string/alarmtime_setting"
+            android:summary="@string/alarmtime_summary" >
+        </Preference>
+        <Preference
+            android:key="@string/alarm_start_week_key"
+            android:title="@string/alarm_start_week_setting"
+            android:summary="@string/alarm_start_week_summary" >
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

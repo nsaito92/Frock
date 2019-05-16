@@ -57,15 +57,11 @@ public class MyTimerTask extends TimerTask {
 
     //アラーム設定日時と現在の日時の比較をする
     public void diffchack(String nowText, String AlarmText) {
-
-        //アラーム音を操作するAudioControllerのインスタンスを作成
-        AudioController audioController = new AudioController();
-
         int diff = nowText.compareTo(AlarmText);
         if (diff == 0) {
             System.out.println("アラーム時刻になりました。");
             //Toast.makeText(this, "アラーム時刻になりました。", Toast.LENGTH_SHORT).show();
-            audioController.audioPlay();
+            //audioController.audioPlay();
         } else if (diff > 0) {
             System.out.println("アラーム実行日より過去の日付を指定しています。");
         } else {

@@ -2,7 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.naotosaito.clocktest">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -15,6 +18,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
+        <receiver
+            android:name=".AlarmBroadcastReceiver"
+            android:process=":remote" />
+        <service
+            android:name=".AlarmService"
+            android:enabled="true"
+            android:exported="false"></service>
 
+        <activity android:name=".AlarmPreferenceActivity"></activity>
+    </application>
 </manifest>

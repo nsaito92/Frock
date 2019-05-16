@@ -1,4 +1,41 @@
 <resources>
-    <string name="app_name">NsaitoClock</string>
+    <string name="app_name">Frock</string>
+
+    <!-- Alarm operation -->
+    <string name="started_the_alarm">アラームを開始しました。</string>
+    <string name="stopped_the_alarm">アラームを停止しました。</string>
+    <string name="No_alarm_to_stop">現在鳴動しているアラームはありません</string>
+
+    <!-- menu used -->
+    <string name="opt_menu_01">アラーム設定</string>
+
+    <!-- Alarm Settings preference -->
+    <string name="preference_title">アラーム設定</string>
+
+    <string name="alarmboolean_key">alarmboolean_key</string>
+
+    <string name="alarmtime_key">alarmtime_key</string>
+    <string name="alarmtime_setting">鳴動時間</string>
+    <string name="alarmtime_summary">鳴動する時間を入力してください。</string>
+
+    <string name="alarm_start_week_key">alarm_start_week_key</string>
+    <string name="alarm_start_week_setting">曜日</string>
+    <string name="alarm_start_week_summary">動作する曜日を入力してください。</string>
+
+    <!-- alarm week setting dialog -->
+    <string name="alarm_Week_setting_title">曜日</string>
+    <string-array name="alarm_Week_setting_menulist">
+        <item>日曜日</item>
+        <item>月曜日</item>
+        <item>火曜日</item>
+        <item>水曜日</item>
+        <item>木曜日</item>
+        <item>金曜日</item>
+        <item>土曜日</item>
+    </string-array>
+    <string name="alarm_Week_setting_PositiveButton">OK</string>
+    <string name="alarm_Week_setting_NegativeButton">Cansel</string>
+
+    <!-- etc -->
 
 </resources>
