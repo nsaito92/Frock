@@ -64,4 +64,31 @@ public class ClockUtil {
                 MyApplication.getContext().getSharedPreferences("PendingAlarm", Context.MODE_PRIVATE);
         return pref_almvalue.getBoolean(PENDING_ALARMSERVICE_KEY, false);
     }
+
+    /**
+     * 受け取った時間の文字列の結合、調整をして返却する。
+     * @param hour 時
+     * @param minute 分
+     * @return 「xx:xx」という形式に変換して返却
+     */
+    public static StringBuilder shapingStringTime(String hour, String minute) {
+
+        Log.d("NSAITOTEST", "shapingStringTime");
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        // 文字列の調整。時間と分を、一つの文字列に統合。
+        // 一桁の場合見栄えが悪いので、「0」を追加する。
+        if (hour.length() < 2) {
+            stringBuilder.insert(0, "0");
+        }
+        stringBuilder.append(hour);
+        stringBuilder.append(":");
+        if (minute.length() < 2) {
+            stringBuilder.append("0");
+        }
+        stringBuilder.append(minute);
+
+        return stringBuilder;
+    }
 }
