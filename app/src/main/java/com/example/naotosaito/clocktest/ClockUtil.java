@@ -73,10 +73,20 @@ public class ClockUtil {
      */
     public static StringBuilder shapingStringTime(String hour, String minute) {
 
-        // 時間と分を、一つの文字列に統合。
+        Log.d("NSAITOTEST", "shapingStringTime");
+
         StringBuilder stringBuilder = new StringBuilder();
+
+        // 文字列の調整。時間と分を、一つの文字列に統合。
+        // 一桁の場合見栄えが悪いので、「0」を追加する。
+        if (hour.length() < 2) {
+            stringBuilder.insert(0, "0");
+        }
         stringBuilder.append(hour);
         stringBuilder.append(":");
+        if (minute.length() < 2) {
+            stringBuilder.append("0");
+        }
         stringBuilder.append(minute);
 
         return stringBuilder;
