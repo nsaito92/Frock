@@ -204,12 +204,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         String valueOfH = String.valueOf(spHourInt);
         String valueOfM = String.valueOf(spMinuteInt);
 
-        // 時間と分を、一つの文字列に統合して、画面に表示する。
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(valueOfH);
-        stringBuilder.append(":");
-        stringBuilder.append(valueOfM);
-        button.setSummary(stringBuilder.toString());
+        // 取得した文字列を整形して画面に反映。
+        button.setSummary(ClockUtil.shapingStringTime(valueOfH, valueOfM));
     }
 
     /**
