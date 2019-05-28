@@ -14,18 +14,20 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".AlarmPreferenceActivity"></activity>
+
         <receiver
             android:name=".AlarmBroadcastReceiver"
             android:process=":remote" />
+
         <service
             android:name=".AlarmService"
             android:enabled="true"
             android:exported="false"></service>
 
-        <activity android:name=".AlarmPreferenceActivity"></activity>
     </application>
 </manifest>
