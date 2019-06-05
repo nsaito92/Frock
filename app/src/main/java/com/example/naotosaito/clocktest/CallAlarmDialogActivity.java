@@ -1,6 +1,7 @@
 package com.example.naotosaito.clocktest;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +27,19 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
         alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                CallAlarmDialogActivity.this.finish();//選択をしたら自信のActivityを終了させる
+
+                // アラームを終了して、Activityを終了する。
+                Intent intent = new Intent(CallAlarmDialogActivity.this, AlarmService.class);
+                stopService(intent);
+                CallAlarmDialogActivity.this.finish();
+            }
+        });
+        alertBuilder.setNeutralButton("後で", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick (DialogInterface dialog, int which) {
+
+                // 何も行わず、Activityを終了させる。
+                CallAlarmDialogActivity.this.finish();
             }
         });
         alertBuilder.create().show();
