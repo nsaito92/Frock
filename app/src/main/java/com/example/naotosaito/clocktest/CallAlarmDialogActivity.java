@@ -23,6 +23,7 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
         setContentView(R.layout.activity_call_dialog);
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setTitle("アラーム鳴動中")
+                .setCancelable(false)
                 .setMessage("message")
                 .setPositiveButton("停止", new DialogInterface.OnClickListener() {
                     @Override
