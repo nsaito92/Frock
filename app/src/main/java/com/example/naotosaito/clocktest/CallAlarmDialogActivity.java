@@ -24,7 +24,6 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setTitle("アラーム鳴動中")
                 .setCancelable(false)
-                .setMessage("message")
                 .setPositiveButton("停止", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
