@@ -46,6 +46,12 @@ public class AlarmService extends Service {
         //音楽再生
         audioPlay();
 
+        // アラーム鳴動通知ダイアログを表示
+        Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);
+        //
+        intent_alarmdialogactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent_alarmdialogactivity);
+
         // Serviceが強制終了された際に、Serviceを再起動しない。
         return START_NOT_STICKY;
     }
