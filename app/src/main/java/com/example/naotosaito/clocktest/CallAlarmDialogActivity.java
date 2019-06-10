@@ -22,26 +22,25 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_call_dialog);
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-        alertBuilder.setTitle("title");
-        alertBuilder.setMessage("message");
-        alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        alertBuilder.setTitle("アラーム鳴動中")
+                .setMessage("message")
+                .setPositiveButton("停止", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // アラームを終了して、Activityを終了する。
+                        Intent intent = new Intent(CallAlarmDialogActivity.this, AlarmService.class);
+                        stopService(intent);
+                        CallAlarmDialogActivity.this.finish();
+                    }
+                })
+                .setNeutralButton("後で", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick (DialogInterface dialog, int which) {
 
-                // アラームを終了して、Activityを終了する。
-                Intent intent = new Intent(CallAlarmDialogActivity.this, AlarmService.class);
-                stopService(intent);
-                CallAlarmDialogActivity.this.finish();
-            }
-        });
-        alertBuilder.setNeutralButton("後で", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick (DialogInterface dialog, int which) {
-
-                // 何も行わず、Activityを終了させる。
-                CallAlarmDialogActivity.this.finish();
-            }
-        });
-        alertBuilder.create().show();
+                    // 何も行わず、Activityを終了させる。
+                    CallAlarmDialogActivity.this.finish();
+                }
+                })
+                .create().show();
     }
 }
