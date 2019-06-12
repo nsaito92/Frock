@@ -556,7 +556,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Log.d(TAG, "alarmWhatDaysAfter");
 
         // 選択された曜日データを取得
-        String week[] = getSelectedWeeks(ALARMTIME_WEEK_KEY);
+        String pref_week[] = getSelectedWeeks(ALARMTIME_WEEK_KEY);
 
         // 今日の日時から、曜日を取得
         Calendar cld = Calendar.getInstance();
@@ -564,44 +564,44 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         cld.get(Calendar.MONTH);
         cld.get(Calendar.DAY_OF_MONTH);
 
-        int weekday = 0;
+        int cld_weekday = 0;
         switch(cld.get(Calendar.DAY_OF_WEEK)) {
             case Calendar.SUNDAY:
-                weekday = 0;    //日曜日
+                cld_weekday = 0;    //日曜日
                 break;
             case Calendar.MONDAY:
-                weekday = 1;    //月曜日
+                cld_weekday = 1;    //月曜日
                 break;
             case Calendar.TUESDAY:
-                weekday = 2;    //火曜日
+                cld_weekday = 2;    //火曜日
                 break;
             case Calendar.WEDNESDAY:
-                weekday = 3;    //水曜日
+                cld_weekday = 3;    //水曜日
                 break;
             case Calendar.THURSDAY:
-                weekday = 4;    //木曜日
+                cld_weekday = 4;    //木曜日
                 break;
             case Calendar.FRIDAY:
-                weekday = 5;    //金曜日
+                cld_weekday = 5;    //金曜日
                 break;
             case Calendar.SATURDAY:
-                weekday = 6;    //土曜日
+                cld_weekday = 6;    //土曜日
                 break;
         }
-        Log.d(TAG,"weekday = " + weekday);
+        Log.d(TAG,"cld_weekday = " + cld_weekday);
 
         // 今日の曜日と、保存曜日された曜日設定を比較し、何日後にアラームが動作しなくてはならないかを確認
-        int a = Integer.parseInt(week[0]) - weekday;
+        int daysafter = Integer.parseInt(pref_week[0]) - cld_weekday;
 
-        if (a >= 0) {
+        if (daysafter >= 0) {
             // 0以上であれば、今日か、今日から日曜日までのどこか
-            Log.d(TAG, a + " 日後にアラーム動作させる");
-            return a;
-        } else if (0 > a) {
+            Log.d(TAG, daysafter + " 日後にアラーム動作させる");
+            return daysafter;
+        } else if (0 > daysafter) {
             // 0以下であれば、日曜日を挟んだそれ以降
-            int i = DAY_OF_WEEK + a;
-            Log.d(TAG, i +" 日後にアラーム動作させる");
-            return i;
+            int daynextweek = DAY_OF_WEEK + daysafter;
+            Log.d(TAG, daynextweek +" 日後にアラーム動作させる");
+            return daynextweek;
         }
         return Integer.parseInt(null);
     }
