@@ -548,34 +548,54 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private Calendar getAlarmCalender() {
         Log.d(TAG, "getAlarmCalender");
 
-        // 選択された曜日データを取得
-        String pref_week[] = getSelectedWeeks(ALARMTIME_WEEK_KEY);
-
-        // Preferenceに保存されているデータを元にしたCalender
-        Calendar cld_pref = Calendar.getInstance();
-        cld_pref.set(Calendar.HOUR_OF_DAY, getAlarmHour()); // 時
-        cld_pref.set(Calendar.MINUTE, getAlarmMinute());    // 分
-        cld_pref.set(Calendar.SECOND, 0);                   // 秒
-
-        // Calenderクラスでは、曜日は0からではなく1から始まっているため、1+して処理する。
-        int i = Integer.parseInt(pref_week[0]);
-        cld_pref.set(Calendar.DAY_OF_WEEK, i + 1); //曜日
-
-        // 今日の日時を元にしたCalender
+        // 今日の日時を元にするCalender
         Calendar cld_today = Calendar.getInstance();
         cld_today.get(Calendar.YEAR);
         cld_today.get(Calendar.MONTH);
         cld_today.get(Calendar.DAY_OF_MONTH);
 
-        Log.d(TAG,"cld_pref.compareTo(cld_today) = " + cld_pref.compareTo(cld_today));
+        // 戻り値となるアラーム鳴動予定を入れるCalender
+        Calendar cld_alarm = Calendar.getInstance();
 
-        // TODO cld_prefの曜日が、今日か、今週か、来週か判定する処理。
-        if (cld_pref.compareTo(cld_today) >= 0) {
-            // 現在か、今週の場合は設定された時刻通りにアラームを設定する。
-        } else if (cld_pref.compareTo(cld_today) < 0) {
-            // 過ぎてしまっている場合は、来週になるようにCalenderを調整。
-            cld_pref.add(Calendar.DATE, DAY_OF_WEEK);
+        // 選択された曜日データを取得
+        String pref_week[] = getSelectedWeeks(ALARMTIME_WEEK_KEY);
+
+        ArrayList<Calendar> cldlist = new ArrayList<>();
+
+        // Preferenceの曜日データを元に、鳴動予定のCalenderを一通り作成する。
+        for (String i : pref_week) {
+
+            // Preferenceに保存されているデータを元にするCalender
+            Calendar cld_pref = Calendar.getInstance();
+            cld_pref.set(Calendar.HOUR_OF_DAY, getAlarmHour()); // 時
+            cld_pref.set(Calendar.MINUTE, getAlarmMinute());    // 分
+            cld_pref.set(Calendar.SECOND, 0);                   // 秒
+
+            // Calenderクラスでは、曜日は0からではなく1から始まっているため、1+して処理する。
+            cld_pref.set(Calendar.DAY_OF_WEEK, Integer.parseInt(i) + 1); //曜日
+            Log.d(TAG,"cld_pref.compareTo(cld_today) = " + cld_pref.compareTo(cld_today));
+
+            if (cld_pref.compareTo(cld_today) >= 0) {
+                // 現在か、今週の場合は設定された時刻通りにアラームを設定する。
+            } else if (cld_pref.compareTo(cld_today) < 0) {
+                // 過ぎてしまっている場合は、来週になるようにCalenderを調整。
+                cld_pref.add(Calendar.DATE, DAY_OF_WEEK);
+            }
+            cldlist.add(cld_pref);
         }
-        return cld_pref;
+
+        // returmするcalendarの初期値を指定。
+        cld_alarm = cldlist.get(0);
+
+        // 設定されたCalenderを比較していき、一番今日に近いCalenderはどれか確認する。
+        for (int i=0; i<cldlist.size(); i++) {
+                    + cld_alarm.after(cldlist.get(i)));
+            if (cld_alarm.after(cldlist.get(i))) {
+                Log.d("NSAITOTEST","cld_alarm update");
+                cld_alarm = cldlist.get(i);
+            }
+        }
+        Log.d(TAG, "getAlarmCalender() return = " + cld_alarm.getTime());
+        return cld_alarm;
     }
 }
