@@ -16,6 +16,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.os.Bundle;
 import android.preference.SwitchPreference;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -309,31 +310,23 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // アラームを実行する時間の設定を準備
         // TODO ユーティリティクラスにした方が良さそう
 
-        // 何日後にアラームが鳴る必要があるか
-        int alarmday = 0;
+        Calendar cld_alarm = Calendar.getInstance();
 
-        // 曜日設定がすでに保存済みの場合は、何日後にアラームが鳴る必要があるかチェック。
-        // nullの場合は0(当日に鳴動)を返す。
+        // 曜日設定がすでに保存済みであるかチェック。
         if (getSelectedWeeks(ALARMTIME_WEEK_KEY) != null) {
-            alarmday = alarmWhatDaysAfter();
+            cld_alarm = getAlarmCalender();
         }
-
-        Calendar calender = Calendar.getInstance();
-        calender.add(Calendar.DATE, alarmday);              // 何日後に動作させるか
-        calender.set(Calendar.HOUR_OF_DAY, getAlarmHour()); // 時
-        calender.set(Calendar.MINUTE, getAlarmMinute());    // 分
-        calender.set(Calendar.SECOND, 0);                   // 秒
 
         // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
         AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        alarmmanager.set(AlarmManager.RTC, calender.getTimeInMillis(), pendingintent);
+        alarmmanager.set(AlarmManager.RTC, cld_alarm.getTimeInMillis(), pendingintent);
 
         // PendingIntentをセットしたためflagを有効化する
         ClockUtil.setAlarmPendingIntent(true);
 
-        Log.d(TAG, "The alarm was set at " + getAlarmHour() + ":" + getAlarmMinute() + " after " + alarmday + " days.");
+        Log.d(TAG, "The alarm was set at " + cld_alarm.getTime());
         Toast.makeText(MyApplication.getContext(),
-                alarmday + "日後の" + getAlarmHour() + ":" + getAlarmMinute() + "にアラーム設定しました。",
+                "The alarm was set at " + cld_alarm.getTime(),
                 Toast.LENGTH_SHORT).show();
 
 //        Log.d(TAG, "AlarmSettingTime is "
@@ -549,60 +542,40 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     }
 
     /**
-     * 今日の曜日と、保存された曜日設定を比較し、何日後にアラームが動作するかを返す
-     * @return アラームが動作するまでの日数
+     * Preference情報を元にアラームが動作予定のCalender情報を作成し、返す。
+     * @return アラームが動作予定のCalender情報
      */
-    private int alarmWhatDaysAfter() {
-        Log.d(TAG, "alarmWhatDaysAfter");
+    private Calendar getAlarmCalender() {
+        Log.d(TAG, "getAlarmCalender");
 
         // 選択された曜日データを取得
         String pref_week[] = getSelectedWeeks(ALARMTIME_WEEK_KEY);
 
-        // 今日の日時から、曜日を取得
-        Calendar cld = Calendar.getInstance();
-        cld.get(Calendar.YEAR);
-        cld.get(Calendar.MONTH);
-        cld.get(Calendar.DAY_OF_MONTH);
+        // Preferenceに保存されているデータを元にしたCalender
+        Calendar cld_pref = Calendar.getInstance();
+        cld_pref.set(Calendar.HOUR_OF_DAY, getAlarmHour()); // 時
+        cld_pref.set(Calendar.MINUTE, getAlarmMinute());    // 分
+        cld_pref.set(Calendar.SECOND, 0);                   // 秒
 
-        int cld_weekday = 0;
-        switch(cld.get(Calendar.DAY_OF_WEEK)) {
-            case Calendar.SUNDAY:
-                cld_weekday = 0;    //日曜日
-                break;
-            case Calendar.MONDAY:
-                cld_weekday = 1;    //月曜日
-                break;
-            case Calendar.TUESDAY:
-                cld_weekday = 2;    //火曜日
-                break;
-            case Calendar.WEDNESDAY:
-                cld_weekday = 3;    //水曜日
-                break;
-            case Calendar.THURSDAY:
-                cld_weekday = 4;    //木曜日
-                break;
-            case Calendar.FRIDAY:
-                cld_weekday = 5;    //金曜日
-                break;
-            case Calendar.SATURDAY:
-                cld_weekday = 6;    //土曜日
-                break;
+        // Calenderクラスでは、曜日は0からではなく1から始まっているため、1+して処理する。
+        int i = Integer.parseInt(pref_week[0]);
+        cld_pref.set(Calendar.DAY_OF_WEEK, i + 1); //曜日
+
+        // 今日の日時を元にしたCalender
+        Calendar cld_today = Calendar.getInstance();
+        cld_today.get(Calendar.YEAR);
+        cld_today.get(Calendar.MONTH);
+        cld_today.get(Calendar.DAY_OF_MONTH);
+
+        Log.d(TAG,"cld_pref.compareTo(cld_today) = " + cld_pref.compareTo(cld_today));
+
+        // TODO cld_prefの曜日が、今日か、今週か、来週か判定する処理。
+        if (cld_pref.compareTo(cld_today) >= 0) {
+            // 現在か、今週の場合は設定された時刻通りにアラームを設定する。
+        } else if (cld_pref.compareTo(cld_today) < 0) {
+            // 過ぎてしまっている場合は、来週になるようにCalenderを調整。
+            cld_pref.add(Calendar.DATE, DAY_OF_WEEK);
         }
-        Log.d(TAG,"cld_weekday = " + cld_weekday);
-
-        // 今日の曜日と、保存曜日された曜日設定を比較し、何日後にアラームが動作しなくてはならないかを確認
-        int daysafter = Integer.parseInt(pref_week[0]) - cld_weekday;
-
-        if (daysafter >= 0) {
-            // 0以上であれば、今日か、今日から日曜日までのどこか
-            Log.d(TAG, daysafter + " 日後にアラーム動作させる");
-            return daysafter;
-        } else if (0 > daysafter) {
-            // 0以下であれば、日曜日を挟んだそれ以降
-            int daynextweek = DAY_OF_WEEK + daysafter;
-            Log.d(TAG, daynextweek +" 日後にアラーム動作させる");
-            return daynextweek;
-        }
-        return Integer.parseInt(null);
+        return cld_pref;
     }
 }
