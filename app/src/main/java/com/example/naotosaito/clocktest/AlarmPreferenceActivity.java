@@ -16,10 +16,8 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.os.Bundle;
 import android.preference.SwitchPreference;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,12 +29,6 @@ import java.util.Collections;
 
 public class AlarmPreferenceActivity extends PreferenceActivity {
     private static final String TAG = "AlarmPreferenceActivity";
-
-    final static String ALARM_SERVICE_KEY = "alarmservice_boolean";
-    final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";
-    final static String ALARMTIME_MINUTE_KEY = "alarmtime_minute";
-    final static String ALARMTIME_WEEK_KEY = "alarmtime_week";
-    final static int DAY_OF_WEEK = 7;
 
     AlarmPreferenceFragment mFragment;
     SwitchPreference alarmbutton;
@@ -56,19 +48,22 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // アラーム設定の有効・無効を設定するトグルボタンを押した時の動作。
         // (SwitchPreference)でキャストし、findPreferenceを実行。
         alarmbutton = (SwitchPreference)mFragment.findPreference(getString(R.string.alarmboolean_key));
-        alarmbutton.setChecked(getAlarmServiceBoolean()); //初期値を指定。
+        alarmbutton.setChecked(ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY)); //初期値を指定。
 
         alarmbutton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#alarmbutton onPreferencelick");
 
-                if (alarmbutton.isChecked()) {
+                // トグルボタンの状態をチェックして結果をPreferenceに保存する。
+                boolean value = alarmbutton.isChecked();
+
+                if (value) {
                     // trueになった場合は、有効なアラーム設定がある場合は、アラーム設定を行う。
-                    setAlarmServiceBoolean(alarmbutton.isChecked());
-                    alarmServiceSet();
-                } else if (!alarmbutton.isChecked()) {
+                    ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, value);
+                    ClockUtil.alarmServiceSet();
+                } else if (!value) {
                     // falseになった場合は、アラーム鳴動予定がある場合は、無効にする。
-                    setAlarmServiceBoolean(alarmbutton.isChecked());
+                    ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, value);
                     alarmServiceCansel();
                 }
                 return alarmbutton.isChecked();
@@ -139,11 +134,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
         // AlarmServiceが起動中・Pending中共にない場合は、トグルボタンを更新する。
         if (!ClockUtil.isYourServiceWorking() && !ClockUtil.getAlarmPendingIntent()) {
-            setAlarmServiceBoolean(false);
+            ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, false);
         }
-        Log.d(TAG, "getAlarmServiceBoolean() = " + getAlarmServiceBoolean());
+        Log.d(TAG, "getAlarmServiceBoolean() = " + ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY));
         // アラームON/OFFボタンの状態を更新。
-        alarmbutton.setChecked(getAlarmServiceBoolean());
+        alarmbutton.setChecked(ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY));
     }
 
     @Override
@@ -175,15 +170,15 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     Log.d(TAG, "onSharedPreferenceChanged");
 
                     // アラームの時間か分のキーの場合、サマリーを保存する処理を行う。
-                    if(ALARMTIME_HOUR_KEY.equals(key) || ALARMTIME_MINUTE_KEY.equals(key)) {
+                    if(ClockUtil.ALARMTIME_HOUR_KEY.equals(key) || ClockUtil.ALARMTIME_MINUTE_KEY.equals(key)) {
                         // Serviceを一度終了し、更新された時間で再設定する。
                         alarmServiceCansel();
-                        alarmServiceSet();
+                        ClockUtil.alarmServiceSet();
                         updateTimeView();
-                    } else if (ALARMTIME_WEEK_KEY.equals(key)) {
+                    } else if (ClockUtil.ALARMTIME_WEEK_KEY.equals(key)) {
                         // Serviceを一度終了し、更新された曜日で再設定する。
                         alarmServiceCansel();
-                        alarmServiceSet();
+                        ClockUtil.alarmServiceSet();
                         updateWeekView();
                     }
                 }
@@ -198,8 +193,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         button = mFragment.findPreference("alarmtime_key");
 
         // 保存されているPreferenceの値を取得
-        int spHourInt = getAlarmHour();
-        int spMinuteInt = getAlarmMinute();
+        int spHourInt = ClockUtil.getPrefInt("hour", ClockUtil.ALARMTIME_HOUR_KEY);
+        int spMinuteInt = ClockUtil.getPrefInt("minute", ClockUtil.ALARMTIME_MINUTE_KEY);
 
         // Preferenceを文字列に変換する。
         String valueOfH = String.valueOf(spHourInt);
@@ -218,7 +213,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Preference button = null;
         button = mFragment.findPreference("alarm_start_week_key");
 
-        String[] week = getSelectedWeeks(ALARMTIME_WEEK_KEY);
+        String[] week = ClockUtil.getSelectedWeeks(ClockUtil.ALARMTIME_WEEK_KEY);
 
         // 曜日設定が無い場合は、画面の更新は行わない。
         if (week == null) {
@@ -275,67 +270,13 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
                 // アラーム時間をPreferenceで保存する
-                setAlarmHour(hourOfDay);
-                setAlarmMinute(minute);
+                ClockUtil.setPrefInt("hour", ClockUtil.ALARMTIME_HOUR_KEY, hourOfDay);
+                ClockUtil.setPrefInt("minute", ClockUtil.ALARMTIME_MINUTE_KEY, minute);
 
                 // アラームの設定保存に完了したことを永続化する。
             }
         }, hour, minute, true);
         dialog.show();
-    }
-
-    /**
-     * アラームが動作するサービスの設定を行う
-     */
-    private void alarmServiceSet() {
-        Log.d(TAG, "alarmServiceSet");
-
-        // 以下の場合、アラームサービスの起動を行わない。
-        // 1. アラーム設定のトグルボタンが無効の場合
-        // 2. アラームが鳴動中である場合
-        if (!getAlarmServiceBoolean() ||
-                ClockUtil.isYourServiceWorking()) {
-            return;
-        }
-
-        // AlarmService起動用のIntent、PendingIntentを作成
-        Context context = getBaseContext();
-        Intent intent = new Intent(AlarmPreferenceActivity.this, AlarmService.class);
-        int requestcode = 1;
-        PendingIntent pendingintent = PendingIntent.getService(
-                context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // TODO 各アラーム設定のPreferenceにアクセスする
-
-        // アラームを実行する時間の設定を準備
-        // TODO ユーティリティクラスにした方が良さそう
-
-        Calendar cld_alarm = Calendar.getInstance();
-
-        // 曜日設定がすでに保存済みであるかチェック。
-        if (getSelectedWeeks(ALARMTIME_WEEK_KEY) != null) {
-            cld_alarm = getAlarmCalender();
-        }
-
-        // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
-        AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        alarmmanager.set(AlarmManager.RTC, cld_alarm.getTimeInMillis(), pendingintent);
-
-        // PendingIntentをセットしたためflagを有効化する
-        ClockUtil.setAlarmPendingIntent(true);
-
-        Log.d(TAG, "The alarm was set at " + cld_alarm.getTime());
-        Toast.makeText(MyApplication.getContext(),
-                "The alarm was set at " + cld_alarm.getTime(),
-                Toast.LENGTH_SHORT).show();
-
-//        Log.d(TAG, "AlarmSettingTime is "
-//                + calender.YEAR
-//                + calender.MONTH
-//                + calender.DAY_OF_MONTH
-//                + calender.HOUR_OF_DAY
-//                + calender.MINUTE
-//                + calender.SECOND + " !!");
     }
 
     /**
@@ -415,75 +356,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     }
 
     /**
-     * アラーム設定の真偽値を保存する
-     * @param value アラーム設定の真偽値
-     */
-    private void setAlarmServiceBoolean(boolean value) {
-        // Preferenceへのアクセス
-        SharedPreferences prefer_almvalue = getSharedPreferences("alarmservice", MODE_PRIVATE);
-
-        // Preferenceの保存
-        SharedPreferences.Editor editor_almvalue = prefer_almvalue.edit();
-        editor_almvalue.putBoolean(ALARM_SERVICE_KEY, value);
-        editor_almvalue.commit();
-    }
-
-    /**
-     * 保存されている、アラーム設定の真偽値を返す。
-     * @return 有効かアラーム設定の有無
-     */
-    public boolean getAlarmServiceBoolean() {
-        SharedPreferences prefer_almvalue = getSharedPreferences("alarmservice", MODE_PRIVATE);
-        return prefer_almvalue.getBoolean(ALARM_SERVICE_KEY, false);
-    }
-
-    /**
-     * Preferenceにアラームの時刻を保存する
-     * @param hourOfDay アラーム時刻
-     */
-    public void setAlarmHour(int hourOfDay) {
-        // Preferenceへのアクセス
-        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
-
-        // Preferenceの保存
-        SharedPreferences.Editor editor_hour = prefer_hour.edit();
-        editor_hour.putInt(ALARMTIME_HOUR_KEY, hourOfDay);
-        editor_hour.commit();
-    }
-
-    /**
-     * Preferenceの時間を取得する
-     * @return Preferenceに保存された「時」設定
-     */
-    public int getAlarmHour() {
-        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
-        return prefer_hour.getInt(ALARMTIME_HOUR_KEY, MODE_PRIVATE);
-    }
-
-    /**
-     * Preferenceにアラームの分を保存する
-     * @param minute アラームの分
-     */
-    private void setAlarmMinute(int minute) {
-        // Preferenceへのアクセス
-        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
-
-        // Preferenceの保存
-        SharedPreferences.Editor editor_minute = prefer_minute.edit();
-        editor_minute.putInt(ALARMTIME_MINUTE_KEY, minute);
-        editor_minute.commit();
-    }
-
-    /**
-     * Preferenceの時間を取得する
-     * @return Preferenceに保存された「分」設定
-     */
-    public int getAlarmMinute() {
-        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
-        return prefer_minute.getInt(ALARMTIME_MINUTE_KEY, MODE_PRIVATE);
-    }
-
-    /**
      * アラームが動作する曜日設定のPreferenceの配列を文字列に変換・保存
      * @param mSelectedWeeks 保存する曜日設定
      */
@@ -514,88 +386,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // Preferenceの保存
         SharedPreferences prefer_week = getSharedPreferences("week", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefer_week.edit();
-        editor.putString(ALARMTIME_WEEK_KEY, stringItem).commit();
-    }
-
-    /**
-     * 保存された曜日情報を取得し、何日後にアラームが動作すれば良いかを判定する。
-     * @param prefkey 取得対象のPreferenceキー
-     * @return 保存されたアラーム曜日情設定の配列
-     */
-    public String[] getSelectedWeeks(String prefkey) {
-        Log.d(TAG, "getSelectedWeeks");
-        // Preferenceの曜日の配列を取得
-        SharedPreferences prefer_week = getSharedPreferences("week", MODE_PRIVATE);
-        String stringitem = prefer_week.getString(prefkey, "");
-
-        Log.d(TAG, "stringitem = " + stringitem);
-
-        // Preferenceが、非null、文字数が0以上の場合、文字列を分割して返却する。
-        if (stringitem != null && stringitem.length() != 0 ) {
-            Log.d(TAG, "stringitem.split = " + stringitem.split(","));
-            return stringitem.split(",");
-        } else {
-            return null;
-        }
-        // 現在の日時、曜日を取得、何日後か確認
-        // 現在の日時から、何日後の日にちを確認
-    }
-
-    /**
-     * Preference情報を元にアラームが動作予定のCalender情報を作成し、返す。
-     * @return アラームが動作予定のCalender情報
-     */
-    private Calendar getAlarmCalender() {
-        Log.d(TAG, "getAlarmCalender");
-
-        // 今日の日時を元にするCalender
-        Calendar cld_today = Calendar.getInstance();
-        cld_today.get(Calendar.YEAR);
-        cld_today.get(Calendar.MONTH);
-        cld_today.get(Calendar.DAY_OF_MONTH);
-
-        // 戻り値となるアラーム鳴動予定を入れるCalender
-        Calendar cld_alarm = Calendar.getInstance();
-
-        // 選択された曜日データを取得
-        String pref_week[] = getSelectedWeeks(ALARMTIME_WEEK_KEY);
-
-        ArrayList<Calendar> cldlist = new ArrayList<>();
-
-        // Preferenceの曜日データを元に、鳴動予定のCalenderを一通り作成する。
-        for (String i : pref_week) {
-
-            // Preferenceに保存されているデータを元にするCalender
-            Calendar cld_pref = Calendar.getInstance();
-            cld_pref.set(Calendar.HOUR_OF_DAY, getAlarmHour()); // 時
-            cld_pref.set(Calendar.MINUTE, getAlarmMinute());    // 分
-            cld_pref.set(Calendar.SECOND, 0);                   // 秒
-
-            // Calenderクラスでは、曜日は0からではなく1から始まっているため、1+して処理する。
-            cld_pref.set(Calendar.DAY_OF_WEEK, Integer.parseInt(i) + 1); //曜日
-            Log.d(TAG,"cld_pref.compareTo(cld_today) = " + cld_pref.compareTo(cld_today));
-
-            if (cld_pref.compareTo(cld_today) >= 0) {
-                // 現在か、今週の場合は設定された時刻通りにアラームを設定する。
-            } else if (cld_pref.compareTo(cld_today) < 0) {
-                // 過ぎてしまっている場合は、来週になるようにCalenderを調整。
-                cld_pref.add(Calendar.DATE, DAY_OF_WEEK);
-            }
-            cldlist.add(cld_pref);
-        }
-
-        // returmするcalendarの初期値を指定。
-        cld_alarm = cldlist.get(0);
-
-        // 設定されたCalenderを比較していき、一番今日に近いCalenderはどれか確認する。
-        for (int i=0; i<cldlist.size(); i++) {
-                    + cld_alarm.after(cldlist.get(i)));
-            if (cld_alarm.after(cldlist.get(i))) {
-                Log.d("NSAITOTEST","cld_alarm update");
-                cld_alarm = cldlist.get(i);
-            }
-        }
-        Log.d(TAG, "getAlarmCalender() return = " + cld_alarm.getTime());
-        return cld_alarm;
+        editor.putString(ClockUtil.ALARMTIME_WEEK_KEY, stringItem).commit();
     }
 }
