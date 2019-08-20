@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 /**
  * Created by naotosaito on 2019/03/10.
@@ -111,7 +112,8 @@ public class ClockUtil {
     public static void setAlarmPendingIntent(boolean value) {
         // Preferenceへのアクセス
         SharedPreferences pref_almvalue =
-                MyApplication.getContext().getSharedPreferences("PendingAlarm", Context.MODE_PRIVATE);
+                MyApplication.getContext().
+                        getSharedPreferences("PendingAlarm", MyApplication.getContext().MODE_PRIVATE);
 
         // Preferenceの保存
         SharedPreferences.Editor editor_almvalue = pref_almvalue.edit();
@@ -125,7 +127,8 @@ public class ClockUtil {
      */
     public static boolean getAlarmPendingIntent() {
         SharedPreferences pref_almvalue =
-                MyApplication.getContext().getSharedPreferences("PendingAlarm", Context.MODE_PRIVATE);
+                MyApplication.getContext().
+                        getSharedPreferences("PendingAlarm", MyApplication.getContext().MODE_PRIVATE);
         return pref_almvalue.getBoolean(PENDING_ALARMSERVICE_KEY, false);
     }
 
@@ -208,6 +211,41 @@ public class ClockUtil {
 //                + calender.HOUR_OF_DAY
 //                + calender.MINUTE
 //                + calender.SECOND + " !!");
+    }
+
+    /**
+     * アラームが動作する曜日設定のPreferenceの配列を文字列に変換・保存
+     * @param mSelectedWeeks 保存する曜日設定
+     */
+    public static void setSelectedWeeks(ArrayList mSelectedWeeks) {
+        Log.d(TAG, "setSelectedWeeks");
+
+        // 曜日が何も選択されていなかった場合は、保存処理は行わない。
+        if (mSelectedWeeks == null || mSelectedWeeks.size() == 0) {
+            return;
+        }
+
+        StringBuffer buffer = new StringBuffer();
+        String stringItem = null;
+
+        // 曜日順に整列して保存したいため、配列の整列を行う。
+        Collections.sort(mSelectedWeeks);
+
+        // 選択された曜日を確認し、StringBufferに「,」区切りで追加
+        for (Object item : mSelectedWeeks) {
+            buffer.append(item+",");
+        }
+        // StringBufferを、一つの文字列に変換する。
+        if (buffer != null) {
+            String buf = buffer.toString();
+            stringItem = buf.substring(0, buf.length() -1);
+        }
+
+        // Preferenceの保存
+        SharedPreferences prefer_week = MyApplication.getContext().
+                getSharedPreferences("week", MyApplication.getContext().MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefer_week.edit();
+        editor.putString(ClockUtil.ALARMTIME_WEEK_KEY, stringItem).commit();
     }
 
     /**
