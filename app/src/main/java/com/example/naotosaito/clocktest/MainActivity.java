@@ -64,8 +64,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.optionsMenu_01:
-                Intent intent = new android.content.Intent(this, AlarmPreferenceActivity.class);
-                startActivity(intent);
+                Intent intent_AlmPrefcAct = new android.content.Intent(this, AlarmPreferenceActivity.class);
+                startActivity(intent_AlmPrefcAct);
+                return true;
+            case R.id.optionsMenu_02:
+                Intent intent_SptfAuthAct = new android.content.Intent(this, AppSettingsActivity.class);
+                startActivity(intent_SptfAuthAct);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

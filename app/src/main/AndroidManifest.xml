@@ -11,14 +11,28 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".AlarmPreferenceActivity"></activity>
+        <activity
+            android:name=".AlarmPreferenceActivity"
+            android:label="@string/opt_menu_AlarmSetting">
+        </activity>
+        <activity
+            android:name=".AppSettingsActivity"
+            android:label="@string/opt_menu_SpotifySetting">
+        </activity>
+        <activity
+            android:name="com.example.naotosaito.clocktest.CallAlarmDialogActivity"
+            android:launchMode="singleInstance"
+            android:theme="@style/DialogTheme">
+        </activity>
 
         <receiver
             android:name=".AlarmBroadcastReceiver"
@@ -29,10 +43,5 @@
             android:enabled="true"
             android:exported="false"></service>
 
-        <activity
-            android:name="com.example.naotosaito.clocktest.CallAlarmDialogActivity"
-            android:launchMode="singleInstance"
-            android:theme="@style/DialogTheme">
-        </activity>
     </application>
 </manifest>
