@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.spotify.android.appremote.api.SpotifyAppRemote;
+
 /**
  * Created by naotosaito on 2019/08/21.
  * アプリの環境設定を行うActivity
@@ -19,9 +21,7 @@ public class AppSettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app_settings);
 
-        SpotifyAppRemoteController spotifyAppRemoteController = new SpotifyAppRemoteController();
-
-        Log.d(TAG, "isConnected = " + spotifyAppRemoteController.isConnected());
+        Log.d(TAG, "isConnected = " + SpotifyAppRemoteController.isConnected());
 
         Button btn_Sptf_auth = (Button) findViewById(R.id.btn_sptf_auth);
         btn_Sptf_auth.setOnClickListener(new View.OnClickListener() {
@@ -29,7 +29,7 @@ public class AppSettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Spotify接続済みの場合はボタンの表記を変更する。
 
-                    spotifyAppRemoteController.onStart();
+                SpotifyAppRemoteController.onStart();
             }
         });
 
@@ -38,7 +38,7 @@ public class AppSettingsActivity extends AppCompatActivity {
         btn_Sptf_Disconnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    spotifyAppRemoteController.onFinish();
+                SpotifyAppRemoteController.onFinish();
             }
         });
     }
@@ -48,6 +48,5 @@ public class AppSettingsActivity extends AppCompatActivity {
         super.onResume();
 
         Log.d(TAG, "onResume");
-
     }
 }

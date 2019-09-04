@@ -28,8 +28,13 @@ public class ClockUtil {
     final static String ALARMTIME_MINUTE_KEY = "alarmtime_minute";
     final static String ALARMTIME_WEEK_KEY = "alarmtime_week";
     final static String PENDING_ALARMSERVICE_KEY = "pendingalarmservice_boolean";
+    final static String SPOTIFY_USE_KEY = "spotify_use_boolean";
 
     final static int DAY_OF_WEEK = 7;
+
+    // Spotify関連
+    static final String CLIENT_ID = "779e27eb586742d7bb1eea46b275d464";
+    static final String REDIRECT_URI = "https://www.spotify.com/jp/";
 
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
     private ClockUtil() {

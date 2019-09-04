@@ -9,24 +9,30 @@ import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 /**
  * Created by naotosaito on 2019/08/21.
- * Spotify APIを使用して、認証処理を行うクラス。
+ * SpotifyAppRemote APIを使用して、認証処理を行うクラス。
+ * インスタンス化不可。
  */
 
 public class SpotifyAppRemoteController {
 
     private static final String TAG = "SpotifyAppRemoteController";
+    private static SpotifyAppRemote mSpotifyAppRemote;
 
-    private static final String CLIENT_ID = "779e27eb586742d7bb1eea46b275d464";
-    private static final String REDIRECT_URI = "https://www.spotify.com/jp/";
-    private SpotifyAppRemote mSpotifyAppRemote;
+    // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
+    private SpotifyAppRemoteController() {
+        throw new AssertionError();
+    }
 
-    protected void onStart() {
+    /**
+     * アカウント連携APIを実行する。
+     */
+    protected static void onStart() {
         // We will start writing our code here.
 
         // Set the connection parameters
         ConnectionParams connectionParams =
-                new ConnectionParams.Builder(CLIENT_ID)
-                        .setRedirectUri(REDIRECT_URI)
+                new ConnectionParams.Builder(ClockUtil.CLIENT_ID)
+                        .setRedirectUri(ClockUtil.REDIRECT_URI)
                         .showAuthView(true)
                         .build();
 
@@ -37,8 +43,13 @@ public class SpotifyAppRemoteController {
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
                         Log.d(TAG, "onConnected");
+                        Log.d(TAG, "isConnected() = " + isConnected());
                         Toast.makeText(MyApplication.getContext(),
                                 MyApplication.getContext().getString(R.string.sptf_auth_comp), Toast.LENGTH_SHORT);
+
+                        // TODO 暫定でこちらでPref設定をする。
+                        // TODO Spotifyとローカル音楽ファイルを切り替えられるように対応した後、別場所で処理する。
+                        ClockUtil.setPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY, true);
                     }
 
                     @Override
@@ -52,27 +63,35 @@ public class SpotifyAppRemoteController {
                 });
     }
 
-    protected void onFinish() {
-        Log.d(TAG, "onFinish");
+    /**
+     * アカウント連携解除APIを実行する。
+     */
+    protected static void onFinish() {
 
         if(mSpotifyAppRemote != null && mSpotifyAppRemote.isConnected()) {
+            Log.d(TAG, "disconnect");
             SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+
+            // TODO 暫定でこちらでPref設定をする。
+            // TODO Spotifyとローカル音楽ファイルを切り替えられるように対応した後、別場所で処理する。
+            ClockUtil.setPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY, false);
         }
     }
 
     /**
-     * SpotifyAppRemote APIを接続した状態となっているか。
+     * アカウント連携状態を返す。
      * @return true : 接続済み false : 未接続
      */
-    public boolean isConnected() {
+    public static boolean isConnected() {
+
+        boolean result = false;
 
         try {
-            mSpotifyAppRemote.isConnected();
+            result = mSpotifyAppRemote.isConnected();
+            Log.d(TAG, "isConnected = " + result);
         } catch (RuntimeException e) {
             e.printStackTrace();
-
-            return false;
         }
-        return true;
+        return result;
     }
 }
