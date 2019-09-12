@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.protocol.types.Track;
 
 /**
  * Created by naotosaito on 2019/08/21.
@@ -27,6 +28,8 @@ public class SpotifyAppRemoteController {
      * アカウント連携APIを実行する。
      */
     protected static void onStart() {
+        Log.d(TAG, "onStart");
+
         // We will start writing our code here.
 
         // Set the connection parameters
@@ -43,7 +46,6 @@ public class SpotifyAppRemoteController {
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
                         Log.d(TAG, "onConnected");
-                        Log.d(TAG, "isConnected() = " + isConnected());
                         Toast.makeText(MyApplication.getContext(),
                                 MyApplication.getContext().getString(R.string.sptf_auth_comp), Toast.LENGTH_SHORT);
 
@@ -67,6 +69,7 @@ public class SpotifyAppRemoteController {
      * アカウント連携解除APIを実行する。
      */
     protected static void onFinish() {
+        Log.d(TAG, "onFinish");
 
         if(mSpotifyAppRemote != null && mSpotifyAppRemote.isConnected()) {
             Log.d(TAG, "disconnect");
@@ -93,5 +96,24 @@ public class SpotifyAppRemoteController {
             e.printStackTrace();
         }
         return result;
+    }
+
+    /**
+     * Spotify の音楽再生を行う。
+     */
+    public static void Play() {
+
+        // Play a playlist
+        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+
+        // Subscribe to PlayerState
+        mSpotifyAppRemote.getPlayerApi()
+                .subscribeToPlayerState()
+                .setEventCallback(playerState -> {
+                    final Track track = playerState.track;
+                    if (track != null) {
+                        Log.d(TAG, track.name + " by " + track.artist.name);
+                    }
+                });
     }
 }

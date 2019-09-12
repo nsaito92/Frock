@@ -103,7 +103,7 @@ public class AlarmService extends Service {
         return filecheck;
     }
 
-    private void audioPlay() {
+    public void audioPlay() {
         Log.d(TAG, "audioPlay called");
         Log.d(TAG, "audioPlay mediaPlayer = " + mediaPlayer);
         if(mediaPlayer == null){

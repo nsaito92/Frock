@@ -23,6 +23,7 @@ import java.util.Collections;
 public class ClockUtil {
     private static final String TAG = "ClockUtil";
 
+    // Preference
     final static String ALARM_SERVICE_KEY = "alarmservice_boolean";
     final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";
     final static String ALARMTIME_MINUTE_KEY = "alarmtime_minute";
@@ -100,8 +101,10 @@ public class ClockUtil {
         ActivityManager manager = (ActivityManager) MyApplication.getContext().getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo serviceinfo :
                 manager.getRunningServices(Integer.MAX_VALUE)) {
-            // TODO AlarmService以外のServiceでも共通利用できる様にしたい。
-            if(AlarmService.class.getName().equals(serviceinfo.service.getClassName())) {
+
+            // アラームサービスか、Spotifyサービスが起動しているかチェック。
+            if(AlarmService.class.getName().equals(serviceinfo.service.getClassName()) ||
+                    AlarmSpotifyService.class.getName().equals(serviceinfo.service.getClassName())) {
                 Log.d(TAG, "isYourServiceWorking = " + true);
                 return true;
             }
@@ -170,6 +173,8 @@ public class ClockUtil {
     public static void alarmServiceSet() {
         Log.d(TAG, "alarmServiceSet");
 
+        // TODO Spotify影響範囲内
+
         // 以下の場合、アラームサービスの起動を行わない。
         // 1. アラーム設定のトグルボタンが無効の場合
         // 2. アラームが鳴動中である場合
@@ -180,7 +185,10 @@ public class ClockUtil {
 
         // AlarmService起動用のIntent、PendingIntentを作成
         Context context = MyApplication.getContext();
-        Intent intent = new Intent(MyApplication.getContext(), AlarmService.class);
+
+        // TODO 通常のアラームサービスと、Spotifyサービスの起動を切り替えられる様にする。
+//        Intent intent = new Intent(MyApplication.getContext(), AlarmService.class);
+        Intent intent = new Intent(MyApplication.getContext(), AlarmSpotifyService.class);
         int requestcode = 1;
         PendingIntent pendingintent = PendingIntent.getService(
                 context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);

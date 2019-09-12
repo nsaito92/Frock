@@ -41,7 +41,13 @@
         <service
             android:name=".AlarmService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false">
+        </service>
+        <service
+            android:name=".AlarmSpotifyService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
 
     </application>
 </manifest>

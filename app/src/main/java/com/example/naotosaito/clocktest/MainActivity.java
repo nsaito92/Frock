@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // TODO Spotify影響範囲内
+
                 // アラーム音を再生しているServiceを終了する
                 Intent intent = new Intent(MainActivity.this, AlarmService.class);
 
