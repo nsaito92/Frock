@@ -281,11 +281,16 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Context context = getBaseContext();
         int requestcode = 1;
 
-        // TODO Spotify影響範囲内
-
         AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-//        Intent intent = new Intent(AlarmPreferenceActivity.this, AlarmService.class);
-        Intent intent = new Intent(AlarmPreferenceActivity.this, AlarmSpotifyService.class);
+
+        // 設定されたサービスをチェックし、必要な方をIntentに追加する。
+        Intent intent;
+        if (ClockUtil.getPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY)) {
+            intent = new Intent(AlarmPreferenceActivity.this, AlarmSpotifyService.class);
+        } else {
+            intent = new Intent(AlarmPreferenceActivity.this, AlarmService.class);
+        }
+
         PendingIntent pendingintent = PendingIntent.getService(
                 context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 

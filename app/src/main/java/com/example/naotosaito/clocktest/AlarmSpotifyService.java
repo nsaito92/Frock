@@ -23,12 +23,8 @@ public class AlarmSpotifyService extends AlarmService {
         // PendingIntentによるServiceが起動したため、flagを無効化する
         ClockUtil.setAlarmPendingIntent(false);
 
-        // Spotify連携の状態をチェック。接続できる状態かつ使用する設定であれば、再生する。
-        if (SpotifyAppRemoteController.isConnected() &&
-                ClockUtil.getPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY)) {
-            //音楽再生
-            audioPlay();
-        }
+        // Spotify連携の状態をチェックし、接続できる状態かつ使用する設定となっていたため、再生する。
+        audioPlay();
 
         // アラーム鳴動通知ダイアログを表示
         Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);

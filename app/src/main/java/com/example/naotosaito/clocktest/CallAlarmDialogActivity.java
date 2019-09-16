@@ -28,9 +28,14 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // アラームを終了して、Activityを終了する。
+                        // 設定されたサービスをチェックし、必要な方をIntentに追加する。
+                        Intent intent;
+                        if (ClockUtil.getPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY)) {
+                            intent = new Intent(CallAlarmDialogActivity.this, AlarmSpotifyService.class);
+                        } else {
+                            intent = new Intent(CallAlarmDialogActivity.this, AlarmService.class);
+                        }
 
-                        // TODO Spotify影響範囲内
-                        Intent intent = new Intent(CallAlarmDialogActivity.this, AlarmService.class);
                         stopService(intent);
 
                         // 次のアラーム鳴動予定をチェックし、設定する。
