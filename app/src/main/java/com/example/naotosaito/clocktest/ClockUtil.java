@@ -23,6 +23,9 @@ import java.util.Collections;
 public class ClockUtil {
     private static final String TAG = "ClockUtil";
 
+    // クラス名チェック
+    final static String CLASS_NAME_ALARMSPOTIFYSERVICE = AlarmSpotifyService.class.getName();
+
     // Preference
     final static String ALARM_SERVICE_KEY = "alarmservice_boolean";
     final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";
@@ -31,11 +34,11 @@ public class ClockUtil {
     final static String PENDING_ALARMSERVICE_KEY = "pendingalarmservice_boolean";
     final static String SPOTIFY_USE_KEY = "spotify_use_boolean";
 
-    final static int DAY_OF_WEEK = 7;
-
     // Spotify関連
     static final String CLIENT_ID = "779e27eb586742d7bb1eea46b275d464";
     static final String REDIRECT_URI = "https://www.spotify.com/jp/";
+
+    final static int DAY_OF_WEEK = 7;
 
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
     private ClockUtil() {
@@ -178,6 +181,7 @@ public class ClockUtil {
         // 2. アラームが鳴動中である場合
         if (!ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY) ||
                 ClockUtil.isYourServiceWorking()) {
+            Log.d(TAG, "alarmServiceSet : return");
             return;
         }
 
@@ -187,9 +191,11 @@ public class ClockUtil {
         // 通常のアラームサービスと、Spotifyサービスの起動を切り替える。
         Intent intent;
 
-        if (SpotifyAppRemoteController.isConnected() &&
-                ClockUtil.getPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY)) {
-            intent = new Intent(MyApplication.getContext(), AlarmSpotifyService.class);
+        // TODO Spotifyとローカルファイルの切り替え対応時に、見直す。
+//        if (SpotifyAppRemoteController.isConnected() &&
+//                ClockUtil.getPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY)) {
+        if (ClockUtil.getPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY)) {
+                intent = new Intent(MyApplication.getContext(), AlarmSpotifyService.class);
         } else {
             intent = new Intent(MyApplication.getContext(), AlarmService.class);
         }

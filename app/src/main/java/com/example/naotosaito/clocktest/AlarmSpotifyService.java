@@ -16,15 +16,17 @@ public class AlarmSpotifyService extends AlarmService {
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
         //非同期処理を行うメソッド
-        Log.d(TAG, "onStartCommand called");
+        Log.d(TAG, "onStartCommand");
+
+        // Spotify連携の状態をチェックし、接続できる状態かつ使用する設定となっていたため、再生する。
+        // TODO 　Spotify連携できなかった場合の、エラーハンドリング
+        SpotifyAppRemoteController.onStart(AlarmSpotifyService.class.getName());
+
         Toast.makeText(MyApplication.getContext(),
                 getString(R.string.started_the_alarm), Toast.LENGTH_SHORT).show();
 
         // PendingIntentによるServiceが起動したため、flagを無効化する
         ClockUtil.setAlarmPendingIntent(false);
-
-        // Spotify連携の状態をチェックし、接続できる状態かつ使用する設定となっていたため、再生する。
-        audioPlay();
 
         // アラーム鳴動通知ダイアログを表示
         Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);
@@ -36,11 +38,14 @@ public class AlarmSpotifyService extends AlarmService {
         return START_NOT_STICKY;
     }
 
-    /**
-     * Spotifyの音楽を再生してアラームを実行する。
-     */
     @Override
-    public void audioPlay() {
-        SpotifyAppRemoteController.Play();
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        Toast.makeText(MyApplication.getContext(),
+                getString(R.string.stopped_the_alarm), Toast.LENGTH_SHORT).show();
+
+        SpotifyAppRemoteController.pause();
+
+        // TODO Destroyされた直後に、setAlarmServiceBoolean(false)するのが一番正しい気がするので後ほど修正する。
     }
 }

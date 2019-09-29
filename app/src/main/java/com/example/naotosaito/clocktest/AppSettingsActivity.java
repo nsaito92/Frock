@@ -21,7 +21,7 @@ public class AppSettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_app_settings);
 
-        Log.d(TAG, "isConnected = " + SpotifyAppRemoteController.isConnected());
+//        Log.d(TAG, "isConnected = " + SpotifyAppRemoteController.isConnected());
 
         Button btn_Sptf_auth = (Button) findViewById(R.id.btn_sptf_auth);
         btn_Sptf_auth.setOnClickListener(new View.OnClickListener() {
@@ -29,7 +29,7 @@ public class AppSettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Spotify接続済みの場合はボタンの表記を変更する。
 
-                SpotifyAppRemoteController.onStart();
+                SpotifyAppRemoteController.onStart(AppSettingsActivity.class.getName());
             }
         });
 

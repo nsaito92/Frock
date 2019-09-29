@@ -74,7 +74,7 @@ public class AlarmService extends Service {
     }
 
     private boolean audioSetup() {
-        Log.d(TAG, "onCreate called");
+        Log.d(TAG, "audioSetup");
         mediaPlayer = new MediaPlayer(); // MP状態 → Idle
 
         boolean filecheck = false;

@@ -27,8 +27,8 @@ public class SpotifyAppRemoteController {
     /**
      * アカウント連携APIを実行する。
      */
-    protected static void onStart() {
-        Log.d(TAG, "onStart");
+    protected static void onStart(String classname) {
+        Log.d(TAG, "onStart : Request from " + classname);
 
         // We will start writing our code here.
 
@@ -48,6 +48,11 @@ public class SpotifyAppRemoteController {
                         Log.d(TAG, "onConnected");
                         Toast.makeText(MyApplication.getContext(),
                                 MyApplication.getContext().getString(R.string.sptf_auth_comp), Toast.LENGTH_SHORT);
+
+                        // onStartの呼び出し元のクラスをチェック。アラームサービスからの開始の場合は、再生を行う。
+                        if (classname.equals(ClockUtil.CLASS_NAME_ALARMSPOTIFYSERVICE)) {
+                            Play();
+                        }
 
                         // TODO 暫定でこちらでPref設定をする。
                         // TODO Spotifyとローカル音楽ファイルを切り替えられるように対応した後、別場所で処理する。
@@ -115,5 +120,13 @@ public class SpotifyAppRemoteController {
                         Log.d(TAG, track.name + " by " + track.artist.name);
                     }
                 });
+    }
+
+    /**
+     * アラームサービスが終了したため、音楽再生を中断する。
+     */
+    public static void pause() {
+        mSpotifyAppRemote.getPlayerApi().pause();
+
     }
 }
