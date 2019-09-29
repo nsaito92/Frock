@@ -25,6 +25,7 @@ public class ClockUtil {
 
     // クラス名チェック
     final static String CLASS_NAME_ALARMSPOTIFYSERVICE = AlarmSpotifyService.class.getName();
+    final static String CLASS_NAME_APPSETTINGSACTIVITY = AppSettingsActivity.class.getName();
 
     // Preference
     final static String ALARM_SERVICE_KEY = "alarmservice_boolean";

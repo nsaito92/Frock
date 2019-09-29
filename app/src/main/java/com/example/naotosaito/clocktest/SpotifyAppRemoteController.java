@@ -50,13 +50,15 @@ public class SpotifyAppRemoteController {
                                 MyApplication.getContext().getString(R.string.sptf_auth_comp), Toast.LENGTH_SHORT);
 
                         // onStartの呼び出し元のクラスをチェック。アラームサービスからの開始の場合は、再生を行う。
-                        if (classname.equals(ClockUtil.CLASS_NAME_ALARMSPOTIFYSERVICE)) {
+                        if (classname.equals(ClockUtil.CLASS_NAME_APPSETTINGSACTIVITY)) {
+                            // TODO 暫定でこちらでPref設定をする。
+                            // TODO Spotifyとローカル音楽ファイルを切り替えられるように対応した後、別場所で処理する。
+                            ClockUtil.setPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY, true);
+                        } else if (classname.equals(ClockUtil.CLASS_NAME_ALARMSPOTIFYSERVICE)) {
                             Play();
                         }
 
-                        // TODO 暫定でこちらでPref設定をする。
-                        // TODO Spotifyとローカル音楽ファイルを切り替えられるように対応した後、別場所で処理する。
-                        ClockUtil.setPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY, true);
+
                     }
 
                     @Override
