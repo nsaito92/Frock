@@ -23,11 +23,21 @@ import java.util.Collections;
 public class ClockUtil {
     private static final String TAG = "ClockUtil";
 
+    // クラス名チェック
+    final static String CLASS_NAME_ALARMSPOTIFYSERVICE = AlarmSpotifyService.class.getName();
+    final static String CLASS_NAME_APPSETTINGSACTIVITY = AppSettingsActivity.class.getName();
+
+    // Preference
     final static String ALARM_SERVICE_KEY = "alarmservice_boolean";
     final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";
     final static String ALARMTIME_MINUTE_KEY = "alarmtime_minute";
     final static String ALARMTIME_WEEK_KEY = "alarmtime_week";
     final static String PENDING_ALARMSERVICE_KEY = "pendingalarmservice_boolean";
+    final static String SPOTIFY_USE_KEY = "spotify_use_boolean";
+
+    // Spotify関連
+    static final String CLIENT_ID = "779e27eb586742d7bb1eea46b275d464";
+    static final String REDIRECT_URI = "https://www.spotify.com/jp/";
 
     final static int DAY_OF_WEEK = 7;
 
@@ -95,8 +105,10 @@ public class ClockUtil {
         ActivityManager manager = (ActivityManager) MyApplication.getContext().getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo serviceinfo :
                 manager.getRunningServices(Integer.MAX_VALUE)) {
-            // TODO AlarmService以外のServiceでも共通利用できる様にしたい。
-            if(AlarmService.class.getName().equals(serviceinfo.service.getClassName())) {
+
+            // アラームサービスか、Spotifyサービスが起動しているかチェック。
+            if(AlarmService.class.getName().equals(serviceinfo.service.getClassName()) ||
+                    AlarmSpotifyService.class.getName().equals(serviceinfo.service.getClassName())) {
                 Log.d(TAG, "isYourServiceWorking = " + true);
                 return true;
             }
@@ -170,12 +182,25 @@ public class ClockUtil {
         // 2. アラームが鳴動中である場合
         if (!ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY) ||
                 ClockUtil.isYourServiceWorking()) {
+            Log.d(TAG, "alarmServiceSet : return");
             return;
         }
 
         // AlarmService起動用のIntent、PendingIntentを作成
         Context context = MyApplication.getContext();
-        Intent intent = new Intent(MyApplication.getContext(), AlarmService.class);
+
+        // 通常のアラームサービスと、Spotifyサービスの起動を切り替える。
+        Intent intent;
+
+        // TODO Spotifyとローカルファイルの切り替え対応時に、見直す。
+//        if (SpotifyAppRemoteController.isConnected() &&
+//                ClockUtil.getPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY)) {
+        if (ClockUtil.getPrefBoolean("spotify_use_boolean", ClockUtil.SPOTIFY_USE_KEY)) {
+                intent = new Intent(MyApplication.getContext(), AlarmSpotifyService.class);
+        } else {
+            intent = new Intent(MyApplication.getContext(), AlarmService.class);
+        }
+
         int requestcode = 1;
         PendingIntent pendingintent = PendingIntent.getService(
                 context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);

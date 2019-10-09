@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // TODO Spotify影響範囲内
+
                 // アラーム音を再生しているServiceを終了する
                 Intent intent = new Intent(MainActivity.this, AlarmService.class);
 
@@ -64,8 +66,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.optionsMenu_01:
-                Intent intent = new android.content.Intent(this, AlarmPreferenceActivity.class);
-                startActivity(intent);
+                Intent intent_AlmPrefcAct = new android.content.Intent(this, AlarmPreferenceActivity.class);
+                startActivity(intent_AlmPrefcAct);
+                return true;
+            case R.id.optionsMenu_02:
+                Intent intent_SptfAuthAct = new android.content.Intent(this, AppSettingsActivity.class);
+                startActivity(intent_SptfAuthAct);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

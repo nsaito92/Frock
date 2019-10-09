@@ -1,13 +1,14 @@
 <resources>
     <string name="app_name">Frock</string>
 
+    <!-- menu used -->
+    <string name="opt_menu_AlarmSetting">アラーム設定</string>
+    <string name="opt_menu_SpotifySetting">アプリ設定</string>
+
     <!-- Alarm operation -->
     <string name="started_the_alarm">アラームを開始しました。</string>
     <string name="stopped_the_alarm">アラームを停止しました。</string>
     <string name="No_alarm_to_stop">現在鳴動しているアラームはありません</string>
-
-    <!-- menu used -->
-    <string name="opt_menu_01">アラーム設定</string>
 
     <!-- Alarm Settings preference -->
     <string name="preference_title">アラーム設定</string>
@@ -35,6 +36,11 @@
     </string-array>
     <string name="alarm_Week_setting_PositiveButton">OK</string>
     <string name="alarm_Week_setting_NegativeButton">Cansel</string>
+
+    <!-- AppSettings -->
+    <string name="sptf_auth_settings">Spotifyアカウント設定</string>
+    <string name="sptf_auth_comp">Spotifyとの連携が完了しました。</string>
+    <string name="sptf_auth_fail">Spotifyとの連携に失敗しました。</string>
 
     <!-- etc -->
 
