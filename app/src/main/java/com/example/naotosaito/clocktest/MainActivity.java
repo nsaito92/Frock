@@ -18,10 +18,15 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
+    private AppSettingsOpenHelper settingshelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // DB作成
+        settingshelper = new AppSettingsOpenHelper(getApplicationContext());
 
         //各ボタンの定義、リスナーをボタンに登録する
         Button stopButton = (Button) findViewById(R.id.stopbutton);
