@@ -4,24 +4,27 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * Created by nsaito on 2019/12/15.
  */
 
-public class AppSettingsOpenHelper extends SQLiteOpenHelper {
+public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
+
+    private static final String TAG = "FrockSettingsOpenHelper";
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "AppSettingsDB.db";
 
     // アラーム設定用テーブル
-    private static final String ALARMSETTINGS_TABLE_NAME = "alarmsettingsdb";
-    private static final String ALARMSETTINGS_ID = "_id";
-    private static final String ALARMSETTINGS_COLUMN_NAME_STATUS = "status";
-    private static final String ALARMSETTINGS_COLUMN_NAME_HOUR = "hour";
-    private static final String ALARMSETTINGS_COLUMN_NAME_MINUTE = "minute";
-    private static final String ALARMSETTINGS_COLUMN_NAME_WEEK = "week";
-    // private static final String ALARMSETTINGS_COLUMN_NAME_SOUND = "sound"; //音楽ファイル追加対応後に使用。
+    public static final String ALARMSETTINGS_TABLE_NAME = "alarmsettingsdb";
+    public static final String ALARMSETTINGS_ID = "_id";
+    public static final String ALARMSETTINGS_COLUMN_NAME_STATUS = "status";
+    public static final String ALARMSETTINGS_COLUMN_NAME_HOUR = "hour";
+    public static final String ALARMSETTINGS_COLUMN_NAME_MINUTE = "minute";
+    public static final String ALARMSETTINGS_COLUMN_NAME_WEEK = "week";
+    // public static final String ALARMSETTINGS_COLUMN_NAME_SOUND = "sound"; //音楽ファイル追加対応後に使用。
 
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + ALARMSETTINGS_TABLE_NAME +
@@ -34,18 +37,21 @@ public class AppSettingsOpenHelper extends SQLiteOpenHelper {
     private static final String SQL_SELECT_USER = "SELECT FROM " + ALARMSETTINGS_TABLE_NAME;
 
 
-    public AppSettingsOpenHelper(Context context) {
-        super(context, ALARMSETTINGS_TABLE_NAME, null, DATABASE_VERSION);
+    public FrockSettingsOpenHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        Log.d(TAG, "FrockSettingsOpenHelper");
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d(TAG, "onCreate");
 
         // テーブル作成。
         db.execSQL(SQL_CREATE_ENTRIES);
 
-        saveData(db, 1, 12, 0, "0");
-        saveData(db, 0, 1, 30, "1,2");
+        // TODO テストコード
+        saveData(db, ALARMSETTINGS_TABLE_NAME,1,21,0,"0,1");
+        saveData(db, ALARMSETTINGS_TABLE_NAME,0,11,45,"2,4");
 
         // テーブルの状態を表示。
         db.execSQL(SQL_SELECT_USER);
@@ -53,6 +59,8 @@ public class AppSettingsOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        Log.d(TAG, "onUpgrade");
+
         onCreate(db);
     }
 
@@ -64,7 +72,8 @@ public class AppSettingsOpenHelper extends SQLiteOpenHelper {
      * @param minute
      * @param week
      */
-    public void saveData (SQLiteDatabase db, int status, int hour, int minute, String week) {
+    public void saveData (SQLiteDatabase db, String table_name, int status, int hour, int minute, String week) {
+        Log.d(TAG, "saveData");
 
         ContentValues values = new ContentValues();
         values.put("status", status);
@@ -72,6 +81,6 @@ public class AppSettingsOpenHelper extends SQLiteOpenHelper {
         values.put("minute", minute);
         values.put("week", week);
 
-        db.insert(ALARMSETTINGS_TABLE_NAME, null, values);
+        db.insert(table_name, null, values);
     }
 }

@@ -18,7 +18,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private AppSettingsOpenHelper settingshelper;
+    private FrockSettingsOpenHelper settingshelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +26,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // DB作成
-        settingshelper = new AppSettingsOpenHelper(getApplicationContext());
+        settingshelper = new FrockSettingsOpenHelper(getApplicationContext());
+
+        // TODO テストコード
+        settingshelper.saveData(settingshelper.getReadableDatabase(),
+                FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                0, 12, 00, "0,1");
 
         //各ボタンの定義、リスナーをボタンに登録する
         Button stopButton = (Button) findViewById(R.id.stopbutton);
