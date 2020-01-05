@@ -28,11 +28,11 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + ALARMSETTINGS_TABLE_NAME +
-                    " (" + ALARMSETTINGS_ID + "INTEGER PRIMARY KEY," +
-                    ALARMSETTINGS_COLUMN_NAME_STATUS + "INTEGER," +
-                    ALARMSETTINGS_COLUMN_NAME_HOUR + "INTEGER," +
-                    ALARMSETTINGS_COLUMN_NAME_MINUTE + "INTEGER," +
-                    ALARMSETTINGS_COLUMN_NAME_WEEK + "TEXT)";
+                    " (" + ALARMSETTINGS_ID + " INTEGER PRIMARY KEY," +
+                    ALARMSETTINGS_COLUMN_NAME_STATUS + " INTEGER," +
+                    ALARMSETTINGS_COLUMN_NAME_HOUR + " INTEGER," +
+                    ALARMSETTINGS_COLUMN_NAME_MINUTE + " INTEGER," +
+                    ALARMSETTINGS_COLUMN_NAME_WEEK + " TEXT)";
 
     private static final String SQL_SELECT_USER = "SELECT FROM " + ALARMSETTINGS_TABLE_NAME;
 
@@ -48,6 +48,7 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
 
         // テーブル作成。
         db.execSQL(SQL_CREATE_ENTRIES);
+        Log.d(TAG, "SQL_CREATE_ENTRIES = " + SQL_CREATE_ENTRIES);
 
         // TODO テストコード
         saveData(db, ALARMSETTINGS_TABLE_NAME,1,21,0,"0,1");
