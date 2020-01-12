@@ -1,6 +1,8 @@
 package com.example.naotosaito.clocktest;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.AudioManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,20 +20,28 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private FrockSettingsOpenHelper settingshelper;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // DB作成
-        settingshelper = new FrockSettingsOpenHelper(getApplicationContext());
+        FrockSettingsOpenHelper settingshelper = new FrockSettingsOpenHelper(getApplicationContext());
 
         // TODO テストコード
         settingshelper.saveData(settingshelper.getReadableDatabase(),
                 FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
                 0, 12, 00, "0,1");
+
+        // TODO テストコード
+        Button testAlarmSetButton = (Button) findViewById(R.id.db_alarmbutton);
+        testAlarmSetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // DBを読み込み、アラーム設定を行う。
+                ClockUtil.alarmServiceSet();
+            }
+        });
 
         //各ボタンの定義、リスナーをボタンに登録する
         Button stopButton = (Button) findViewById(R.id.stopbutton);

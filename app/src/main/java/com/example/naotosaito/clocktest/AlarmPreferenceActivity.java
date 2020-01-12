@@ -7,6 +7,8 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -15,6 +17,7 @@ import android.preference.SwitchPreference;
 import android.util.Log;
 import android.widget.TimePicker;
 
+import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -186,9 +189,19 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Preference button = null;
         button = mFragment.findPreference("alarmtime_key");
 
-        // 保存されているPreferenceの値を取得
-        int spHourInt = ClockUtil.getPrefInt("hour", ClockUtil.ALARMTIME_HOUR_KEY);
-        int spMinuteInt = ClockUtil.getPrefInt("minute", ClockUtil.ALARMTIME_MINUTE_KEY);
+        // Helperインスタンス取得
+        FrockSettingsOpenHelper settingshelper =
+                new FrockSettingsOpenHelper(MyApplication.getContext().getApplicationContext());
+
+        // TODO とりあえず、一行目のアラーム設定を検索。
+        SQLiteDatabase db = settingshelper.getReadableDatabase();
+        Cursor cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                null, null, null, null, null, null);
+        cursor.moveToFirst();
+
+        // 選択された曜日データを取得
+        int spHourInt = cursor.getInt(2);
+        int spMinuteInt = cursor.getInt(3);
 
         // Preferenceを文字列に変換する。
         String valueOfH = String.valueOf(spHourInt);
@@ -207,7 +220,16 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Preference button = null;
         button = mFragment.findPreference("alarm_start_week_key");
 
-        String[] week = ClockUtil.getSelectedWeeks(ClockUtil.ALARMTIME_WEEK_KEY);
+        // Helperインスタンス取得
+        FrockSettingsOpenHelper settingshelper =
+                new FrockSettingsOpenHelper(MyApplication.getContext().getApplicationContext());
+
+        // TODO とりあえず、一行目のアラーム設定を検索。
+        SQLiteDatabase db = settingshelper.getReadableDatabase();
+        Cursor cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                null, null, null, null, null, null);
+        cursor.moveToFirst();
+        String[] week = ClockUtil.convertStringToArray(cursor.getString(4));
 
         // 曜日設定が無い場合は、画面の更新は行わない。
         if (week == null) {

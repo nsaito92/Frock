@@ -55,7 +55,7 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
         saveData(db, ALARMSETTINGS_TABLE_NAME,0,11,45,"2,4");
 
         // テーブルの状態を表示。
-        db.execSQL(SQL_SELECT_USER);
+//        db.execSQL(SQL_SELECT_USER);
     }
 
     @Override
