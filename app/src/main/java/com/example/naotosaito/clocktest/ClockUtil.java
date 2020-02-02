@@ -420,6 +420,8 @@ public class ClockUtil {
         }
         Log.d(TAG, "getAlarmCalender() return = " + alarmCld.getTime());
 
+        cursor.close();
+
         return alarmCld;
     }
 }

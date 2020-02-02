@@ -230,6 +230,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 null, null, null, null, null, null);
         cursor.moveToFirst();
         String[] week = ClockUtil.convertStringToArray(cursor.getString(4));
+        cursor.close();
 
         // 曜日設定が無い場合は、画面の更新は行わない。
         if (week == null) {
