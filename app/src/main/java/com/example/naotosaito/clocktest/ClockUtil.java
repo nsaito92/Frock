@@ -100,6 +100,19 @@ public class ClockUtil {
     }
 
     /**
+     * パラメーターの整数を元に、booleanを返却する。
+     * @return
+     */
+    public static boolean getDbBoolean (int value) {
+        if (value == 1) {
+            return true;
+        } else if (value == 0) {
+            return false;
+        }
+        return false;
+    }
+
+    /**
      * Serviceの起動状態をチェックする。
      * @return Serviceの起動中の場合はtrue、起動していない場合はfalseを返す。
      */

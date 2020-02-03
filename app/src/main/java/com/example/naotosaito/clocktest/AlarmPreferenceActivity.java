@@ -34,7 +34,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-
+        // TODO Preferenceによるアラーム設定機能は、削除する。
         mFragment = new AlarmPreferenceFragment();
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, mFragment).commit();
@@ -45,8 +45,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // アラーム設定の有効・無効を設定するトグルボタンを押した時の動作。
         // (SwitchPreference)でキャストし、findPreferenceを実行。
         alarmbutton = (SwitchPreference)mFragment.findPreference(getString(R.string.alarmboolean_key));
-        alarmbutton.setChecked(ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY)); //初期値を指定。
-
         alarmbutton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#alarmbutton onPreferencelick");
@@ -108,10 +106,10 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 return true;
             }
         });
-
         // アラーム鳴動時間、曜日設定の表示を、最新に更新。
-        updateTimeView();
-        updateWeekView();
+        updateSettingsView();
+//        updateTimeView();
+//        updateWeekView();
     }
 
     @Override
@@ -136,6 +134,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Log.d(TAG, "getAlarmServiceBoolean() = " + ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY));
         // アラームON/OFFボタンの状態を更新。
         alarmbutton.setChecked(ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY));
+
+        updateSettingsView();
     }
 
     @Override
@@ -180,6 +180,24 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     }
                 }
             };
+
+    /**
+     * DBから各種アラーム設定のデータを取得して、画面に反映する。
+     */
+    private void updateSettingsView() {
+        FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
+        Cursor cursor = frockSettingsHelperController.getCursor();
+
+        // DBからのデータ取得
+        cursor.getInt(0);       // ID
+        alarmbutton.setChecked(ClockUtil.getDbBoolean(cursor.getInt(1)));// status
+        cursor.getInt(2);       // hour
+        cursor.getInt(3);       // minute
+        cursor.getString(4);    // week
+
+
+        cursor.close();
+    }
 
     /**
      * アラームが動作する時間の画面表示を更新する。
