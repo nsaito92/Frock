@@ -28,6 +28,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private static final String TAG = "AlarmPreferenceActivity";
 
     AlarmPreferenceFragment mFragment;
+    Preference btn_alarmtime_key;
+    Preference btn_alarm_start_week_key;
     SwitchPreference alarmbutton;
 
     @Override
@@ -171,12 +173,12 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                         // Serviceを一度終了し、更新された時間で再設定する。
                         alarmServiceCansel();
                         ClockUtil.alarmServiceSet();
-                        updateTimeView();
+//                        updateTimeView();
                     } else if (ClockUtil.ALARMTIME_WEEK_KEY.equals(key)) {
                         // Serviceを一度終了し、更新された曜日で再設定する。
                         alarmServiceCansel();
                         ClockUtil.alarmServiceSet();
-                        updateWeekView();
+//                        updateWeekView();
                     }
                 }
             };
@@ -185,71 +187,29 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
      * DBから各種アラーム設定のデータを取得して、画面に反映する。
      */
     private void updateSettingsView() {
+        Log.d(TAG, "updateSettingsView");
+
+        btn_alarmtime_key = mFragment.findPreference("alarmtime_key");
+        btn_alarm_start_week_key = mFragment.findPreference("alarm_start_week_key");
+
         FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
         Cursor cursor = frockSettingsHelperController.getCursor();
 
-        // DBからのデータ取得
+        // DBからデータ取得。
         cursor.getInt(0);       // ID
-        alarmbutton.setChecked(ClockUtil.getDbBoolean(cursor.getInt(1)));// status
-        cursor.getInt(2);       // hour
-        cursor.getInt(3);       // minute
-        cursor.getString(4);    // week
-
+        alarmbutton.setChecked(ClockUtil.getDbBoolean(cursor.getInt(1)));       // status
+        int spHourInt = cursor.getInt(2);                                       // hour
+        int spMinuteInt = cursor.getInt(3);                                     // minute
+        String[] week = ClockUtil.convertStringToArray(cursor.getString(4));    // week
 
         cursor.close();
-    }
 
-    /**
-     * アラームが動作する時間の画面表示を更新する。
-     */
-    private void updateTimeView() {
-        Log.d(TAG, "updateTimeView");
-        Preference button = null;
-        button = mFragment.findPreference("alarmtime_key");
-
-        // Helperインスタンス取得
-        FrockSettingsOpenHelper settingshelper =
-                new FrockSettingsOpenHelper(MyApplication.getContext().getApplicationContext());
-
-        // TODO とりあえず、一行目のアラーム設定を検索。
-        SQLiteDatabase db = settingshelper.getReadableDatabase();
-        Cursor cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
-                null, null, null, null, null, null);
-        cursor.moveToFirst();
-
-        // 選択された曜日データを取得
-        int spHourInt = cursor.getInt(2);
-        int spMinuteInt = cursor.getInt(3);
-
-        // Preferenceを文字列に変換する。
+        // DBから受け取った時間の情報を、文字列を整形してViewに反映。
         String valueOfH = String.valueOf(spHourInt);
         String valueOfM = String.valueOf(spMinuteInt);
+        btn_alarmtime_key.setSummary(ClockUtil.shapingStringTime(valueOfH, valueOfM));
 
-        // 取得した文字列を整形して画面に反映。
-        button.setSummary(ClockUtil.shapingStringTime(valueOfH, valueOfM));
-    }
-
-    /**
-     * アラームが鳴動する曜日の画面表示を更新する。
-     */
-    private void updateWeekView() {
-        Log.d(TAG, "updateWeekView");
-
-        Preference button = null;
-        button = mFragment.findPreference("alarm_start_week_key");
-
-        // Helperインスタンス取得
-        FrockSettingsOpenHelper settingshelper =
-                new FrockSettingsOpenHelper(MyApplication.getContext().getApplicationContext());
-
-        // TODO とりあえず、一行目のアラーム設定を検索。
-        SQLiteDatabase db = settingshelper.getReadableDatabase();
-        Cursor cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
-                null, null, null, null, null, null);
-        cursor.moveToFirst();
-        String[] week = ClockUtil.convertStringToArray(cursor.getString(4));
-        cursor.close();
-
+        // DBから受け取った曜日の情報を、文字列を整形してViewに反映。
         // 曜日設定が無い場合は、画面の更新は行わない。
         if (week == null) {
             return;
@@ -287,7 +247,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             }
         }
         // 変換した文字列を統合して、画面に表示する。
-        button.setSummary(stringBuilder.toString());
+        btn_alarm_start_week_key.setSummary(stringBuilder.toString());
     }
 
     /**
