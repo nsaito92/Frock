@@ -22,6 +22,10 @@
     <string name="alarm_start_week_setting">曜日</string>
     <string name="alarm_start_week_summary">動作する曜日を入力してください。</string>
 
+    <string name="alarm_setting_save_key">alarm_setting_save_key</string>
+    <string name="alarm_setting_save_name">保存</string>
+    <string name="alarm_setting_save_summary">アラーム設定を保存する</string>
+
     <!-- alarm week setting dialog -->
     <string name="alarm_Week_setting_title">曜日</string>
     <string-array name="alarm_Week_setting_menulist">

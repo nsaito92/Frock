@@ -247,12 +247,12 @@ public class ClockUtil {
      * アラームが動作する曜日設定のPreferenceの配列を文字列に変換・保存
      * @param mSelectedWeeks 保存する曜日設定
      */
-    public static void setSelectedWeeks(ArrayList mSelectedWeeks) {
+    public static String setSelectedWeeks(ArrayList mSelectedWeeks) {
         Log.d(TAG, "setSelectedWeeks");
 
         // 曜日が何も選択されていなかった場合は、保存処理は行わない。
         if (mSelectedWeeks == null || mSelectedWeeks.size() == 0) {
-            return;
+            return null;
         }
 
         StringBuffer buffer = new StringBuffer();
@@ -270,12 +270,13 @@ public class ClockUtil {
             String buf = buffer.toString();
             stringItem = buf.substring(0, buf.length() -1);
         }
+        return stringItem;
 
-        // Preferenceの保存
-        SharedPreferences prefer_week = MyApplication.getContext().
-                getSharedPreferences("week", MyApplication.getContext().MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefer_week.edit();
-        editor.putString(ClockUtil.ALARMTIME_WEEK_KEY, stringItem).commit();
+//        // Preferenceの保存
+//        SharedPreferences prefer_week = MyApplication.getContext().
+//                getSharedPreferences("week", MyApplication.getContext().MODE_PRIVATE);
+//        SharedPreferences.Editor editor = prefer_week.edit();
+//        editor.putString(ClockUtil.ALARMTIME_WEEK_KEY, stringItem).commit();
     }
 
     /**

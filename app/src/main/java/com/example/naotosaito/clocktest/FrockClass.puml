@@ -1,0 +1,22 @@
+@startuml
+
+
+class AlarmPreferenceActivity {
+    AlarmPreferenceFragment mFragment
+    SwitchPreference alarmbutton
+    Preference btn_alarmtime_key
+    Preference btn_alarm_start_week_key
+    Preference btn_alarm_setting_save
+}
+
+class FrockSettingsHelperController {
+    FrockSettingsOpenHelper settingshelper
+}
+
+class FrockSettingsOpenHelper {
+
+}
+
+FrockSettingsHelperController --> FrockSettingsOpenHelper
+
+@enduml
