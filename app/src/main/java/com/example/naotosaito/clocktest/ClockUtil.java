@@ -34,6 +34,9 @@ public class ClockUtil {
 
     final static int DAY_OF_WEEK = 7;
 
+    final static int TRUE = 1;
+    final static int FALSE = 0;
+
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
     private ClockUtil() {
         throw new AssertionError();
@@ -437,5 +440,18 @@ public class ClockUtil {
         cursor.close();
 
         return alarmCld;
+    }
+
+    /**
+     * 受け取ったbooleanを0か1で返却する。
+     * @param checked
+     * @return
+     */
+    public static int convertBoolean(boolean checked) {
+        int result = FALSE;
+        if (checked) {
+            result = TRUE;
+        }
+        return result;
     }
 }

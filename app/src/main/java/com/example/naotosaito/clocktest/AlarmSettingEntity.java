@@ -8,8 +8,8 @@ import android.util.Log;
  *
  */
 
-class AlarmSettings {
-    private static final String TAG = "AlarmSettings";
+class AlarmSettingEntity {
+    private static final String TAG = "AlarmSettingEntity";
 
     /** アラーム ON/OFF **/
     int mStatus;
@@ -20,7 +20,7 @@ class AlarmSettings {
     /** 曜日 **/
     String mWeeks;
 
-    public AlarmSettings() {
+    public AlarmSettingEntity() {
         Log.d(TAG, "");
     }
 

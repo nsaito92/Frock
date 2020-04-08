@@ -1,6 +1,8 @@
 package com.example.naotosaito.clocktest;
 
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 /**
@@ -31,7 +33,7 @@ public class FrockSettingsHelperController {
      */
     public Cursor getCursor() {
         // DB作成
-        SQLiteDatabase db = settingshelper.getReadableDatabase();
+        SQLiteDatabase db = getWritableDatabase();
 
         // TODO 仮実装で、DBの一行目のデータを取得するが、最終的にはユーザー操作により変更できる様にする。
         Cursor cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
@@ -42,16 +44,33 @@ public class FrockSettingsHelperController {
     }
 
     /**
-     *
+     * ユーザーが入力したデータをDBに永続化する。
      * @param table_name
      * @param status
      * @param hour
      * @param minute
      * @param week
      */
-    public void updateData(String table_name, int status, int hour, int minute, String week) {
+    public boolean updateData(String table_name, int status, int hour, int minute, String week) {
 
-        SQLiteDatabase db = settingshelper.getReadableDatabase();
+        boolean result = true;
 
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor cursor = getCursor();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_STATUS, status);
+        contentValues.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_HOUR, hour);
+        contentValues.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_MINUTE, minute);
+        contentValues.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_WEEK, week);
+
+        try {
+            db.update(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME, contentValues, "_id = " + 1, null);
+        } catch (SQLException e) {
+            result = false;
+        }
+        cursor.close();
+
+        return result;
     }
 }

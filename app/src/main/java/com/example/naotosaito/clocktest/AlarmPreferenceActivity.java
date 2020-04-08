@@ -17,8 +17,8 @@ import android.os.Bundle;
 import android.preference.SwitchPreference;
 import android.util.Log;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
-import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -43,10 +43,10 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     AlarmWeekDialogFragment alarmWeekSetting_dialog;
 
     /** アラーム設定 */
-    AlarmSettings alarmSettings;
+    AlarmSettingEntity alarmSettingEntity;
 
     public AlarmPreferenceActivity () {
-        alarmSettings = new AlarmSettings();
+        alarmSettingEntity = new AlarmSettingEntity();
     }
 
 
@@ -155,18 +155,26 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#onPreferencelick_btn_alarm_setting_save");
-                Log.d(TAG, "alarmSettings.getmHour() = " + alarmSettings.getmHour());
-                Log.d(TAG, "alarmSettings.getmMinute() = " + alarmSettings.getmMinute());
-                Log.d(TAG, "alarmSettings.getmWeek() = " + alarmSettings.getmWeek());
+                Log.d(TAG, "alarmSettingEntity.getmHour() = " + alarmSettingEntity.getmHour());
+                Log.d(TAG, "alarmSettingEntity.getmMinute() = " + alarmSettingEntity.getmMinute());
+                Log.d(TAG, "alarmSettingEntity.getmWeek() = " + alarmSettingEntity.getmWeek());
 
-//                FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
-//                frockSettingsHelperController.updateData(
-//                        FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
-//                        alarmbutton.isChecked(),
-//                        alarmSettings.getmHour(),
-//                        alarmSettings.getmMinute(),
-//                );
+                FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
 
+                if (frockSettingsHelperController.updateData
+                        (FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                                ClockUtil.convertBoolean(alarmbutton.isChecked()),
+                                alarmSettingEntity.getmHour(),
+                                alarmSettingEntity.getmMinute(),
+                                alarmSettingEntity.getmWeek()
+                        ))
+                {
+                    Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
+                    toast.show();
+                } else {
+                    Toast toast = Toast.makeText(MyApplication.getContext(), "保存失敗しました。", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
                 return true;
             }
         });
@@ -258,6 +266,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
         Cursor cursor = frockSettingsHelperController.getCursor();
 
+        // TODO DB叩く処理はコントローラー側でやる。
         // DBからデータ取得。
         cursor.getInt(0);       // ID
         alarmbutton.setChecked(ClockUtil.getDbBoolean(cursor.getInt(1)));       // status
@@ -328,8 +337,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
                 // アラーム時間をセット
-                alarmSettings.setmHour(hourOfDay);
-                alarmSettings.setmMinute(minute);
+                alarmSettingEntity.setmHour(hourOfDay);
+                alarmSettingEntity.setmMinute(minute);
 
             }
         }, hour, minute, true);
@@ -373,6 +382,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
      * @param string
      */
     public void onReceiveString(String string) {
-        alarmSettings.setmWeek(string);
+        alarmSettingEntity.setmWeek(string);
     }
 }
