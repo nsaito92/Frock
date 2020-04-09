@@ -49,13 +49,6 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
         // テーブル作成。
         db.execSQL(SQL_CREATE_ENTRIES);
         Log.d(TAG, "SQL_CREATE_ENTRIES = " + SQL_CREATE_ENTRIES);
-
-        // TODO テストコード
-        saveData(db, ALARMSETTINGS_TABLE_NAME,1,21,0,"0,1");
-        saveData(db, ALARMSETTINGS_TABLE_NAME,0,11,45,"2,4");
-
-        // テーブルの状態を表示。
-//        db.execSQL(SQL_SELECT_USER);
     }
 
     @Override

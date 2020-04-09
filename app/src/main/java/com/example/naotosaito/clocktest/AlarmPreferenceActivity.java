@@ -46,7 +46,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     AlarmSettingEntity alarmSettingEntity;
 
     public AlarmPreferenceActivity () {
-        alarmSettingEntity = new AlarmSettingEntity();
+        Log.d(TAG, "");
+
+        // TODO 画面表示時に、AlarmSettingEntityの値をDBの現在値で初期化する。
+        FrockSettingsHelperController controller = new FrockSettingsHelperController();
+        alarmSettingEntity = controller.getAlarmSettingEntity();
     }
 
 
@@ -186,6 +190,12 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart");
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
@@ -263,18 +273,10 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         btn_alarmtime_key = mFragment.findPreference("alarmtime_key");
         btn_alarm_start_week_key = mFragment.findPreference("alarm_start_week_key");
 
-        FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
-        Cursor cursor = frockSettingsHelperController.getCursor();
-
-        // TODO DB叩く処理はコントローラー側でやる。
-        // DBからデータ取得。
-        cursor.getInt(0);       // ID
-        alarmbutton.setChecked(ClockUtil.getDbBoolean(cursor.getInt(1)));       // status
-        int spHourInt = cursor.getInt(2);                                       // hour
-        int spMinuteInt = cursor.getInt(3);                                     // minute
-        String[] week = ClockUtil.convertStringToArray(cursor.getString(4));    // week
-
-        cursor.close();
+        alarmbutton.setChecked(ClockUtil.convertInt(alarmSettingEntity.getmStatus()));  // status
+        int spHourInt = alarmSettingEntity.getmHour();                                  // hour
+        int spMinuteInt = alarmSettingEntity.getmMinute();                              // minute
+        String[] week = ClockUtil.convertStringToArray(alarmSettingEntity.getmWeek());  // week
 
         // DBから受け取った時間の情報を、文字列を整形してViewに反映。
         String valueOfH = String.valueOf(spHourInt);

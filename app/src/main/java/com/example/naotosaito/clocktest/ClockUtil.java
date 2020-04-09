@@ -103,16 +103,29 @@ public class ClockUtil {
     }
 
     /**
-     * パラメーターの整数を元に、booleanを返却する。
+     * 受け取った整数を真偽値で返却する。
      * @return
      */
-    public static boolean getDbBoolean (int value) {
-        if (value == 1) {
+    public static boolean convertInt (int value) {
+        if (value == TRUE) {
             return true;
-        } else if (value == 0) {
+        } else if (value == FALSE) {
             return false;
         }
         return false;
+    }
+
+    /**
+     * 受け取ったbooleanを0か1で返却する。
+     * @param checked
+     * @return
+     */
+    public static int convertBoolean(boolean checked) {
+        int result = FALSE;
+        if (checked) {
+            result = TRUE;
+        }
+        return result;
     }
 
     /**
@@ -440,18 +453,5 @@ public class ClockUtil {
         cursor.close();
 
         return alarmCld;
-    }
-
-    /**
-     * 受け取ったbooleanを0か1で返却する。
-     * @param checked
-     * @return
-     */
-    public static int convertBoolean(boolean checked) {
-        int result = FALSE;
-        if (checked) {
-            result = TRUE;
-        }
-        return result;
     }
 }

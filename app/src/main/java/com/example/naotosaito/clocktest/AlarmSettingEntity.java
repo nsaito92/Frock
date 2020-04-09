@@ -24,6 +24,13 @@ class AlarmSettingEntity {
         Log.d(TAG, "");
     }
 
+    public void setmStatus (int status) {
+        mStatus = status;
+    }
+
+    public int getmStatus () {
+        return mStatus;
+    }
 
     public void setmHour (int hour) {
         mHour = hour;

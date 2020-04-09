@@ -73,4 +73,22 @@ public class FrockSettingsHelperController {
 
         return result;
     }
+
+    /**
+     * DBからデータを取得して、AlarmSettingEntityオブジェクトを返す。
+     * @return
+     */
+    public AlarmSettingEntity getAlarmSettingEntity() {
+
+        Cursor cursor = getCursor();
+        AlarmSettingEntity entity = new AlarmSettingEntity();
+        entity.setmStatus(cursor.getInt(1));
+        entity.setmHour(cursor.getInt(2));
+        entity.setmMinute(cursor.getInt(3));
+        entity.setmWeek(cursor.getString(4));
+
+        cursor.close();
+
+        return entity;
+    }
 }

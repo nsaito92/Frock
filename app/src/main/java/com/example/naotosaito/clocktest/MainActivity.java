@@ -36,11 +36,6 @@ public class MainActivity extends AppCompatActivity {
         settingshelper = new FrockSettingsOpenHelper(getApplicationContext());
 
         // TODO テストコード
-        settingshelper.saveData(settingshelper.getReadableDatabase(),
-                FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
-                0, 12, 00, "0,1");
-
-        // TODO テストコード
         Button testAlarmSetButton = (Button) findViewById(R.id.db_alarmbutton);
         testAlarmSetButton.setOnClickListener(new View.OnClickListener() {
             @Override
