@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import java.util.List;
 
 /**
  * Created by nsaito on 2020/02/03.
@@ -12,7 +15,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class FrockSettingsHelperController {
 
+    public static final String TAG = FrockSettingsHelperController.class.getSimpleName();
     FrockSettingsOpenHelper settingshelper;
+    AlarmSettingEntity alarmSettingEntity;
 
     // コンストラクタでFrockSettingsHelperをnewする。
     public FrockSettingsHelperController() {
@@ -81,13 +86,68 @@ public class FrockSettingsHelperController {
 
         Cursor cursor = getCursor();
         AlarmSettingEntity entity = new AlarmSettingEntity();
-        entity.setmStatus(cursor.getInt(1));
-        entity.setmHour(cursor.getInt(2));
-        entity.setmMinute(cursor.getInt(3));
-        entity.setmWeek(cursor.getString(4));
+        entity.setmStatus(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS));
+        entity.setmHour(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR));
+        entity.setmMinute(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE));
+        entity.setmWeek(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
 
         cursor.close();
 
         return entity;
+    }
+
+    /**
+     * DBからデータを取得して、アラーム設定リストオブジェクトを返す。
+     * @return
+     */
+    public List<AlarmSettingEntity> getAlarmSettingEntityList(List<AlarmSettingEntity> alarmSettingEntityList) {
+
+        Cursor cursor = getCursor();
+
+        if (cursor.moveToFirst()) {
+            for (boolean next = cursor.moveToFirst(); next;next = cursor.moveToNext()) {
+                alarmSettingEntity = new AlarmSettingEntity(
+                        cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS),
+                        cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR),
+                        cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE),
+                        cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK)
+                );
+                Log.d(TAG, "COLUMN_INDEX_STATUS = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS));
+                Log.d(TAG, "COLUMN_INDEX_HOUR = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR));
+                Log.d(TAG, "COLUMN_INDEX_MINUTE = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE));
+                Log.d(TAG, "COLUMN_INDEX_WEEK = " + cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
+
+                alarmSettingEntityList.add(alarmSettingEntity);
+            }
+
+        }
+        cursor.close();
+
+        return alarmSettingEntityList;
+    }
+
+    /**
+     * DBのデータを取得して、StringBuilderで整形して返す。
+     * @return
+     */
+    public StringBuilder getAlarmSettingsToString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        Cursor cursor = getCursor();
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+            stringBuilder.append(cursor.getInt(0));
+            stringBuilder.append(", ");
+            stringBuilder.append(cursor.getInt(1));
+            stringBuilder.append(", ");
+            stringBuilder.append(cursor.getInt(2));
+            stringBuilder.append(" : ");
+            stringBuilder.append(cursor.getInt(3));
+            stringBuilder.append(", ");
+            stringBuilder.append(cursor.getString(4));
+            stringBuilder.append("\n");
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return stringBuilder;
     }
 }

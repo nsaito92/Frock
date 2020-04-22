@@ -4,7 +4,7 @@ import android.util.Log;
 
 /**
  * Created by nsaito on 2020/03/16.
- * AlarmPreferenceActivityでの画面表示〜DB永続化までのデータを管理するクラス。
+ * AlarmPreferenceActivityでの画面表示〜DB永続化までのデータを管理やAdapterでのデータListに使用されるクラス。
  *
  */
 
@@ -22,6 +22,15 @@ class AlarmSettingEntity {
 
     public AlarmSettingEntity() {
         Log.d(TAG, "");
+    }
+
+    public AlarmSettingEntity(int mStatus, int mHour, int mMinute, String mWeeks) {
+        Log.d(TAG, "");
+
+        this.mStatus = mStatus;
+        this.mHour = mHour;
+        this.mMinute = mMinute;
+        this.mWeeks = mWeeks;
     }
 
     public void setmStatus (int status) {

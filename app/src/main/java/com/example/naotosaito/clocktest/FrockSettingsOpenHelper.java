@@ -19,12 +19,21 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
 
     // アラーム設定用テーブル
     public static final String ALARMSETTINGS_TABLE_NAME = "alarmsettingsdb";
+
+    // カラム
     public static final String ALARMSETTINGS_ID = "_id";
     public static final String ALARMSETTINGS_COLUMN_NAME_STATUS = "status";
     public static final String ALARMSETTINGS_COLUMN_NAME_HOUR = "hour";
     public static final String ALARMSETTINGS_COLUMN_NAME_MINUTE = "minute";
     public static final String ALARMSETTINGS_COLUMN_NAME_WEEK = "week";
     // public static final String ALARMSETTINGS_COLUMN_NAME_SOUND = "sound"; //音楽ファイル追加対応後に使用。
+
+    // カラムindex
+    public static final int COLUMN_INDEX_ID = 0;
+    public static final int COLUMN_INDEX_STATUS = 1;
+    public static final int COLUMN_INDEX_HOUR = 2;
+    public static final int COLUMN_INDEX_MINUTE = 3;
+    public static final int COLUMN_INDEX_WEEK = 4;
 
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + ALARMSETTINGS_TABLE_NAME +
