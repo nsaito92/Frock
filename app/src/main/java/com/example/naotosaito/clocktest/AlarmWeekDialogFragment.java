@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class AlarmWeekDialogFragment extends DialogFragment {
 
     private static final String TAG = "AlarmWeekDialogFragment";
-    // 選択したアイテムを格納する配列
+    /** 選択したアイテムを格納する配列 **/
     ArrayList mSelectedWeeks = new ArrayList();
 
     @Override
@@ -48,8 +48,12 @@ public class AlarmWeekDialogFragment extends DialogFragment {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // mSelectedWeeksの結果を保存する
-                                ClockUtil.setSelectedWeeks(mSelectedWeeks);
+                                // ダイアログで入力された値を、文字列で呼び出し元Activityに返却する。
+                                String mWeeks = ClockUtil.setSelectedWeeks(mSelectedWeeks);
+
+                                AlarmPreferenceActivity activity = (AlarmPreferenceActivity) getActivity();
+                                activity.onReceiveString(mWeeks);
+
                             }
                         })
                 .setNegativeButton(R.string.alarm_Week_setting_NegativeButton, null);

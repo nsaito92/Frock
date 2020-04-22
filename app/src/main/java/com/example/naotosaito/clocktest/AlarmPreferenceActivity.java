@@ -4,9 +4,12 @@ import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -14,6 +17,7 @@ import android.os.Bundle;
 import android.preference.SwitchPreference;
 import android.util.Log;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -24,13 +28,39 @@ import java.util.Calendar;
 public class AlarmPreferenceActivity extends PreferenceActivity {
     private static final String TAG = "AlarmPreferenceActivity";
 
+    /** fragment */
     AlarmPreferenceFragment mFragment;
+    /** アラーム ON/OFFボタン */
     SwitchPreference alarmbutton;
+    /** アラーム時間入力 */
+    Preference btn_alarmtime_key;
+    /** アラーム曜日入力 */
+    Preference btn_alarm_start_week_key;
+    /** アラーム保存ボタン */
+    Preference btn_alarm_setting_save;
+
+    /** アラームの曜日設定ダイアログ **/
+    AlarmWeekDialogFragment alarmWeekSetting_dialog;
+
+    /** アラーム設定 */
+    AlarmSettingEntity alarmSettingEntity;
+
+    public AlarmPreferenceActivity () {
+        Log.d(TAG, "");
+
+        // TODO 画面表示時に、AlarmSettingEntityの値をDBの現在値で初期化する。
+        FrockSettingsHelperController controller = new FrockSettingsHelperController();
+        alarmSettingEntity = controller.getAlarmSettingEntity();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+        // TODO Preferenceによるアラーム設定機能は、削除する。
+
+        boolean value = false;
 
         mFragment = new AlarmPreferenceFragment();
         getFragmentManager().beginTransaction()
@@ -42,22 +72,34 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         // アラーム設定の有効・無効を設定するトグルボタンを押した時の動作。
         // (SwitchPreference)でキャストし、findPreferenceを実行。
         alarmbutton = (SwitchPreference)mFragment.findPreference(getString(R.string.alarmboolean_key));
-        alarmbutton.setChecked(ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY)); //初期値を指定。
-
         alarmbutton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#alarmbutton onPreferencelick");
 
-                // トグルボタンの状態をチェックして結果をPreferenceに保存する。
-                boolean value = alarmbutton.isChecked();
+                // トグルボタンの状態をチェックして結果を永続化する。
+//                value = alarmbutton.isChecked();
+
+
+                //
+                ContentValues cv = new ContentValues();
+
+                FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
+                SQLiteDatabase db = frockSettingsHelperController.getWritableDatabase();
+//                db.update(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME);
 
                 if (value) {
                     // trueになった場合は、有効なアラーム設定がある場合は、アラーム設定を行う。
                     ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, value);
+
+                    // TODO アラームON/OFFをDBに更新する。
+
                     ClockUtil.alarmServiceSet();
                 } else if (!value) {
                     // falseになった場合は、アラーム鳴動予定がある場合は、無効にする。
                     ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, value);
+
+                    // TODO アラームON/OFFをDBに更新する。
+
                     alarmServiceCansel();
                 }
                 return alarmbutton.isChecked();
@@ -69,7 +111,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
          * APIレベルが11以上の場合、PreferenceFragment#findPreferenceをコールする。
          */
         // TODO この辺の処理、同じようなこと書いているので、メソッド化したい。
-        Preference btn_alarmtime_key = null;
+        btn_alarmtime_key = null;
 
         // ここから
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -78,7 +120,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             btn_alarmtime_key = findPreference(getString(R.string.alarmtime_key));
         }
         // ここまで
-
 
         btn_alarmtime_key.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
             @Override
@@ -90,7 +131,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         });
 
         // 曜日選択ボタンの設定
-        Preference btn_alarm_start_week_key = null;
+        btn_alarm_start_week_key = null;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             btn_alarm_start_week_key = mFragment.findPreference("alarm_start_week_key");
         } else {
@@ -106,9 +147,52 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             }
         });
 
+        // アラーム設定保存ボタンの設定
+        btn_alarm_setting_save = null;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            btn_alarm_setting_save = mFragment.findPreference("alarm_setting_save_key");
+        } else {
+            btn_alarm_setting_save = findPreference(getString(R.string.alarm_setting_save_key));
+        }
+
+        btn_alarm_setting_save.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+            @Override
+            public boolean onPreferenceClick(Preference pref) {
+                Log.d(TAG, "onCreate#onPreferencelick_btn_alarm_setting_save");
+                Log.d(TAG, "alarmSettingEntity.getmHour() = " + alarmSettingEntity.getmHour());
+                Log.d(TAG, "alarmSettingEntity.getmMinute() = " + alarmSettingEntity.getmMinute());
+                Log.d(TAG, "alarmSettingEntity.getmWeek() = " + alarmSettingEntity.getmWeek());
+
+                FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
+
+                if (frockSettingsHelperController.updateData
+                        (FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                                ClockUtil.convertBoolean(alarmbutton.isChecked()),
+                                alarmSettingEntity.getmHour(),
+                                alarmSettingEntity.getmMinute(),
+                                alarmSettingEntity.getmWeek()
+                        ))
+                {
+                    Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
+                    toast.show();
+                } else {
+                    Toast toast = Toast.makeText(MyApplication.getContext(), "保存失敗しました。", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                return true;
+            }
+        });
+
         // アラーム鳴動時間、曜日設定の表示を、最新に更新。
-        updateTimeView();
-        updateWeekView();
+        updateSettingsView();
+//        updateTimeView();
+//        updateWeekView();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart");
     }
 
     @Override
@@ -116,7 +200,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         super.onResume();
         Log.d(TAG, "onResume");
         // Preferenceの値が変更された時に呼び出されるコールバック関数をregist
-        // TODO アラーム設定の更新も、ここでやるのがよさそう。
+        // TODO DB移行が完了したら、修正。
         SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
         prefer_hour.registerOnSharedPreferenceChangeListener(listener);
 
@@ -133,6 +217,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Log.d(TAG, "getAlarmServiceBoolean() = " + ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY));
         // アラームON/OFFボタンの状態を更新。
         alarmbutton.setChecked(ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY));
+
+        updateSettingsView();
     }
 
     @Override
@@ -168,47 +254,36 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                         // Serviceを一度終了し、更新された時間で再設定する。
                         alarmServiceCansel();
                         ClockUtil.alarmServiceSet();
-                        updateTimeView();
+//                        updateTimeView();
                     } else if (ClockUtil.ALARMTIME_WEEK_KEY.equals(key)) {
                         // Serviceを一度終了し、更新された曜日で再設定する。
                         alarmServiceCansel();
                         ClockUtil.alarmServiceSet();
-                        updateWeekView();
+//                        updateWeekView();
                     }
                 }
             };
 
     /**
-     * アラームが動作する時間の画面表示を更新する。
+     * DBから各種アラーム設定のデータを取得して、画面に反映する。
      */
-    private void updateTimeView() {
-        Log.d(TAG, "updateTimeView");
-        Preference button = null;
-        button = mFragment.findPreference("alarmtime_key");
+    private void updateSettingsView() {
+        Log.d(TAG, "updateSettingsView");
 
-        // 保存されているPreferenceの値を取得
-        int spHourInt = ClockUtil.getPrefInt("hour", ClockUtil.ALARMTIME_HOUR_KEY);
-        int spMinuteInt = ClockUtil.getPrefInt("minute", ClockUtil.ALARMTIME_MINUTE_KEY);
+        btn_alarmtime_key = mFragment.findPreference("alarmtime_key");
+        btn_alarm_start_week_key = mFragment.findPreference("alarm_start_week_key");
 
-        // Preferenceを文字列に変換する。
+        alarmbutton.setChecked(ClockUtil.convertInt(alarmSettingEntity.getmStatus()));  // status
+        int spHourInt = alarmSettingEntity.getmHour();                                  // hour
+        int spMinuteInt = alarmSettingEntity.getmMinute();                              // minute
+        String[] week = ClockUtil.convertStringToArray(alarmSettingEntity.getmWeek());  // week
+
+        // DBから受け取った時間の情報を、文字列を整形してViewに反映。
         String valueOfH = String.valueOf(spHourInt);
         String valueOfM = String.valueOf(spMinuteInt);
+        btn_alarmtime_key.setSummary(ClockUtil.shapingStringTime(valueOfH, valueOfM));
 
-        // 取得した文字列を整形して画面に反映。
-        button.setSummary(ClockUtil.shapingStringTime(valueOfH, valueOfM));
-    }
-
-    /**
-     * アラームが鳴動する曜日の画面表示を更新する。
-     */
-    private void updateWeekView() {
-        Log.d(TAG, "updateWeekView");
-
-        Preference button = null;
-        button = mFragment.findPreference("alarm_start_week_key");
-
-        String[] week = ClockUtil.getSelectedWeeks(ClockUtil.ALARMTIME_WEEK_KEY);
-
+        // DBから受け取った曜日の情報を、文字列を整形してViewに反映。
         // 曜日設定が無い場合は、画面の更新は行わない。
         if (week == null) {
             return;
@@ -246,7 +321,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             }
         }
         // 変換した文字列を統合して、画面に表示する。
-        button.setSummary(stringBuilder.toString());
+        btn_alarm_start_week_key.setSummary(stringBuilder.toString());
     }
 
     /**
@@ -263,11 +338,10 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
-                // アラーム時間をPreferenceで保存する
-                ClockUtil.setPrefInt("hour", ClockUtil.ALARMTIME_HOUR_KEY, hourOfDay);
-                ClockUtil.setPrefInt("minute", ClockUtil.ALARMTIME_MINUTE_KEY, minute);
+                // アラーム時間をセット
+                alarmSettingEntity.setmHour(hourOfDay);
+                alarmSettingEntity.setmMinute(minute);
 
-                // アラームの設定保存に完了したことを永続化する。
             }
         }, hour, minute, true);
         dialog.show();
@@ -301,7 +375,15 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
         // ダイアログを表示するため、FragmentManagerを取得する。
         FragmentManager manager = getFragmentManager();
-        AlarmWeekDialogFragment alarmWeekSetting_dialog = new AlarmWeekDialogFragment();
+        alarmWeekSetting_dialog = new AlarmWeekDialogFragment();
         alarmWeekSetting_dialog.show(manager, "alarm_Week_Setting_dialog");
+    }
+
+    /**
+     * 他画面から渡された文字列を受け取る。
+     * @param string
+     */
+    public void onReceiveString(String string) {
+        alarmSettingEntity.setmWeek(string);
     }
 }
