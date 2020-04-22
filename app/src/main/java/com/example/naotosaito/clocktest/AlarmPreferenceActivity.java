@@ -48,7 +48,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     public AlarmPreferenceActivity () {
         Log.d(TAG, "");
 
-        // TODO 画面表示時に、AlarmSettingEntityの値をDBの現在値で初期化する。
+        // 画面表示時に、AlarmSettingEntityの値をDBの現在値で初期化する。
         FrockSettingsHelperController controller = new FrockSettingsHelperController();
         alarmSettingEntity = controller.getAlarmSettingEntity();
     }

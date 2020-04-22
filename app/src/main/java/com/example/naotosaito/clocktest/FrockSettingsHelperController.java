@@ -32,7 +32,6 @@ public class FrockSettingsHelperController {
      * @return DBのcursor
      */
     public Cursor getCursor() {
-        // DB作成
         SQLiteDatabase db = getWritableDatabase();
 
         // TODO 仮実装で、DBの一行目のデータを取得するが、最終的にはユーザー操作により変更できる様にする。

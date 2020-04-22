@@ -48,6 +48,17 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
+        <ListView
+            android:id="@+id/alarmDBlistview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </ListView>
+        <TextView
+            android:id="@+id/alarmDBtextview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+        </TextView>
+        <!-- デバッグ版としてDBの情報を表示 -->
         <TextView
             android:id="@+id/db_view"
             android:layout_width="wrap_content"
