@@ -105,7 +105,7 @@ public class FrockSettingsHelperController {
         Cursor cursor = getCursor();
 
         if (cursor.moveToFirst()) {
-            for (boolean next = cursor.moveToFirst(); next;next = cursor.moveToNext()) {
+            for (boolean next = cursor.moveToFirst(); next; next = cursor.moveToNext()) {
                 alarmSettingEntity = new AlarmSettingEntity(
                         cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS),
                         cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR),

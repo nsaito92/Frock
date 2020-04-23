@@ -454,4 +454,42 @@ public class ClockUtil {
 
         return alarmCld;
     }
+
+    /**
+     * 受け取ったカレンダーの文字列情報を、ユーザーが理解できる情報に整形する。
+     * @param string
+     * @return
+     */
+    public static String convertStringToWeek(String string) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int i=0; i<=string.length(); i++) {
+            switch(string) {
+                case "0":
+                    stringBuilder.append("日");
+                    break;
+                case "1":
+                    stringBuilder.append("月");
+                    break;
+                case "2":
+                    stringBuilder.append("火");
+                    break;
+                case "3":
+                    stringBuilder.append("水");
+                    break;
+                case "4":
+                    stringBuilder.append("木");
+                    break;
+                case "5":
+                    stringBuilder.append("金");
+                    break;
+                case "6":
+                    stringBuilder.append("土");
+                    break;
+            }
+            stringBuilder.append(",");
+        }
+        return stringBuilder.toString();
+    }
 }

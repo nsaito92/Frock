@@ -11,19 +11,25 @@
     tools:context="com.example.naotosaito.clocktest.MainActivity"
     android:orientation="vertical" >
 
-    <TextView android:id="@id/on_off"
+    <TextView android:id="@id/text_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ON/OFF">
+        android:text="@string/time">
     </TextView>
-    <TextView android:id="@id/time"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="時間">
-    </TextView>
-    <TextView android:id="@id/week"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="曜日">
-    </TextView>
+        android:orientation="horizontal" >
+
+        <TextView android:id="@id/text_on_off"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/on_off">
+        </TextView>
+        <TextView android:id="@id/text_week"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/week">
+        </TextView>
+    </LinearLayout>
 </LinearLayout>

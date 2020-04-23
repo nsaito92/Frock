@@ -1,7 +1,6 @@
 package com.example.naotosaito.clocktest;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.AudioManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

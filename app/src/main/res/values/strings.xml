@@ -1,5 +1,11 @@
 <resources>
+    <!-- General -->
     <string name="app_name">Frock</string>
+    <string name="on_off">ON/OFF</string>
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
+    <string name="time">時間</string>
+    <string name="week">曜日</string>
 
     <!-- Alarm operation -->
     <string name="started_the_alarm">アラームを開始しました。</string>

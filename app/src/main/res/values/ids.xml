@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <item type="id" name="on_off"/>
-    <item type="id" name="time" />
-    <item type="id" name="week" />
+    <item type="id" name="text_on_off"/>
+    <item type="id" name="text_time" />
+    <item type="id" name="text_week" />
 </resources>
