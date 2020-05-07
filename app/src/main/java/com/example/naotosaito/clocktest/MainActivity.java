@@ -86,8 +86,6 @@ public class MainActivity extends AppCompatActivity {
         alarmDBlistView = (ListView)findViewById(R.id.alarmDBlistview);
         alarmSettingEntityList = new ArrayList<>();
         alarmSettingBaseAdapter = new AlarmSettingBaseAdapter(this, alarmSettingEntityList);
-
-        loadAlarmSettingEntityList();
     }
 
     @Override
@@ -96,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onResume");
 
         updateAlarmSettingsView();
+        loadAlarmSettingEntityList();
     }
 
     @Override
