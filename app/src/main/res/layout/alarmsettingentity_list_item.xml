@@ -26,6 +26,10 @@
             android:layout_height="wrap_content"
             android:text="@string/on_off">
         </TextView>
+        <Space
+            android:layout_width="25dip"
+            android:layout_height="wrap_content">
+        </Space>
         <TextView android:id="@id/text_week"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
