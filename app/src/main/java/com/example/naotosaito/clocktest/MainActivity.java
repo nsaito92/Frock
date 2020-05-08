@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     /** アラーム設定リスト表示用ListView */
-    ListView alarmDBlistView;
+    private ListView alarmDBlistView;
 
     /** 　ListView表示用アラーム設定リスト */
     private List<AlarmSettingEntity> alarmSettingEntityList;
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private AlarmSettingBaseAdapter alarmSettingBaseAdapter;
 
     // DBの内容表示用textView(デバッグ用)
-    TextView textView;
+    private TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         mTimer.schedule(timerTask, 1000, 1000);      //100ミリ秒後に、100ミリ秒感覚でtimerTaskを実行する。
 
-        /** Adapterを使用して、アラーム設定DBの内容をListViewで表示。 */
+        // アラーム設定DBのListView表示用のAdapterを設定。
         alarmDBlistView = (ListView)findViewById(R.id.alarmDBlistview);
         alarmSettingEntityList = new ArrayList<>();
         alarmSettingBaseAdapter = new AlarmSettingBaseAdapter(this, alarmSettingEntityList);

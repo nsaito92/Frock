@@ -29,21 +29,21 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private static final String TAG = "AlarmPreferenceActivity";
 
     /** fragment */
-    AlarmPreferenceFragment mFragment;
+    private AlarmPreferenceFragment mFragment;
     /** アラーム ON/OFFボタン */
-    SwitchPreference alarmbutton;
+    private SwitchPreference alarmbutton;
     /** アラーム時間入力 */
-    Preference btn_alarmtime_key;
+    private Preference btn_alarmtime_key;
     /** アラーム曜日入力 */
-    Preference btn_alarm_start_week_key;
+    private Preference btn_alarm_start_week_key;
     /** アラーム保存ボタン */
-    Preference btn_alarm_setting_save;
+    private Preference btn_alarm_setting_save;
 
     /** アラームの曜日設定ダイアログ **/
-    AlarmWeekDialogFragment alarmWeekSetting_dialog;
+    private AlarmWeekDialogFragment alarmWeekSetting_dialog;
 
     /** アラーム設定 */
-    AlarmSettingEntity alarmSettingEntity;
+    private AlarmSettingEntity alarmSettingEntity;
 
     public AlarmPreferenceActivity () {
         Log.d(TAG, "");
