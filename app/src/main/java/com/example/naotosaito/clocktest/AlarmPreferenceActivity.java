@@ -47,10 +47,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
     public AlarmPreferenceActivity () {
         Log.d(TAG, "");
-
-        // 画面表示時に、AlarmSettingEntityの値をDBの現在値で初期化する。
-        FrockSettingsHelperController controller = new FrockSettingsHelperController();
-        alarmSettingEntity = controller.getAlarmSettingEntity();
     }
 
 
@@ -59,6 +55,12 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         // TODO Preferenceによるアラーム設定機能は、削除する。
+
+        // 呼び出し元画面から渡された情報を元にDBを参照、AlarmSettingEntityを初期化する。
+        Intent intent = getIntent();
+        String position = intent.getStringExtra("position");
+        FrockSettingsHelperController controller = new FrockSettingsHelperController();
+        alarmSettingEntity = controller.getAlarmSettingEntity(position);
 
         boolean value = false;
 
@@ -159,6 +161,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#onPreferencelick_btn_alarm_setting_save");
+                Log.d(TAG, "alarmSettingEntity.getmId() = " + alarmSettingEntity.getmId());
                 Log.d(TAG, "alarmSettingEntity.getmHour() = " + alarmSettingEntity.getmHour());
                 Log.d(TAG, "alarmSettingEntity.getmMinute() = " + alarmSettingEntity.getmMinute());
                 Log.d(TAG, "alarmSettingEntity.getmWeek() = " + alarmSettingEntity.getmWeek());
@@ -167,6 +170,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
                 if (frockSettingsHelperController.updateData
                         (FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                                alarmSettingEntity.getmId(),
                                 ClockUtil.convertBoolean(alarmbutton.isChecked()),
                                 alarmSettingEntity.getmHour(),
                                 alarmSettingEntity.getmMinute(),

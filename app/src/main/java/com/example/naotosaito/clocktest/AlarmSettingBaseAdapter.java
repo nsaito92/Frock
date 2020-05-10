@@ -75,7 +75,6 @@ class AlarmSettingBaseAdapter extends BaseAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d(TAG, "getView : position = " + position);
 
         View view = convertView;
         ViewHolder holder;

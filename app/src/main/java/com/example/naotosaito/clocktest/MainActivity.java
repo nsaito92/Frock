@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -86,6 +87,23 @@ public class MainActivity extends AppCompatActivity {
         alarmDBlistView = (ListView)findViewById(R.id.alarmDBlistview);
         alarmSettingEntityList = new ArrayList<>();
         alarmSettingBaseAdapter = new AlarmSettingBaseAdapter(this, alarmSettingEntityList);
+
+        // 上記アダプタのリスナーを設定。
+        alarmDBlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "onItemClick");
+                Log.d(TAG, "position = " + position);
+                Log.d(TAG, "id = " + id);
+
+                // タップした項目の情報を元に、アラーム設定画面に遷移する。
+                Intent intent = new Intent(MyApplication.getContext(), AlarmPreferenceActivity.class);
+                // クリックイベントで受け取れるIDは0からスタートだが、
+                // DBは1からスタートであるため、インクリメントして渡す。
+                intent.putExtra("position", String.valueOf(position + 1));
+                startActivity(intent);
+            }
+        });
     }
 
     @Override

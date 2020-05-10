@@ -34,14 +34,27 @@ public class FrockSettingsHelperController {
 
     /**
      * クエリを実行して、Cursorを取得する。
+     * @param position 取得するDB情の位置。nullの場合は全件取得する。
      * @return DBのcursor
      */
-    public Cursor getCursor() {
+    public Cursor getCursor(String position) {
         SQLiteDatabase db = getWritableDatabase();
+        Cursor cursor;
 
-        // TODO 仮実装で、DBの一行目のデータを取得するが、最終的にはユーザー操作により変更できる様にする。
-        Cursor cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
-                null, null, null, null, null, null);
+        if (position == null) {
+            Log.d(TAG, "【TEST】potision = null");
+            cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                    null, null, null, null, null, null);
+        } else {
+            Log.d(TAG, "【TEST】potision = not null");
+            cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                    null,
+                    FrockSettingsOpenHelper.ALARMSETTINGS_ID + " = " + position,
+                    null,
+                    null,
+                    null,
+                    null);
+        }
         cursor.moveToFirst();
 
         return cursor;
@@ -55,12 +68,12 @@ public class FrockSettingsHelperController {
      * @param minute
      * @param week
      */
-    public boolean updateData(String table_name, int status, int hour, int minute, String week) {
+    public boolean updateData(String table_name, int id, int status, int hour, int minute, String week) {
 
         boolean result = true;
 
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = getCursor();
+        Cursor cursor = getCursor(String.valueOf(id));
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_STATUS, status);
@@ -69,7 +82,11 @@ public class FrockSettingsHelperController {
         contentValues.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_WEEK, week);
 
         try {
-            db.update(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME, contentValues, "_id = " + 1, null);
+            db.update(
+                    FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                    contentValues,
+                    FrockSettingsOpenHelper.ALARMSETTINGS_ID + " = " + String.valueOf(id),
+                    null);
         } catch (SQLException e) {
             result = false;
         }
@@ -80,12 +97,14 @@ public class FrockSettingsHelperController {
 
     /**
      * DBからデータを取得して、AlarmSettingEntityオブジェクトを返す。
+     * @param position 取得するDBポジション
      * @return
      */
-    public AlarmSettingEntity getAlarmSettingEntity() {
+    public AlarmSettingEntity getAlarmSettingEntity(String position) {
 
-        Cursor cursor = getCursor();
+        Cursor cursor = getCursor(position);
         AlarmSettingEntity entity = new AlarmSettingEntity();
+        entity.setmId(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID));
         entity.setmStatus(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS));
         entity.setmHour(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR));
         entity.setmMinute(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE));
@@ -102,16 +121,18 @@ public class FrockSettingsHelperController {
      */
     public List<AlarmSettingEntity> getAlarmSettingEntityList(List<AlarmSettingEntity> alarmSettingEntityList) {
 
-        Cursor cursor = getCursor();
+        Cursor cursor = getCursor(null);
 
         if (cursor.moveToFirst()) {
             for (boolean next = cursor.moveToFirst(); next; next = cursor.moveToNext()) {
                 alarmSettingEntity = new AlarmSettingEntity(
+                        cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID),
                         cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS),
                         cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR),
                         cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE),
                         cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK)
                 );
+                Log.d(TAG, "COLUMN_INDEX_ID = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID));
                 Log.d(TAG, "COLUMN_INDEX_STATUS = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS));
                 Log.d(TAG, "COLUMN_INDEX_HOUR = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR));
                 Log.d(TAG, "COLUMN_INDEX_MINUTE = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE));
@@ -132,7 +153,7 @@ public class FrockSettingsHelperController {
      */
     public StringBuilder getAlarmSettingsToString() {
         StringBuilder stringBuilder = new StringBuilder();
-        Cursor cursor = getCursor();
+        Cursor cursor = getCursor(null);
 
         for (int i = 0; i < cursor.getCount(); i++) {
             stringBuilder.append(cursor.getInt(0));

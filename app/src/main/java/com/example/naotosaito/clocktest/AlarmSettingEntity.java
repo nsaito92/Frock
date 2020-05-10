@@ -11,26 +11,37 @@ import android.util.Log;
 class AlarmSettingEntity {
     private static final String TAG = "AlarmSettingEntity";
 
+    /** ID **/
+    protected int mId;
     /** アラーム ON/OFF **/
-    int mStatus;
+    protected int mStatus;
     /** 時 **/
-    int mHour;
+    protected int mHour;
     /** 分 **/
-    int mMinute;
+    protected int mMinute;
     /** 曜日 **/
-    String mWeeks;
+    protected String mWeeks;
 
     public AlarmSettingEntity() {
         Log.d(TAG, "");
     }
 
-    public AlarmSettingEntity(int mStatus, int mHour, int mMinute, String mWeeks) {
+    public AlarmSettingEntity(int mId, int mStatus, int mHour, int mMinute, String mWeeks) {
         Log.d(TAG, "");
 
+        this.mId = mId;
         this.mStatus = mStatus;
         this.mHour = mHour;
         this.mMinute = mMinute;
         this.mWeeks = mWeeks;
+    }
+
+    public void setmId (int id) {
+        mId = id;
+    }
+
+    public int getmId () {
+        return mId;
     }
 
     public void setmStatus (int status) {
