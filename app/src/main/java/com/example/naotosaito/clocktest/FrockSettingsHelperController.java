@@ -39,15 +39,14 @@ public class FrockSettingsHelperController {
      * @return DBのcursor
      */
     public Cursor getCursor(String position) {
+        Log.d(TAG, "getCursor");
         SQLiteDatabase db = getWritableDatabase();
         Cursor cursor;
 
         if (position == null) {
-            Log.d(TAG, "【TEST】potision = null");
             cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
                     null, null, null, null, null, null);
         } else {
-            Log.d(TAG, "【TEST】potision = not null");
             cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
                     null,
                     FrockSettingsOpenHelper.ALARMSETTINGS_ID + " = " + position,

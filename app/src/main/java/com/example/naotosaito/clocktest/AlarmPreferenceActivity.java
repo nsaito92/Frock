@@ -178,9 +178,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     {
                         Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
                         toast.show();
+                        finish();
                     } else {
                         Toast toast = Toast.makeText(MyApplication.getContext(), "保存失敗しました。", Toast.LENGTH_SHORT);
                         toast.show();
+                        finish();
                     }
                 } else {
                     // 呼び元が無い → 新規データを挿入処理を行う。
@@ -196,9 +198,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     {
                         Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
                         toast.show();
+                        finish();
                     } else {
                         Toast toast = Toast.makeText(MyApplication.getContext(), "保存失敗しました。", Toast.LENGTH_SHORT);
                         toast.show();
+                        finish();
                     }
                 }
                 return true;
