@@ -103,9 +103,12 @@ public class MainActivity extends AppCompatActivity {
 
                 // タップした項目の情報を元に、アラーム設定画面に遷移する。
                 Intent intent = new Intent(MyApplication.getContext(), AlarmPreferenceActivity.class);
-                // クリックイベントで受け取れるIDは0からスタートだが、
-                // DBは1からスタートであるため、インクリメントして渡す。
-                intent.putExtra("position", String.valueOf(position + 1));
+
+                // 各entityで永続化されているDBのIDを取得して、アラーム設定画面に渡す。
+                AlarmSettingEntity entity = alarmSettingEntityList.get(position);
+                Log.d(TAG, "entity.getmId() = " + entity.getmId());
+
+                intent.putExtra("position", String.valueOf(entity.getmId()));
                 startActivity(intent);
             }
         });
