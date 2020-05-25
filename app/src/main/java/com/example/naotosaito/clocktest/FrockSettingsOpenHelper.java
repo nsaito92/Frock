@@ -35,6 +35,7 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
     public static final int COLUMN_INDEX_MINUTE = 3;
     public static final int COLUMN_INDEX_WEEK = 4;
 
+    // SQL文
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + ALARMSETTINGS_TABLE_NAME +
                     " (" + ALARMSETTINGS_ID + " INTEGER PRIMARY KEY," +
@@ -45,6 +46,8 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
 
     private static final String SQL_SELECT_USER = "SELECT FROM " + ALARMSETTINGS_TABLE_NAME;
 
+    // バリデーションチェック用定数
+    public static final long ALARMSETTINGS_TABLE_MAX_RECORD = 10;
 
     public FrockSettingsOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

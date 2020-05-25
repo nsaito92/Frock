@@ -185,8 +185,6 @@ public class ClockUtil {
      */
     public static StringBuilder shapingStringTime(String hour, String minute) {
 
-        Log.d(TAG, "shapingStringTime");
-
         StringBuilder stringBuilder = new StringBuilder();
 
         // 文字列の調整。時間と分を、一つの文字列に統合。

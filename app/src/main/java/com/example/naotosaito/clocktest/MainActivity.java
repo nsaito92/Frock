@@ -2,6 +2,7 @@ package com.example.naotosaito.clocktest;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.DatabaseUtils;
 import android.media.AudioManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -171,9 +172,22 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.optionsMenu_01:
-                Intent intent = new android.content.Intent(this, AlarmPreferenceActivity.class);
-                startActivity(intent);
-                return true;
+                // DB追加が可能な場合のみ、遷移する。
+                FrockSettingsHelperController controller = new FrockSettingsHelperController();
+
+                if (controller.isCanRecodeAdd(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME)) {
+
+                    Intent intent = new android.content.Intent(this, AlarmPreferenceActivity.class);
+                    startActivity(intent);
+                    return true;
+
+                } else {
+
+                    Toast.makeText(MyApplication.getContext(),
+                            getString(R.string.alarm_setting_save_max, FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_MAX_RECORD),
+                            Toast.LENGTH_SHORT).show();
+                    return false;
+                }
             default:
                 return super.onOptionsItemSelected(item);
         }

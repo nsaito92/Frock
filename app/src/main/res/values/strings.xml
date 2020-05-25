@@ -18,7 +18,7 @@
     <string name="No_alarm_to_stop">現在鳴動しているアラームはありません</string>
 
     <!-- menu used -->
-    <string name="opt_menu_01">アラーム設定</string>
+    <string name="opt_menu_01">アラーム設定新規作成</string>
 
     <!-- Alarm Settings preference -->
     <string name="preference_title">アラーム設定</string>
@@ -36,6 +36,7 @@
     <string name="alarm_setting_save_key">alarm_setting_save_key</string>
     <string name="alarm_setting_save_name">保存</string>
     <string name="alarm_setting_save_summary">アラーム設定を保存する</string>
+    <string name="alarm_setting_save_max">アラーム設定は%1$d件までです。</string>
 
     <!-- alarm week setting dialog -->
     <string name="alarm_Week_setting_title">曜日</string>

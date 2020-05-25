@@ -2,6 +2,7 @@ package com.example.naotosaito.clocktest;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -223,8 +224,40 @@ public class FrockSettingsHelperController {
         cursor.close();
         return stringBuilder;
     }
+
     /**
-     * デバッグ用にアラーム設定用DBにデータをセットする。
+     * 指定されたテーブルへのレコード追加可否のバリデーションチェックを行う。
+     * @param tablename データを取得するテーブル名
+     * @return true : 追加出来る。 false : 出来ない。
+     */
+    public boolean isCanRecodeAdd(String tablename) {
+        boolean result = false;
+
+        Long recodeCount = queryNumEntries(tablename);
+        Log.d(TAG, "recodeCount = " + recodeCount);
+
+        // TODO 新規追加されたテーブルで本メソッドを使用したい場合は処理の追加が必要。
+        switch (tablename) {
+            case FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME:
+                result = recodeCount < FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_MAX_RECORD;
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
+    /**
+     * アラーム設定DBのレコード数を取得する。
+     * @param tablename データを取得するテーブル名
+     */
+    private Long queryNumEntries(String tablename) {
+        SQLiteDatabase db = getWritableDatabase();
+        return DatabaseUtils.queryNumEntries(db, tablename);
+    }
+
+    /**
+     * TODO デバッグ用にアラーム設定用DBにデータをセットする。
      */
     public void saveData () {
         Log.d(TAG, "saveData");
