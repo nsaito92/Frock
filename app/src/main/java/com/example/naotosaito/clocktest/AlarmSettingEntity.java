@@ -24,6 +24,11 @@ class AlarmSettingEntity {
 
     public AlarmSettingEntity() {
         Log.d(TAG, "");
+
+        // パラメーターが無い場合は、新規作成扱い。デフォルトのデータを入れる。
+        this.mStatus = ClockUtil.TRUE;
+        this.mHour = ClockUtil.ALARMTIME_DEFAULT;
+        this.mMinute = ClockUtil.ALARMTIME_DEFAULT;
     }
 
     public AlarmSettingEntity(int mId, int mStatus, int mHour, int mMinute, String mWeeks) {

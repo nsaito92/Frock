@@ -4,9 +4,14 @@
     <string name="on_off">ON/OFF</string>
     <string name="on">ON</string>
     <string name="off">OFF</string>
+    <string name="ok">OK</string>
+    <string name="cansel">Cansel</string>
+
     <string name="time">時間</string>
     <string name="week">曜日</string>
 
+    <string name="setting_delete">設定を削除</string>
+    <string name="message_setting_delete">削除しますか?</string>
     <!-- Alarm operation -->
     <string name="started_the_alarm">アラームを開始しました。</string>
     <string name="stopped_the_alarm">アラームを停止しました。</string>
@@ -43,8 +48,6 @@
         <item>金曜日</item>
         <item>土曜日</item>
     </string-array>
-    <string name="alarm_Week_setting_PositiveButton">OK</string>
-    <string name="alarm_Week_setting_NegativeButton">Cansel</string>
 
     <!-- etc -->
 

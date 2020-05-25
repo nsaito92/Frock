@@ -61,6 +61,40 @@ public class FrockSettingsHelperController {
     }
 
     /**
+     * 渡されたデータをDBに新規挿入する。
+     * @param table_name
+     * @param status
+     * @param hour
+     * @param minute
+     * @param week
+     * @return
+     */
+    public boolean insertData(String table_name, int status, int hour, int minute, String week) {
+        Log.d(TAG, "insertData");
+        boolean result = true;
+
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_STATUS, status);
+        values.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_HOUR, hour);
+        values.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_MINUTE, minute);
+        values.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_WEEK, week);
+
+//        db.beginTransaction();
+
+        try {
+            Log.d(TAG, "insert");
+            db.insert(table_name, null, values);
+        } catch (SQLException e) {
+            result = false;
+        } finally {
+//            db.endTransaction();
+        }
+        return result;
+    }
+
+    /**
      * ユーザーが入力したデータをDBに永続化する。
      * @param table_name
      * @param status
@@ -94,6 +128,29 @@ public class FrockSettingsHelperController {
 
         return result;
     }
+    /**
+     * 指定された位置のDB情報を削除する。
+     * @param position
+     */
+    public boolean selectDelete(String position) {
+        boolean resuit = false;
+        SQLiteDatabase db = getWritableDatabase();
+
+        db.beginTransaction();  // トランザクション開始
+        try {
+            db.delete(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                    FrockSettingsOpenHelper.ALARMSETTINGS_ID + "=?",
+                    new String[]{position});
+            db.setTransactionSuccessful();
+            resuit = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();    //トランザクション完了
+            db.close();
+        }
+        return resuit;
+    }
 
     /**
      * DBからデータを取得して、AlarmSettingEntityオブジェクトを返す。
@@ -120,6 +177,7 @@ public class FrockSettingsHelperController {
      * @return
      */
     public List<AlarmSettingEntity> getAlarmSettingEntityList(List<AlarmSettingEntity> alarmSettingEntityList) {
+        Log.d(TAG, "getAlarmSettingEntityList()");
 
         Cursor cursor = getCursor(null);
 
@@ -132,15 +190,9 @@ public class FrockSettingsHelperController {
                         cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE),
                         cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK)
                 );
-                Log.d(TAG, "COLUMN_INDEX_ID = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID));
-                Log.d(TAG, "COLUMN_INDEX_STATUS = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS));
-                Log.d(TAG, "COLUMN_INDEX_HOUR = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR));
-                Log.d(TAG, "COLUMN_INDEX_MINUTE = " + cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE));
-                Log.d(TAG, "COLUMN_INDEX_WEEK = " + cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
 
                 alarmSettingEntityList.add(alarmSettingEntity);
             }
-
         }
         cursor.close();
 
@@ -170,5 +222,21 @@ public class FrockSettingsHelperController {
         }
         cursor.close();
         return stringBuilder;
+    }
+    /**
+     * デバッグ用にアラーム設定用DBにデータをセットする。
+     */
+    public void saveData () {
+        Log.d(TAG, "saveData");
+
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("status", 0);
+        values.put("hour", 18);
+        values.put("minute", 30);
+        values.put("week", "1,2");
+
+        db.insert(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME, null, values);
     }
 }

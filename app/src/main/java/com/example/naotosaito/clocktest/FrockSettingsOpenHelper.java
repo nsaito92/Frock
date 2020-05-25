@@ -66,24 +66,4 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
 
         onCreate(db);
     }
-
-    /**
-     * アラーム設定用DBにデータをセットする。
-     * @param db
-     * @param status
-     * @param hour
-     * @param minute
-     * @param week
-     */
-    public void saveData (SQLiteDatabase db, String table_name, int status, int hour, int minute, String week) {
-        Log.d(TAG, "saveData");
-
-        ContentValues values = new ContentValues();
-        values.put("status", status);
-        values.put("hour", hour);
-        values.put("minute", minute);
-        values.put("week", week);
-
-        db.insert(table_name, null, values);
-    }
 }

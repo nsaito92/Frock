@@ -44,7 +44,7 @@ public class AlarmWeekDialogFragment extends DialogFragment {
                                 }
                             }
                         })
-                .setPositiveButton(R.string.alarm_Week_setting_PositiveButton,
+                .setPositiveButton(R.string.ok,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -56,7 +56,7 @@ public class AlarmWeekDialogFragment extends DialogFragment {
 
                             }
                         })
-                .setNegativeButton(R.string.alarm_Week_setting_NegativeButton, null);
+                .setNegativeButton(R.string.cansel, null);
 
         return builder.create();
     }

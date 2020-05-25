@@ -1,7 +1,9 @@
 package com.example.naotosaito.clocktest;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,11 +41,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
-        setContentView(R.layout.activity_main);
 
+        setContentView(R.layout.activity_main);
         textView = (TextView) findViewById(R.id.db_view);
 
-        // TODO テストコード
+        // TODO テスト用アラーム設定データ挿入コード
+//        FrockSettingsHelperController controller = new FrockSettingsHelperController();
+//        controller.saveData();
+
         Button testAlarmSetButton = (Button) findViewById(R.id.db_alarmbutton);
         testAlarmSetButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         alarmSettingEntityList = new ArrayList<>();
         alarmSettingBaseAdapter = new AlarmSettingBaseAdapter(this, alarmSettingEntityList);
 
-        // 上記アダプタのリスナーを設定。
+        // 上記ListViewをタップした時のリスナーを設定。
         alarmDBlistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -102,6 +107,44 @@ public class MainActivity extends AppCompatActivity {
                 // DBは1からスタートであるため、インクリメントして渡す。
                 intent.putExtra("position", String.valueOf(position + 1));
                 startActivity(intent);
+            }
+        });
+
+        // 上記ListViewを長押した時のリスナーを設定。
+        alarmDBlistView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "onItemLongClick");
+
+                // アラートダイアログ表示準備
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.setting_delete);
+                builder.setMessage(R.string.message_setting_delete);
+                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, "onClick : OK");
+
+                        // 各entityで永続化されているDBのIDを取得して、DBから削除する。
+                        AlarmSettingEntity entity = alarmSettingEntityList.get(position);
+                        FrockSettingsHelperController controller = new FrockSettingsHelperController();
+                        Log.d(TAG, "entity.getmId() = " + entity.getmId());
+                        controller.selectDelete(String.valueOf(entity.getmId()));
+
+                        // DBに変更があったので、Entityリストを更新。
+                        loadAlarmSettingEntityList();
+                    }
+                });
+                builder.setNegativeButton(R.string.cansel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, "onClick : Cancel");
+                    }
+                });
+                // ダイアログ表示
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return false;
             }
         });
     }

@@ -37,6 +37,9 @@ public class ClockUtil {
     final static int TRUE = 1;
     final static int FALSE = 0;
 
+    // アラーム設定デフォルト設定用
+    final static int ALARMTIME_DEFAULT = 0;
+
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
     private ClockUtil() {
         throw new AssertionError();
@@ -461,6 +464,10 @@ public class ClockUtil {
      * @return
      */
     public static String convertStringToWeek(String string) {
+        // 設定がnullだった場合は無しと記載
+        if (string == null) {
+            return "曜日設定無し";
+        }
 
         StringBuilder stringBuilder = new StringBuilder();  // 整形文字の格納先
 
