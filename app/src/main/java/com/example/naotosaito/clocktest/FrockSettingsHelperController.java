@@ -19,6 +19,8 @@ public class FrockSettingsHelperController {
     public static final String TAG = FrockSettingsHelperController.class.getSimpleName();
     FrockSettingsOpenHelper settingshelper;
     AlarmSettingEntity alarmSettingEntity;
+    SQLiteDatabase db = null;
+
 
     // コンストラクタでFrockSettingsHelperをnewする。
     public FrockSettingsHelperController() {
@@ -26,11 +28,18 @@ public class FrockSettingsHelperController {
     }
 
     /**
-     * FrockSettingsOpenHelperの読み書き用データベースの作成および/オープンを行い、返却する。
-     * @return
+     * FrockSettingsOpenHelperの読み書き用データベースのオープンを行う。
      */
-    public SQLiteDatabase getWritableDatabase() {
-        return settingshelper.getWritableDatabase();
+    private void getWritableDatabase() {
+        db = settingshelper.getWritableDatabase();
+    }
+
+    /**
+     * DBを閉じる。
+     */
+    private void dbClose() {
+        db.close();
+        db = null;
     }
 
     /**
@@ -38,9 +47,9 @@ public class FrockSettingsHelperController {
      * @param position 取得するDB情の位置。nullの場合は全件取得する。
      * @return DBのcursor
      */
-    public Cursor getCursor(String position) {
+    private Cursor getCursor(String position) {
         Log.d(TAG, "getCursor");
-        SQLiteDatabase db = getWritableDatabase();
+        getWritableDatabase();
         Cursor cursor;
 
         if (position == null) {
@@ -73,7 +82,7 @@ public class FrockSettingsHelperController {
         Log.d(TAG, "insertData");
         boolean result = true;
 
-        SQLiteDatabase db = getWritableDatabase();
+        getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_STATUS, status);
@@ -81,15 +90,17 @@ public class FrockSettingsHelperController {
         values.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_MINUTE, minute);
         values.put(FrockSettingsOpenHelper.ALARMSETTINGS_COLUMN_NAME_WEEK, week);
 
-//        db.beginTransaction();
+        db.beginTransaction();
 
         try {
             Log.d(TAG, "insert");
             db.insert(table_name, null, values);
+            db.setTransactionSuccessful();
         } catch (SQLException e) {
             result = false;
         } finally {
-//            db.endTransaction();
+            db.endTransaction();
+            dbClose();
         }
         return result;
     }
@@ -106,7 +117,7 @@ public class FrockSettingsHelperController {
 
         boolean result = true;
 
-        SQLiteDatabase db = getWritableDatabase();
+        getWritableDatabase();
         Cursor cursor = getCursor(String.valueOf(id));
 
         ContentValues contentValues = new ContentValues();
@@ -123,8 +134,10 @@ public class FrockSettingsHelperController {
                     null);
         } catch (SQLException e) {
             result = false;
+        } finally {
+            cursor.close();
+            dbClose();
         }
-        cursor.close();
 
         return result;
     }
@@ -134,7 +147,7 @@ public class FrockSettingsHelperController {
      */
     public boolean selectDelete(String position) {
         boolean resuit = false;
-        SQLiteDatabase db = getWritableDatabase();
+        getWritableDatabase();
 
         db.beginTransaction();  // トランザクション開始
         try {
@@ -147,7 +160,7 @@ public class FrockSettingsHelperController {
             e.printStackTrace();
         } finally {
             db.endTransaction();    //トランザクション完了
-            db.close();
+            dbClose();
         }
         return resuit;
     }
@@ -158,16 +171,20 @@ public class FrockSettingsHelperController {
      * @return
      */
     public AlarmSettingEntity getAlarmSettingEntity(String position) {
-
+        getWritableDatabase();
         Cursor cursor = getCursor(position);
-        AlarmSettingEntity entity = new AlarmSettingEntity();
-        entity.setmId(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID));
-        entity.setmStatus(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS));
-        entity.setmHour(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR));
-        entity.setmMinute(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE));
-        entity.setmWeek(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
 
-        cursor.close();
+        AlarmSettingEntity entity = new AlarmSettingEntity();
+        try {
+            entity.setmId(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID));
+            entity.setmStatus(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS));
+            entity.setmHour(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR));
+            entity.setmMinute(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE));
+            entity.setmWeek(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
+        } finally {
+            cursor.close();
+            dbClose();
+        }
 
         return entity;
     }
@@ -179,23 +196,27 @@ public class FrockSettingsHelperController {
     public List<AlarmSettingEntity> getAlarmSettingEntityList(List<AlarmSettingEntity> alarmSettingEntityList) {
         Log.d(TAG, "getAlarmSettingEntityList()");
 
+        getWritableDatabase();
         Cursor cursor = getCursor(null);
+        try {
 
-        if (cursor.moveToFirst()) {
-            for (boolean next = cursor.moveToFirst(); next; next = cursor.moveToNext()) {
-                alarmSettingEntity = new AlarmSettingEntity(
-                        cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID),
-                        cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS),
-                        cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR),
-                        cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE),
-                        cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK)
-                );
+            if (cursor.moveToFirst()) {
+                for (boolean next = cursor.moveToFirst(); next; next = cursor.moveToNext()) {
+                    alarmSettingEntity = new AlarmSettingEntity(
+                            cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID),
+                            cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS),
+                            cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR),
+                            cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE),
+                            cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK)
+                    );
 
-                alarmSettingEntityList.add(alarmSettingEntity);
+                    alarmSettingEntityList.add(alarmSettingEntity);
+                }
             }
+        } finally {
+            cursor.close();
+            dbClose();
         }
-        cursor.close();
-
         return alarmSettingEntityList;
     }
 
@@ -205,22 +226,28 @@ public class FrockSettingsHelperController {
      */
     public StringBuilder getAlarmSettingsToString() {
         StringBuilder stringBuilder = new StringBuilder();
+        getWritableDatabase();
         Cursor cursor = getCursor(null);
 
-        for (int i = 0; i < cursor.getCount(); i++) {
-            stringBuilder.append(cursor.getInt(0));
-            stringBuilder.append(", ");
-            stringBuilder.append(cursor.getInt(1));
-            stringBuilder.append(", ");
-            stringBuilder.append(cursor.getInt(2));
-            stringBuilder.append(" : ");
-            stringBuilder.append(cursor.getInt(3));
-            stringBuilder.append(", ");
-            stringBuilder.append(cursor.getString(4));
-            stringBuilder.append("\n");
-            cursor.moveToNext();
+        try {
+            for (int i = 0; i < cursor.getCount(); i++) {
+                stringBuilder.append(cursor.getInt(0));
+                stringBuilder.append(", ");
+                stringBuilder.append(cursor.getInt(1));
+                stringBuilder.append(", ");
+                stringBuilder.append(cursor.getInt(2));
+                stringBuilder.append(" : ");
+                stringBuilder.append(cursor.getInt(3));
+                stringBuilder.append(", ");
+                stringBuilder.append(cursor.getString(4));
+                stringBuilder.append("\n");
+                cursor.moveToNext();
+            }
+        } finally {
+            cursor.close();
+            dbClose();
         }
-        cursor.close();
+
         return stringBuilder;
     }
 
@@ -251,8 +278,11 @@ public class FrockSettingsHelperController {
      * @param tablename データを取得するテーブル名
      */
     private Long queryNumEntries(String tablename) {
-        SQLiteDatabase db = getWritableDatabase();
-        return DatabaseUtils.queryNumEntries(db, tablename);
+        Long recode = null;
+        getWritableDatabase();
+        recode = DatabaseUtils.queryNumEntries(db, tablename);
+        dbClose();
+        return recode;
     }
 
     /**
@@ -261,7 +291,7 @@ public class FrockSettingsHelperController {
     public void saveData () {
         Log.d(TAG, "saveData");
 
-        SQLiteDatabase db = getWritableDatabase();
+        getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put("status", 0);
@@ -269,6 +299,13 @@ public class FrockSettingsHelperController {
         values.put("minute", 30);
         values.put("week", "1,2");
 
-        db.insert(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME, null, values);
+        db.beginTransaction();
+        try {
+            db.insert(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME, null, values);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            dbClose();
+        }
     }
 }
