@@ -86,14 +86,15 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#alarmbutton onPreferencelick");
 
-                if (value) {
+                if (alarmbutton.isChecked()) {
+                    alarmSettingEntity.setmStatus(ClockUtil.TRUE);
                     // trueになった場合は、有効なアラーム設定がある場合は、アラーム設定を行う。
                     ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, value);
 
                     // TODO アラームON/OFFをDBに更新する。
+                } else if (!alarmbutton.isChecked()) {
+                    alarmSettingEntity.setmStatus(ClockUtil.FALSE);
 
-                    ClockUtil.alarmServiceSet();
-                } else if (!value) {
                     // falseになった場合は、アラーム鳴動予定がある場合は、無効にする。
                     ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, value);
 
@@ -365,6 +366,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 // アラーム時間をセット
                 alarmSettingEntity.setmHour(hourOfDay);
                 alarmSettingEntity.setmMinute(minute);
+                updateSettingsView();
 
             }
         }, hour, minute, true);
@@ -409,5 +411,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
      */
     public void onReceiveString(String string) {
         alarmSettingEntity.setmWeek(string);
+        updateSettingsView();
     }
 }
