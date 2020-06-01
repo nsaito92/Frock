@@ -1,13 +1,24 @@
 <resources>
+    <!-- General -->
     <string name="app_name">Frock</string>
+    <string name="on_off">ON/OFF</string>
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
+    <string name="ok">OK</string>
+    <string name="cansel">Cansel</string>
 
+    <string name="time">時間</string>
+    <string name="week">曜日</string>
+
+    <string name="setting_delete">設定を削除</string>
+    <string name="message_setting_delete">削除しますか?</string>
     <!-- Alarm operation -->
     <string name="started_the_alarm">アラームを開始しました。</string>
     <string name="stopped_the_alarm">アラームを停止しました。</string>
     <string name="No_alarm_to_stop">現在鳴動しているアラームはありません</string>
 
     <!-- menu used -->
-    <string name="opt_menu_01">アラーム設定</string>
+    <string name="opt_menu_01">アラーム設定新規作成</string>
 
     <!-- Alarm Settings preference -->
     <string name="preference_title">アラーム設定</string>
@@ -25,6 +36,7 @@
     <string name="alarm_setting_save_key">alarm_setting_save_key</string>
     <string name="alarm_setting_save_name">保存</string>
     <string name="alarm_setting_save_summary">アラーム設定を保存する</string>
+    <string name="alarm_setting_save_max">アラーム設定は%1$d件までです。</string>
 
     <!-- alarm week setting dialog -->
     <string name="alarm_Week_setting_title">曜日</string>
@@ -37,8 +49,6 @@
         <item>金曜日</item>
         <item>土曜日</item>
     </string-array>
-    <string name="alarm_Week_setting_PositiveButton">OK</string>
-    <string name="alarm_Week_setting_NegativeButton">Cansel</string>
 
     <!-- etc -->
 

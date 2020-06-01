@@ -4,24 +4,49 @@ import android.util.Log;
 
 /**
  * Created by nsaito on 2020/03/16.
- * AlarmPreferenceActivityでの画面表示〜DB永続化までのデータを管理するクラス。
+ * AlarmPreferenceActivityでの画面表示〜DB永続化までのデータを管理やAdapterでのデータListに使用されるクラス。
  *
  */
 
 class AlarmSettingEntity {
     private static final String TAG = "AlarmSettingEntity";
 
+    /** ID **/
+    protected int mId;
     /** アラーム ON/OFF **/
-    int mStatus;
+    protected int mStatus;
     /** 時 **/
-    int mHour;
+    protected int mHour;
     /** 分 **/
-    int mMinute;
+    protected int mMinute;
     /** 曜日 **/
-    String mWeeks;
+    protected String mWeeks;
 
     public AlarmSettingEntity() {
         Log.d(TAG, "");
+
+        // パラメーターが無い場合は、新規作成扱い。デフォルトのデータを入れる。
+        this.mStatus = ClockUtil.TRUE;
+        this.mHour = ClockUtil.ALARMTIME_DEFAULT;
+        this.mMinute = ClockUtil.ALARMTIME_DEFAULT;
+    }
+
+    public AlarmSettingEntity(int mId, int mStatus, int mHour, int mMinute, String mWeeks) {
+        Log.d(TAG, "");
+
+        this.mId = mId;
+        this.mStatus = mStatus;
+        this.mHour = mHour;
+        this.mMinute = mMinute;
+        this.mWeeks = mWeeks;
+    }
+
+    public void setmId (int id) {
+        mId = id;
+    }
+
+    public int getmId () {
+        return mId;
     }
 
     public void setmStatus (int status) {

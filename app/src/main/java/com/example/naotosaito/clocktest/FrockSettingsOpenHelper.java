@@ -19,6 +19,8 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
 
     // アラーム設定用テーブル
     public static final String ALARMSETTINGS_TABLE_NAME = "alarmsettingsdb";
+
+    // カラム
     public static final String ALARMSETTINGS_ID = "_id";
     public static final String ALARMSETTINGS_COLUMN_NAME_STATUS = "status";
     public static final String ALARMSETTINGS_COLUMN_NAME_HOUR = "hour";
@@ -26,6 +28,14 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
     public static final String ALARMSETTINGS_COLUMN_NAME_WEEK = "week";
     // public static final String ALARMSETTINGS_COLUMN_NAME_SOUND = "sound"; //音楽ファイル追加対応後に使用。
 
+    // カラムindex
+    public static final int COLUMN_INDEX_ID = 0;
+    public static final int COLUMN_INDEX_STATUS = 1;
+    public static final int COLUMN_INDEX_HOUR = 2;
+    public static final int COLUMN_INDEX_MINUTE = 3;
+    public static final int COLUMN_INDEX_WEEK = 4;
+
+    // SQL文
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + ALARMSETTINGS_TABLE_NAME +
                     " (" + ALARMSETTINGS_ID + " INTEGER PRIMARY KEY," +
@@ -36,6 +46,8 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
 
     private static final String SQL_SELECT_USER = "SELECT FROM " + ALARMSETTINGS_TABLE_NAME;
 
+    // バリデーションチェック用定数
+    public static final long ALARMSETTINGS_TABLE_MAX_RECORD = 10;
 
     public FrockSettingsOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -56,25 +68,5 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
         Log.d(TAG, "onUpgrade");
 
         onCreate(db);
-    }
-
-    /**
-     * アラーム設定用DBにデータをセットする。
-     * @param db
-     * @param status
-     * @param hour
-     * @param minute
-     * @param week
-     */
-    public void saveData (SQLiteDatabase db, String table_name, int status, int hour, int minute, String week) {
-        Log.d(TAG, "saveData");
-
-        ContentValues values = new ContentValues();
-        values.put("status", status);
-        values.put("hour", hour);
-        values.put("minute", minute);
-        values.put("week", week);
-
-        db.insert(table_name, null, values);
     }
 }

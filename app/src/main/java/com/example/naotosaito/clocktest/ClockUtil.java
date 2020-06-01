@@ -37,6 +37,9 @@ public class ClockUtil {
     final static int TRUE = 1;
     final static int FALSE = 0;
 
+    // アラーム設定デフォルト設定用
+    final static int ALARMTIME_DEFAULT = 0;
+
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
     private ClockUtil() {
         throw new AssertionError();
@@ -182,8 +185,6 @@ public class ClockUtil {
      */
     public static StringBuilder shapingStringTime(String hour, String minute) {
 
-        Log.d(TAG, "shapingStringTime");
-
         StringBuilder stringBuilder = new StringBuilder();
 
         // 文字列の調整。時間と分を、一つの文字列に統合。
@@ -235,7 +236,7 @@ public class ClockUtil {
 //        if (getSelectedWeeks(ALARMTIME_WEEK_KEY) != null) {
 //            cld_alarm = ClockUtil.getAlarmCalender();
             // TODO Prefではなく、DB情報を元にCalenderを作成する
-        alarmCld = ClockUtil.getAlarmCalenderFromDB();
+//        alarmCld = ClockUtil.getAlarmCalenderFromDB();
 //        }
 
         // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
@@ -387,71 +388,120 @@ public class ClockUtil {
      */
     public static Calendar getAlarmCalenderFromDB() {
 
-        // 1. DBから曜日設定を取得。
-        // 2. 曜日設定と今日の日時を確認して、鳴動するべき日付を確認して、Calenderに当て込む。
-        // 3. DBから日時設定を取得。
-        // 4. 日時設定を、Calenderクラスに当て込む。
-        // 5. Calenderをreturn
+        //TODO フルスクラッチ予定。
 
-        // 戻り値となるアラーム鳴動予定を入れるCalender
+//        // 1. DBから曜日設定を取得。
+//        // 2. 曜日設定と今日の日時を確認して、鳴動するべき日付を確認して、Calenderに当て込む。
+//        // 3. DBから日時設定を取得。
+//        // 4. 日時設定を、Calenderクラスに当て込む。
+//        // 5. Calenderをreturn
+//
+//        // 戻り値となるアラーム鳴動予定を入れるCalender
         Calendar alarmCld = Calendar.getInstance();
-
-        // 今日のCalender
-        Calendar todayCld = getTodayCalender();
-
-        // Helperインスタンス取得
-        FrockSettingsOpenHelper settingshelper =
-                new FrockSettingsOpenHelper(MyApplication.getContext().getApplicationContext());
-
-        // TODO とりあえず、一行目のアラーム設定を検索。
-        SQLiteDatabase db = settingshelper.getReadableDatabase();
-        Cursor cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
-                null, null, null, null, null, null);
-        cursor.moveToFirst();
-
-        // 選択された曜日データを取得
-        String alm_week[] = convertStringToArray(cursor.getString(4));
-        Log.d(TAG, "alm_week = " + Arrays.toString(alm_week));
-
-        // 比較用のCalender格納用配列
-        ArrayList<Calendar> cldlist = new ArrayList<>();
-
-        // 永続化されている曜日データを元に、鳴動予定のCalenderを一通り作成する。
-        for (String i : alm_week) {
-
-            // 永続化されているデータを元にするCalender
-            Calendar dbCld = Calendar.getInstance();
-            dbCld.set(Calendar.HOUR_OF_DAY, cursor.getInt(2));   // 時
-            dbCld.set(Calendar.MINUTE, cursor.getInt(3));        // 分
-            dbCld.set(Calendar.SECOND, 0);                                   // 秒
-
-            // Calenderクラスでは、曜日は0からではなく1から始まっているため、1+して処理する。
-            dbCld.set(Calendar.DAY_OF_WEEK, Integer.parseInt(i) + 1); //曜日
-            Log.d(TAG,"dbCld.compareTo(todayCld) = " + dbCld.compareTo(todayCld));
-
-            if (dbCld.compareTo(todayCld) >= 0) {
-                // 今日か、今週中の場合は設定された時刻通りにアラームを設定する。
-            } else if (dbCld.compareTo(todayCld) < 0) {
-                // 過ぎてしまっている場合は、来週になるようにCalenderを調整。
-                dbCld.add(Calendar.DATE, DAY_OF_WEEK);
-            }
-            cldlist.add(dbCld);
-        }
-
-        // returmするcalendarの初期値を指定。
-        alarmCld = cldlist.get(0);
-
-        // 設定されたCalenderを比較していき、一番今日に近いCalenderはどれか確認する。
-        for (int i=0; i<cldlist.size(); i++) {
-            if (alarmCld.after(cldlist.get(i))) {
-                Log.d("NSAITOTEST","alarmCld update");
-                alarmCld = cldlist.get(i);
-            }
-        }
-        Log.d(TAG, "getAlarmCalender() return = " + alarmCld.getTime());
-
-        cursor.close();
+//
+//        // 今日のCalender
+//        Calendar todayCld = getTodayCalender();
+//
+//        // Helperインスタンス取得
+//        FrockSettingsOpenHelper settingshelper =
+//                new FrockSettingsOpenHelper(MyApplication.getContext().getApplicationContext());
+//
+////        // TODO とりあえず、一行目のアラーム設定を検索。
+////        FrockSettingsHelperController controller = new FrockSettingsHelperController();
+////        Cursor cursor = controller.getCursor("1");
+////        cursor.moveToFirst();
+//
+//        // 選択された曜日データを取得
+//        String alm_week[] = convertStringToArray(cursor.getString(4));
+//        Log.d(TAG, "alm_week = " + Arrays.toString(alm_week));
+//
+//        // 比較用のCalender格納用配列
+//        ArrayList<Calendar> cldlist = new ArrayList<>();
+//
+//        // 永続化されている曜日データを元に、鳴動予定のCalenderを一通り作成する。
+//        for (String i : alm_week) {
+//
+//            // 永続化されているデータを元にするCalender
+//            Calendar dbCld = Calendar.getInstance();
+//            dbCld.set(Calendar.HOUR_OF_DAY, cursor.getInt(2));   // 時
+//            dbCld.set(Calendar.MINUTE, cursor.getInt(3));        // 分
+//            dbCld.set(Calendar.SECOND, 0);                                   // 秒
+//
+//            // Calenderクラスでは、曜日は0からではなく1から始まっているため、1+して処理する。
+//            dbCld.set(Calendar.DAY_OF_WEEK, Integer.parseInt(i) + 1); //曜日
+//            Log.d(TAG,"dbCld.compareTo(todayCld) = " + dbCld.compareTo(todayCld));
+//
+//            if (dbCld.compareTo(todayCld) >= 0) {
+//                // 今日か、今週中の場合は設定された時刻通りにアラームを設定する。
+//            } else if (dbCld.compareTo(todayCld) < 0) {
+//                // 過ぎてしまっている場合は、来週になるようにCalenderを調整。
+//                dbCld.add(Calendar.DATE, DAY_OF_WEEK);
+//            }
+//            cldlist.add(dbCld);
+//        }
+//
+//        // returmするcalendarの初期値を指定。
+//        alarmCld = cldlist.get(0);
+//
+//        // 設定されたCalenderを比較していき、一番今日に近いCalenderはどれか確認する。
+//        for (int i=0; i<cldlist.size(); i++) {
+//            if (alarmCld.after(cldlist.get(i))) {
+//                Log.d("NSAITOTEST","alarmCld update");
+//                alarmCld = cldlist.get(i);
+//            }
+//        }
+//        Log.d(TAG, "getAlarmCalender() return = " + alarmCld.getTime());
+//
+//        cursor.close();
 
         return alarmCld;
+    }
+
+    /**
+     * 受け取ったカレンダーの文字列情報を、ユーザーが読み取れる様に整形する。
+     * @param string
+     * @return
+     */
+    public static String convertStringToWeek(String string) {
+        // 設定がnullだった場合は無しと記載
+        if (string == null) {
+            return "曜日設定無し";
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();  // 整形文字の格納先
+
+        for (int i=0; i<string.length(); i++) {
+            if (!string.substring(i, i+1).equals(",")) {    // 「,」ではない場合、処理する。
+                if (i>0) {                    // 二回目以降の場合は、末尾に「,」をつける。
+                    stringBuilder.append(",");
+                }
+                switch(string.substring(i, i+1)) {
+                    case "0":
+                        stringBuilder.append("日");
+                        break;
+                    case "1":
+                        stringBuilder.append("月");
+                        break;
+                    case "2":
+                        stringBuilder.append("火");
+                        break;
+                    case "3":
+                        stringBuilder.append("水");
+                        break;
+                    case "4":
+                        stringBuilder.append("木");
+                        break;
+                    case "5":
+                        stringBuilder.append("金");
+                        break;
+                    case "6":
+                        stringBuilder.append("土");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        return stringBuilder.toString();
     }
 }

@@ -8,7 +8,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.preference.Preference;
@@ -29,28 +28,24 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private static final String TAG = "AlarmPreferenceActivity";
 
     /** fragment */
-    AlarmPreferenceFragment mFragment;
+    private AlarmPreferenceFragment mFragment;
     /** アラーム ON/OFFボタン */
-    SwitchPreference alarmbutton;
+    private SwitchPreference alarmbutton;
     /** アラーム時間入力 */
-    Preference btn_alarmtime_key;
+    private Preference btn_alarmtime_key;
     /** アラーム曜日入力 */
-    Preference btn_alarm_start_week_key;
+    private Preference btn_alarm_start_week_key;
     /** アラーム保存ボタン */
-    Preference btn_alarm_setting_save;
+    private Preference btn_alarm_setting_save;
 
     /** アラームの曜日設定ダイアログ **/
-    AlarmWeekDialogFragment alarmWeekSetting_dialog;
+    private AlarmWeekDialogFragment alarmWeekSetting_dialog;
 
     /** アラーム設定 */
-    AlarmSettingEntity alarmSettingEntity;
+    private AlarmSettingEntity alarmSettingEntity;
 
     public AlarmPreferenceActivity () {
         Log.d(TAG, "");
-
-        // TODO 画面表示時に、AlarmSettingEntityの値をDBの現在値で初期化する。
-        FrockSettingsHelperController controller = new FrockSettingsHelperController();
-        alarmSettingEntity = controller.getAlarmSettingEntity();
     }
 
 
@@ -59,6 +54,21 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         // TODO Preferenceによるアラーム設定機能は、削除する。
+
+        // 画面呼び出し先をチェック。
+        Intent intent = getIntent();
+        String position = intent.getStringExtra("position");
+
+        Log.d(TAG, "Receive position = " + position);
+
+        // 呼び出し元が存在していた場合、DBを参照してAlarmSettingEntityを初期化する。
+        if (position != null) {
+            FrockSettingsHelperController controller = new FrockSettingsHelperController();
+            alarmSettingEntity = controller.getAlarmSettingEntity(position);
+        } else {
+            // 呼び出し元が存在していない場合、新規作成扱い。
+            alarmSettingEntity = new AlarmSettingEntity();
+        }
 
         boolean value = false;
 
@@ -75,17 +85,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         alarmbutton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#alarmbutton onPreferencelick");
-
-                // トグルボタンの状態をチェックして結果を永続化する。
-//                value = alarmbutton.isChecked();
-
-
-                //
-                ContentValues cv = new ContentValues();
-
-                FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
-                SQLiteDatabase db = frockSettingsHelperController.getWritableDatabase();
-//                db.update(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME);
 
                 if (value) {
                     // trueになった場合は、有効なアラーム設定がある場合は、アラーム設定を行う。
@@ -159,25 +158,52 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#onPreferencelick_btn_alarm_setting_save");
-                Log.d(TAG, "alarmSettingEntity.getmHour() = " + alarmSettingEntity.getmHour());
-                Log.d(TAG, "alarmSettingEntity.getmMinute() = " + alarmSettingEntity.getmMinute());
-                Log.d(TAG, "alarmSettingEntity.getmWeek() = " + alarmSettingEntity.getmWeek());
 
-                FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
+                // 呼び元の画面が存在しているかチェックする。
+                Intent intent = getIntent();
+                String position = intent.getStringExtra("position");
 
-                if (frockSettingsHelperController.updateData
-                        (FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
-                                ClockUtil.convertBoolean(alarmbutton.isChecked()),
-                                alarmSettingEntity.getmHour(),
-                                alarmSettingEntity.getmMinute(),
-                                alarmSettingEntity.getmWeek()
-                        ))
-                {
-                    Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
-                    toast.show();
+                // 呼び出し元が存在していた → DBの既存データを更新を行う。
+                if (position != null) {
+                    FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
+
+                    if (frockSettingsHelperController.updateData
+                            (FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                                    alarmSettingEntity.getmId(),
+                                    ClockUtil.convertBoolean(alarmbutton.isChecked()),
+                                    alarmSettingEntity.getmHour(),
+                                    alarmSettingEntity.getmMinute(),
+                                    alarmSettingEntity.getmWeek()
+                            ))
+                    {
+                        Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
+                        toast.show();
+                        finish();
+                    } else {
+                        Toast toast = Toast.makeText(MyApplication.getContext(), "保存失敗しました。", Toast.LENGTH_SHORT);
+                        toast.show();
+                        finish();
+                    }
                 } else {
-                    Toast toast = Toast.makeText(MyApplication.getContext(), "保存失敗しました。", Toast.LENGTH_SHORT);
-                    toast.show();
+                    // 呼び元が無い → 新規データを挿入処理を行う。
+                    FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
+
+                    if (frockSettingsHelperController.insertData
+                            (FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                                    ClockUtil.convertBoolean(alarmbutton.isChecked()),
+                                    alarmSettingEntity.getmHour(),
+                                    alarmSettingEntity.getmMinute(),
+                                    alarmSettingEntity.getmWeek()
+                            ))
+                    {
+                        Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
+                        toast.show();
+                        finish();
+                    } else {
+                        Toast toast = Toast.makeText(MyApplication.getContext(), "保存失敗しました。", Toast.LENGTH_SHORT);
+                        toast.show();
+                        finish();
+                    }
                 }
                 return true;
             }
@@ -278,50 +304,48 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         int spMinuteInt = alarmSettingEntity.getmMinute();                              // minute
         String[] week = ClockUtil.convertStringToArray(alarmSettingEntity.getmWeek());  // week
 
-        // DBから受け取った時間の情報を、文字列を整形してViewに反映。
+        // DBから時間情報を受け取れた時、文字列を整形してViewに反映。
         String valueOfH = String.valueOf(spHourInt);
         String valueOfM = String.valueOf(spMinuteInt);
         btn_alarmtime_key.setSummary(ClockUtil.shapingStringTime(valueOfH, valueOfM));
 
         // DBから受け取った曜日の情報を、文字列を整形してViewに反映。
         // 曜日設定が無い場合は、画面の更新は行わない。
-        if (week == null) {
-            return;
-        }
+        if (week != null) {
+            StringBuilder stringBuilder = new StringBuilder();
 
-        StringBuilder stringBuilder = new StringBuilder();
+            Log.d(TAG, "week = " + week);
 
-        Log.d(TAG, "week = " + week);
-
-        // 配列の値を一通りチェック
-        for (int i=0; i<week.length; i++) {
-            // 配列の中身をチェック、値によって曜日の文字列に変換する。
-            switch(week[i]) {
-                case "0":
-                    stringBuilder.append("日");
-                    break;
-                case "1":
-                    stringBuilder.append("月");
-                    break;
-                case "2":
-                    stringBuilder.append("火");
-                    break;
-                case "3":
-                    stringBuilder.append("水");
-                    break;
-                case "4":
-                    stringBuilder.append("木");
-                    break;
-                case "5":
-                    stringBuilder.append("金");
-                    break;
-                case "6":
-                    stringBuilder.append("土");
-                    break;
+            // 配列の値を一通りチェック
+            for (int i=0; i<week.length; i++) {
+                // 配列の中身をチェック、値によって曜日の文字列に変換する。
+                switch(week[i]) {
+                    case "0":
+                        stringBuilder.append("日");
+                        break;
+                    case "1":
+                        stringBuilder.append("月");
+                        break;
+                    case "2":
+                        stringBuilder.append("火");
+                        break;
+                    case "3":
+                        stringBuilder.append("水");
+                        break;
+                    case "4":
+                        stringBuilder.append("木");
+                        break;
+                    case "5":
+                        stringBuilder.append("金");
+                        break;
+                    case "6":
+                        stringBuilder.append("土");
+                        break;
+                }
             }
+            // 変換した文字列を統合して、画面に表示する。
+            btn_alarm_start_week_key.setSummary(stringBuilder.toString());
         }
-        // 変換した文字列を統合して、画面に表示する。
-        btn_alarm_start_week_key.setSummary(stringBuilder.toString());
     }
 
     /**
