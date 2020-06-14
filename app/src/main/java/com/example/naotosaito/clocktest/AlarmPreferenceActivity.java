@@ -92,6 +92,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, value);
 
                     // TODO アラームON/OFFをDBに更新する。
+//                    ClockUtil.alarmServiceSet();
+
                 } else if (!alarmbutton.isChecked()) {
                     alarmSettingEntity.setmStatus(ClockUtil.FALSE);
 
@@ -164,11 +166,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 Intent intent = getIntent();
                 String position = intent.getStringExtra("position");
 
+                FrockSettingsHelperController controller = new FrockSettingsHelperController();
+
                 // 呼び出し元が存在していた → DBの既存データを更新を行う。
                 if (position != null) {
-                    FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
-
-                    if (frockSettingsHelperController.updateData
+                    if (controller.updateData
                             (FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
                                     alarmSettingEntity.getmId(),
                                     ClockUtil.convertBoolean(alarmbutton.isChecked()),
@@ -187,9 +189,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     }
                 } else {
                     // 呼び元が無い → 新規データを挿入処理を行う。
-                    FrockSettingsHelperController frockSettingsHelperController = new FrockSettingsHelperController();
 
-                    if (frockSettingsHelperController.insertData
+                    if (controller.insertData
                             (FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
                                     ClockUtil.convertBoolean(alarmbutton.isChecked()),
                                     alarmSettingEntity.getmHour(),
@@ -206,6 +207,18 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                         finish();
                     }
                 }
+                // 更新されたDBデータを元に、アラーム設定を実施。
+                AlarmSettingEntity entity = controller.getAlarmSettingEntity(position);
+                if (ClockUtil.convertInt(entity.getmStatus())) {
+                    // アラームONのため、アラーム設定を行う。
+                    AlarmServiceSetter setter = new AlarmServiceSetter();
+                    setter.AlarmManagerSet(entity.getmId());
+                } else {
+                    // TODO PendingIntentが生成済みだった場合は、削除する。
+                    // アラームOFFの場合は、PendingIntentを生成済みだった場合はキャンセルする。
+
+                }
+
                 return true;
             }
         });
@@ -279,13 +292,13 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     // アラームの時間か分のキーの場合、サマリーを保存する処理を行う。
                     if(ClockUtil.ALARMTIME_HOUR_KEY.equals(key) || ClockUtil.ALARMTIME_MINUTE_KEY.equals(key)) {
                         // Serviceを一度終了し、更新された時間で再設定する。
-                        alarmServiceCansel();
-                        ClockUtil.alarmServiceSet();
+//                        alarmServiceCansel();
+//                        ClockUtil.alarmServiceSet();
 //                        updateTimeView();
                     } else if (ClockUtil.ALARMTIME_WEEK_KEY.equals(key)) {
                         // Serviceを一度終了し、更新された曜日で再設定する。
-                        alarmServiceCansel();
-                        ClockUtil.alarmServiceSet();
+//                        alarmServiceCansel();
+//                        ClockUtil.alarmServiceSet();
 //                        updateWeekView();
                     }
                 }

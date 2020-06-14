@@ -130,7 +130,7 @@ public class AlarmService extends Service {
         Log.d(TAG, "audioPlay mediaPlayer.start = " + mediaPlayer);
     }
 
-    public void audioStop() {
+    private void audioStop() {
         Log.d(TAG, "audioStop called");
         if (mediaPlayer != null) {
             // 再生終了

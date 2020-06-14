@@ -7,6 +7,9 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -16,11 +19,10 @@ import java.util.List;
 
 public class FrockSettingsHelperController {
 
-    public static final String TAG = FrockSettingsHelperController.class.getSimpleName();
-    FrockSettingsOpenHelper settingshelper;
-    AlarmSettingEntity alarmSettingEntity;
-    SQLiteDatabase db = null;
-
+    private static final String TAG = FrockSettingsHelperController.class.getSimpleName();
+    private FrockSettingsOpenHelper settingshelper;
+    private AlarmSettingEntity alarmSettingEntity;
+    private SQLiteDatabase db = null;
 
     // コンストラクタでFrockSettingsHelperをnewする。
     public FrockSettingsHelperController() {
@@ -283,6 +285,73 @@ public class FrockSettingsHelperController {
         recode = DatabaseUtils.queryNumEntries(db, tablename);
         dbClose();
         return recode;
+    }
+
+    /**
+     * DBのデータを取元に、Calenderオブジェクトを返す。
+     * @return
+     * @param mId
+     */
+    public Calendar CreateCalendarFromDB(int mId) {
+        Log.d(TAG, "CreateCalendarFromDB");
+
+        // 戻り値となるCalender。現在の時間で初期化する。
+        Calendar alarmCld = Calendar.getInstance();
+        alarmCld = ClockUtil.getTodayCalender();
+
+        // アラーム設定候補のカレンダーリスト
+        ArrayList<Calendar> cldlist = CreateCalendarOneWeek(mId);
+
+        // アラーム設定候補のカレンダーリストで、一番近いCalenderを戻り値にする。
+        for (int i=0; i<cldlist.size(); i++) {
+            if (i == 0) {
+                alarmCld = cldlist.get(i);
+            } else if (i > 0) {
+                if (cldlist.get(i).before(alarmCld)) {
+                    alarmCld = cldlist.get(i);
+                }
+            }
+        }
+        return alarmCld;
+    }
+
+    /**
+     * DBの曜日データを元に、カレンダーのリストを返す。
+     * @return アラーム設定候補のカレンダーのリスト
+     * @param mId 取得するDBのID
+     */
+    private ArrayList<Calendar> CreateCalendarOneWeek(int mId) {
+        Log.d(TAG, "CreateCalendarOneWeek");
+
+        // アラーム設定候補のカレンダーを格納するリスト
+        ArrayList<Calendar> cldlist = new ArrayList();
+
+        // 選択された曜日データを取得
+        Cursor cursor = getCursor(String.valueOf(mId));
+        String alm_week[] = ClockUtil.convertStringToArray(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
+
+        try {
+            for (String i : alm_week) {
+                // DBデータを元にCalender生成
+                Calendar dbCld = Calendar.getInstance();
+                dbCld.set(Calendar.HOUR_OF_DAY, cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR));
+                dbCld.set(Calendar.MINUTE, cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE));
+                dbCld.set(Calendar.SECOND, 0); // 0秒を指定する。
+                // Calenderクラスでは、曜日は0からではなく1から始まっているため、1+して処理する。
+                dbCld.set(Calendar.DAY_OF_WEEK, Integer.parseInt(i) + 1); //曜日
+
+                // 今日か、今週中の場合は設定された時刻通りにアラームを設定する。
+                // カレンダーの時間をすでに過ぎている場合、来週になるようにカレンダーを調整。
+                if (dbCld.compareTo(ClockUtil.getTodayCalender()) < 0) {
+                    dbCld.add(Calendar.DATE, ClockUtil.DAY_OF_WEEK);
+                }
+                cldlist.add(dbCld);
+            }
+        } finally {
+            cursor.close();
+            dbClose();
+        }
+        return cldlist;
     }
 
     /**

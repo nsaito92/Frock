@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // DBを読み込み、アラーム設定を行う。
-                ClockUtil.alarmServiceSet();
+//                ClockUtil.alarmServiceSet();
             }
         });
 
@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // 次のアラームを設定。
-                ClockUtil.alarmServiceSet();
+//                ClockUtil.alarmServiceSet();
             }
         });
 
