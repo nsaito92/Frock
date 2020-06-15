@@ -19,20 +19,22 @@ class AlarmServiceSetter {
 
     /**
      * AlarmServiceに必要なデータを取得して、AlarmManagerに起動予定をセットする。
-     * @param mId PendingIntentにセットするID
+     * @param requestcode PendingIntentにセットするID
      */
-    public void AlarmManagerSet(int mId) {
-        Log.d(TAG, "AlarmManagerSet : mId = " + mId);
+    public void AlarmManagerSet(int requestcode) {
+        Log.d(TAG, "AlarmManagerSet : requestcode = " + requestcode);
 
         // PendingIntent生成。
         Context context = MyApplication.getContext();
         Intent intent = new Intent(context, AlarmService.class);
+
+        intent.putExtra("requestcode", String.valueOf(requestcode));
         PendingIntent pendingintent = PendingIntent.getService(
-                context, mId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                context, requestcode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Calender生成。
         FrockSettingsHelperController controller = new FrockSettingsHelperController();
-        Calendar calendar = controller.CreateCalendarFromDB(mId);
+        Calendar calendar = controller.CreateCalendarFromDB(requestcode);
 
         // AlarmServiceの起動予定をAlarmManagerにset。
         AlarmManager alarmmanager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -42,6 +44,24 @@ class AlarmServiceSetter {
                 pendingintent);
 
         Log.d(TAG, "The alarm was set at " + calendar.getTime());
-        ClockUtil.ToastShow("The alarm was set at " + calendar.getTime());
+        ClockUtil.ToastShow("" + calendar.getTime() + "アラームを設定しました。");
+    }
+
+    /**
+     * AlarmManagerにセット済みのAlarmServiceをキャンセルする。
+     * @param mId
+     */
+    public void AlarmManagerCancel(int mId) {
+        Log.d(TAG, "AlarmManagerCancel : mId = " + mId);
+
+        Context context = MyApplication.getContext();
+
+        AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmService.class);
+        PendingIntent pendingintent = PendingIntent.getService(
+                context, mId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        pendingintent.cancel();
+        alarmmanager.cancel(pendingintent);
     }
 }

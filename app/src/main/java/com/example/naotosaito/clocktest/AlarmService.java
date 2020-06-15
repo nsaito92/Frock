@@ -22,6 +22,9 @@ public class AlarmService extends Service {
     // アラーム実行音の再生用MediaPlayer
     private MediaPlayer mediaPlayer;
 
+    /** DBのIDを元にしたリクエストコード **/
+    String requestcode = null;
+
     //Serviceクラスは抽象メソッドのため、コンストラクタとonBind()メソッドを必ず実装する必要がある
     public AlarmService() {
     }
@@ -36,7 +39,9 @@ public class AlarmService extends Service {
     @Override
      public int onStartCommand (Intent intent, int flags, int startId) {
         //非同期処理を行うメソッド
-        Log.d(TAG, "onStartCommand called");
+        String requestcode = intent.getStringExtra("requestcode");
+        Log.d(TAG, "onStartCommand : requestcode = " + requestcode);
+
         Toast.makeText(MyApplication.getContext(),
                 getString(R.string.started_the_alarm), Toast.LENGTH_SHORT).show();
 
@@ -70,7 +75,9 @@ public class AlarmService extends Service {
 
         audioStop();
 
-        // TODO Destroyされた直後に、setAlarmServiceBoolean(false)するのが一番正しい気がするので後ほど修正する。
+        // 次のアラームサービスの起動予定を設定する。
+        AlarmServiceSetter setter = new AlarmServiceSetter();
+        setter.AlarmManagerSet(Integer.parseInt(requestcode));
     }
 
     private boolean audioSetup() {

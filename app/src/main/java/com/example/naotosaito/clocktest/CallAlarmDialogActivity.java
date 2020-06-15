@@ -30,10 +30,6 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
                         // アラームを終了して、Activityを終了する。
                         Intent intent = new Intent(CallAlarmDialogActivity.this, AlarmService.class);
                         stopService(intent);
-
-                        // 次のアラーム鳴動予定をチェックし、設定する。
-                        ClockUtil.alarmServiceSet();
-
                         CallAlarmDialogActivity.this.finish();
                     }
                 })

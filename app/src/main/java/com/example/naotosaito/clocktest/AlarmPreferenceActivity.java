@@ -102,7 +102,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
                     // TODO アラームON/OFFをDBに更新する。
 
-                    alarmServiceCansel();
+//                    alarmServiceCansel();
                 }
                 return alarmbutton.isChecked();
             }
@@ -209,14 +209,15 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 }
                 // 更新されたDBデータを元に、アラーム設定を実施。
                 AlarmSettingEntity entity = controller.getAlarmSettingEntity(position);
+
+                AlarmServiceSetter setter = new AlarmServiceSetter();
                 if (ClockUtil.convertInt(entity.getmStatus())) {
                     // アラームONのため、アラーム設定を行う。
-                    AlarmServiceSetter setter = new AlarmServiceSetter();
                     setter.AlarmManagerSet(entity.getmId());
                 } else {
                     // TODO PendingIntentが生成済みだった場合は、削除する。
                     // アラームOFFの場合は、PendingIntentを生成済みだった場合はキャンセルする。
-
+                    setter.AlarmManagerCancel(entity.getmId());
                 }
 
                 return true;
@@ -384,26 +385,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             }
         }, hour, minute, true);
         dialog.show();
-    }
-
-    /**
-     * アラーム実行予定をキャンセルする。
-     */
-    private void alarmServiceCansel() {
-
-        Context context = getBaseContext();
-        int requestcode = 1;
-
-        AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(AlarmPreferenceActivity.this, AlarmService.class);
-        PendingIntent pendingintent = PendingIntent.getService(
-                context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        pendingintent.cancel();
-        alarmmanager.cancel(pendingintent);
-
-        // PendingIntentをキャンセルしたためflagを無効化する
-        ClockUtil.setAlarmPendingIntent(false);
     }
 
     /**

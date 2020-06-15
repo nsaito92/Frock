@@ -2,7 +2,6 @@ package com.example.naotosaito.clocktest;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.DatabaseUtils;
 import android.media.AudioManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -134,6 +133,10 @@ public class MainActivity extends AppCompatActivity {
                         FrockSettingsHelperController controller = new FrockSettingsHelperController();
                         Log.d(TAG, "entity.getmId() = " + entity.getmId());
                         controller.selectDelete(String.valueOf(entity.getmId()));
+
+                        // サービスの起動予定を取り消し。
+                        AlarmServiceSetter setter = new AlarmServiceSetter();
+                        setter.AlarmManagerCancel(entity.getmId());
 
                         // DBに変更があったので、Entityリストを更新。
                         loadAlarmSettingEntityList();
