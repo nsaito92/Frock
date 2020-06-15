@@ -53,8 +53,9 @@ public class AlarmService extends Service {
 
         // アラーム鳴動通知ダイアログを表示
         Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);
-        //
+        intent_alarmdialogactivity.putExtra("requestcode", requestcode);
         intent_alarmdialogactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
         startActivity(intent_alarmdialogactivity);
 
         // Serviceが強制終了された際に、Serviceを再起動しない。
@@ -70,14 +71,10 @@ public class AlarmService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy called");
-        Toast.makeText(MyApplication.getContext(),
-                getString(R.string.stopped_the_alarm), Toast.LENGTH_SHORT).show();
-
         audioStop();
 
-        // 次のアラームサービスの起動予定を設定する。
-        AlarmServiceSetter setter = new AlarmServiceSetter();
-        setter.AlarmManagerSet(Integer.parseInt(requestcode));
+        Toast.makeText(MyApplication.getContext(),
+                getString(R.string.stopped_the_alarm), Toast.LENGTH_SHORT).show();
     }
 
     private boolean audioSetup() {
@@ -112,7 +109,6 @@ public class AlarmService extends Service {
 
     private void audioPlay() {
         Log.d(TAG, "audioPlay called");
-        Log.d(TAG, "audioPlay mediaPlayer = " + mediaPlayer);
         if(mediaPlayer == null){
             // audioファイルの呼び出し
             if(audioSetup()){
@@ -122,7 +118,6 @@ public class AlarmService extends Service {
                 return;
             }
         } else {
-            Log.d(TAG, "audioPlay mediaPlayer != null");
             // 繰り返し再生する場合
             mediaPlayer.stop();
             mediaPlayer.reset();
@@ -134,7 +129,7 @@ public class AlarmService extends Service {
         mediaPlayer.setLooping(true);
         // 再生する
         mediaPlayer.start(); // MP状態 → Started
-        Log.d(TAG, "audioPlay mediaPlayer.start = " + mediaPlayer);
+        Log.d(TAG, "audioPlay mediaPlayer.start");
     }
 
     private void audioStop() {

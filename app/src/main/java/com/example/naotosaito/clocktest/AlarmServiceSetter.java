@@ -16,7 +16,6 @@ import java.util.Calendar;
 class AlarmServiceSetter {
     private final static String TAG = AlarmServiceSetter.class.getSimpleName();
 
-
     /**
      * AlarmServiceに必要なデータを取得して、AlarmManagerに起動予定をセットする。
      * @param requestcode PendingIntentにセットするID
