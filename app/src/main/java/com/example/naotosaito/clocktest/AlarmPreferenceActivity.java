@@ -213,7 +213,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 AlarmServiceSetter setter = new AlarmServiceSetter();
                 if (ClockUtil.convertInt(entity.getmStatus())) {
                     // アラームONのため、アラーム設定を行う。
-                    setter.AlarmManagerSet(entity.getmId());
+//                    setter.AlarmManagerSet(entity.getmId());
+                    setter.UpdateAlarmService();
                 } else {
                     // TODO PendingIntentが生成済みだった場合は、削除する。
                     // アラームOFFの場合は、PendingIntentを生成済みだった場合はキャンセルする。

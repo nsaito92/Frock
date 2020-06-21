@@ -22,9 +22,6 @@ public class AlarmService extends Service {
     // アラーム実行音の再生用MediaPlayer
     private MediaPlayer mediaPlayer;
 
-    /** DBのIDを元にしたリクエストコード **/
-    String requestcode = null;
-
     //Serviceクラスは抽象メソッドのため、コンストラクタとonBind()メソッドを必ず実装する必要がある
     public AlarmService() {
     }
@@ -32,31 +29,36 @@ public class AlarmService extends Service {
     // Serviceの初回起動時に、一回限りのセットアップを行う。
     @Override
     public void onCreate () {
-        Log.d(TAG, "onCreate called");
+        Log.d(TAG, "onCreate");
     }
 
     // 他のコンポーネントからstartservice()が実行された際に、呼び出されるメソッド。
     @Override
      public int onStartCommand (Intent intent, int flags, int startId) {
-        //非同期処理を行うメソッド
-        String requestcode = intent.getStringExtra("requestcode");
-        Log.d(TAG, "onStartCommand : requestcode = " + requestcode);
+        if (ClockUtil.isYourServiceWorking()) {
 
-        Toast.makeText(MyApplication.getContext(),
-                getString(R.string.started_the_alarm), Toast.LENGTH_SHORT).show();
+            //非同期処理を行うメソッド
+            String requestcode = intent.getStringExtra("requestcode");
+            Log.d(TAG, "onStartCommand : requestcode = " + requestcode);
 
-        // PendingIntentによるServiceが起動したため、flagを無効化する
-        ClockUtil.setAlarmPendingIntent(false);
+            Toast.makeText(MyApplication.getContext(),
+                    getString(R.string.started_the_alarm), Toast.LENGTH_SHORT).show();
 
-        //音楽再生
-        audioPlay();
+            // PendingIntentによるServiceが起動したため、flagを無効化する
+            ClockUtil.setAlarmPendingIntent(false);
 
-        // アラーム鳴動通知ダイアログを表示
-        Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);
-        intent_alarmdialogactivity.putExtra("requestcode", requestcode);
-        intent_alarmdialogactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //音楽再生
+            audioPlay();
 
-        startActivity(intent_alarmdialogactivity);
+            // アラーム鳴動通知ダイアログを表示
+            Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);
+            intent_alarmdialogactivity.putExtra("requestcode", requestcode);
+            intent_alarmdialogactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+            startActivity(intent_alarmdialogactivity);
+        } else {
+            onDestroy();
+        }
 
         // Serviceが強制終了された際に、Serviceを再起動しない。
         return START_NOT_STICKY;
@@ -64,13 +66,13 @@ public class AlarmService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "onBind called");
+        Log.d(TAG, "onBind");
         return null;
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy called");
+        Log.d(TAG, "onDestroy");
         audioStop();
 
         Toast.makeText(MyApplication.getContext(),
@@ -78,7 +80,7 @@ public class AlarmService extends Service {
     }
 
     private boolean audioSetup() {
-        Log.d(TAG, "onCreate called");
+        Log.d(TAG, "audioSetup");
         mediaPlayer = new MediaPlayer(); // MP状態 → Idle
 
         boolean filecheck = false;
@@ -108,7 +110,7 @@ public class AlarmService extends Service {
     }
 
     private void audioPlay() {
-        Log.d(TAG, "audioPlay called");
+        Log.d(TAG, "audioPlay");
         if(mediaPlayer == null){
             // audioファイルの呼び出し
             if(audioSetup()){
@@ -128,12 +130,12 @@ public class AlarmService extends Service {
         // ファイルを最後まで再生したら、ループする
         mediaPlayer.setLooping(true);
         // 再生する
-        mediaPlayer.start(); // MP状態 → Started
+        mediaPlayer.start();
         Log.d(TAG, "audioPlay mediaPlayer.start");
     }
 
     private void audioStop() {
-        Log.d(TAG, "audioStop called");
+        Log.d(TAG, "audioStop");
         if (mediaPlayer != null) {
             // 再生終了
             mediaPlayer.stop();

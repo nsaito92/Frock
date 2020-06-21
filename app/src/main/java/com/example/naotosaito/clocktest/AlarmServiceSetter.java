@@ -17,6 +17,24 @@ class AlarmServiceSetter {
     private final static String TAG = AlarmServiceSetter.class.getSimpleName();
 
     /**
+     *
+     */
+    public void UpdateAlarmService() {
+        Log.d(TAG, "UpdateAlarmService");
+        // TODO DBのクエリを叩いて、ONになっているアラーム設定を取得。
+        FrockSettingsHelperController controller = new FrockSettingsHelperController();
+        Calendar closestcalender = controller.getClosestCalender();
+        Log.d(TAG, "closestcalender = " + closestcalender.getTime());
+
+        if (closestcalender != null) {
+            // TODO 一番近いCalenderをAlarmManagerにセットする。
+
+        } else {
+            // TODO クエリの結果が何も取得できなければ、現在設定されているアラーム設定をキャンセルする。
+        }
+    }
+
+    /**
      * AlarmServiceに必要なデータを取得して、AlarmManagerに起動予定をセットする。
      * @param requestcode PendingIntentにセットするID
      */
@@ -42,8 +60,7 @@ class AlarmServiceSetter {
                 calendar.getTimeInMillis(),
                 pendingintent);
 
-        Log.d(TAG, "The alarm was set at " + calendar.getTime());
-        ClockUtil.ToastShow("" + calendar.getTime() + "アラームを設定しました。");
+        Log.d(TAG, "Set " + calendar.getTime() + " to AlarmManager");
     }
 
     /**

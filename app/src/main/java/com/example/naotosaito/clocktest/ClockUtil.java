@@ -127,7 +127,7 @@ public class ClockUtil {
 
     /**
      * Serviceの起動状態をチェックする。
-     * @return Serviceの起動中の場合はtrue、起動していない場合はfalseを返す。
+     * @return true : Serviceの起動中、false : 起動していない。
      */
     public static boolean isYourServiceWorking() {
         Log.d(TAG, "isYourServiceWorking");
@@ -321,7 +321,17 @@ public class ClockUtil {
         return todayCalender;
     }
 
-//    /**
+    /**
+     * 今日の曜日情報を返却する。
+     * @return
+     */
+    public static int isTodayWeek() {
+        int week = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+        Log.d(TAG, "isTodayWeek = " + week);
+        return week;
+    }
+
+    //    /**
 //     * Preference情報を元にアラームが動作予定のCalender情報を作成し、返す。
 //     * @return アラームが動作予定のCalender情報
 //     */
@@ -430,5 +440,25 @@ public class ClockUtil {
         Toast.makeText(MyApplication.getContext(),
                 message,
                 Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 渡されたCalenderのリストから、最も現在時間に近いCalenderを返す。
+     * @param validCalenderList
+     */
+    public static Calendar isClosestCalender(ArrayList<Calendar> validCalenderList) {
+        Log.d(TAG, "isClosestCalender");
+        Calendar closestCalender = Calendar.getInstance();
+
+        for (int i=0; i<validCalenderList.size(); i++) {
+            if (i == 0) {
+                closestCalender = validCalenderList.get(i);
+            } else if (i > 0) {
+                if (validCalenderList.get(i).before(closestCalender)) {
+                    closestCalender = validCalenderList.get(i);
+                }
+            }
+        }
+        return closestCalender;
     }
 }
