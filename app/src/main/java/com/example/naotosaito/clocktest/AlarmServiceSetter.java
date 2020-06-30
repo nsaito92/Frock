@@ -17,41 +17,38 @@ class AlarmServiceSetter {
     private final static String TAG = AlarmServiceSetter.class.getSimpleName();
 
     /**
-     *
+     * DBデータを元にアラームを設定するCalenderを取得し、AlarmManagerにセットする。
      */
-    public void UpdateAlarmService() {
-        Log.d(TAG, "UpdateAlarmService");
-        // TODO DBのクエリを叩いて、ONになっているアラーム設定を取得。
+    public void updateAlarmService() {
+        Log.d(TAG, "updateAlarmService");
+        // DBのクエリを叩いて、ONになっているアラーム設定を取得。
         FrockSettingsHelperController controller = new FrockSettingsHelperController();
         Calendar closestcalender = controller.getClosestCalender();
         Log.d(TAG, "closestcalender = " + closestcalender.getTime());
 
         if (closestcalender != null) {
-            // TODO 一番近いCalenderをAlarmManagerにセットする。
+            // 一番近いCalenderをAlarmManagerにセットする。
+            alarmManagerSet(closestcalender);
 
         } else {
-            // TODO クエリの結果が何も取得できなければ、現在設定されているアラーム設定をキャンセルする。
+            // クエリの結果が何も取得できなければ、現在設定されているアラーム設定をキャンセルする。
+            alarmManagerCancel();
         }
     }
 
     /**
      * AlarmServiceに必要なデータを取得して、AlarmManagerに起動予定をセットする。
-     * @param requestcode PendingIntentにセットするID
+     * @param calendar AlarmManagerにセットするCalender
      */
-    public void AlarmManagerSet(int requestcode) {
-        Log.d(TAG, "AlarmManagerSet : requestcode = " + requestcode);
+    private void alarmManagerSet(Calendar calendar) {
+        Log.d(TAG, "AlarmManagerSet");
 
         // PendingIntent生成。
         Context context = MyApplication.getContext();
         Intent intent = new Intent(context, AlarmService.class);
 
-        intent.putExtra("requestcode", String.valueOf(requestcode));
         PendingIntent pendingintent = PendingIntent.getService(
-                context, requestcode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
-        // Calender生成。
-        FrockSettingsHelperController controller = new FrockSettingsHelperController();
-        Calendar calendar = controller.CreateCalendarFromDB(requestcode);
+                context, ClockUtil.AlarmManagerRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // AlarmServiceの起動予定をAlarmManagerにset。
         AlarmManager alarmmanager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -65,17 +62,16 @@ class AlarmServiceSetter {
 
     /**
      * AlarmManagerにセット済みのAlarmServiceをキャンセルする。
-     * @param mId
      */
-    public void AlarmManagerCancel(int mId) {
-        Log.d(TAG, "AlarmManagerCancel : mId = " + mId);
+    private void alarmManagerCancel() {
+        Log.d(TAG, "alarmManagerCancel");
 
         Context context = MyApplication.getContext();
 
         AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmService.class);
         PendingIntent pendingintent = PendingIntent.getService(
-                context, mId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                context, ClockUtil.AlarmManagerRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         pendingintent.cancel();
         alarmmanager.cancel(pendingintent);

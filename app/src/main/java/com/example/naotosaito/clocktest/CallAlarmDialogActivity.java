@@ -18,10 +18,6 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intent = getIntent();
-        int requestcode = Integer.valueOf(intent.getStringExtra("requestcode"));
-        Log.d(TAG, "onCreate : requestcode = " + requestcode);
-
         setContentView(R.layout.activity_call_dialog);
 
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
@@ -37,7 +33,7 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
 
                         // 次のアラーム予定の再設定する。
                         AlarmServiceSetter setter = new AlarmServiceSetter();
-                        setter.AlarmManagerSet(requestcode);
+                        setter.updateAlarmService();
                     }
                 })
                 .setNeutralButton("後で", new DialogInterface.OnClickListener() {

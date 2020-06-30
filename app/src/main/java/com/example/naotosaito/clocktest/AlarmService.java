@@ -38,8 +38,7 @@ public class AlarmService extends Service {
         if (ClockUtil.isYourServiceWorking()) {
 
             //非同期処理を行うメソッド
-            String requestcode = intent.getStringExtra("requestcode");
-            Log.d(TAG, "onStartCommand : requestcode = " + requestcode);
+            Log.d(TAG, "onStartCommand");
 
             Toast.makeText(MyApplication.getContext(),
                     getString(R.string.started_the_alarm), Toast.LENGTH_SHORT).show();
@@ -52,7 +51,7 @@ public class AlarmService extends Service {
 
             // アラーム鳴動通知ダイアログを表示
             Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);
-            intent_alarmdialogactivity.putExtra("requestcode", requestcode);
+            intent_alarmdialogactivity.putExtra("requestcode", ClockUtil.AlarmManagerRequestCode.ALARMSERVICE);
             intent_alarmdialogactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
             startActivity(intent_alarmdialogactivity);

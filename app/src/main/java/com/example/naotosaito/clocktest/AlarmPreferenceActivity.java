@@ -208,18 +208,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     }
                 }
                 // 更新されたDBデータを元に、アラーム設定を実施。
-                AlarmSettingEntity entity = controller.getAlarmSettingEntity(position);
-
                 AlarmServiceSetter setter = new AlarmServiceSetter();
-                if (ClockUtil.convertInt(entity.getmStatus())) {
-                    // アラームONのため、アラーム設定を行う。
-//                    setter.AlarmManagerSet(entity.getmId());
-                    setter.UpdateAlarmService();
-                } else {
-                    // TODO PendingIntentが生成済みだった場合は、削除する。
-                    // アラームOFFの場合は、PendingIntentを生成済みだった場合はキャンセルする。
-                    setter.AlarmManagerCancel(entity.getmId());
-                }
+                setter.updateAlarmService();
 
                 return true;
             }

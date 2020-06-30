@@ -134,9 +134,9 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "entity.getmId() = " + entity.getmId());
                         controller.selectDelete(String.valueOf(entity.getmId()));
 
-                        // サービスの起動予定を取り消し。
+                        // サービスの起動予定を取り消されたので、AlarmManagerにセットする内容を更新。
                         AlarmServiceSetter setter = new AlarmServiceSetter();
-                        setter.AlarmManagerCancel(entity.getmId());
+                        setter.updateAlarmService();
 
                         // DBに変更があったので、Entityリストを更新。
                         loadAlarmSettingEntityList();

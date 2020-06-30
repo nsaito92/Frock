@@ -34,6 +34,11 @@ public class ClockUtil {
     // アラーム設定デフォルト設定用
     final static int ALARMTIME_DEFAULT = 0;
 
+    // AlarmManager RequestCode
+    public class AlarmManagerRequestCode {
+        final static int ALARMSERVICE = 0;
+    }
+
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
     private ClockUtil() {
         throw new AssertionError();
