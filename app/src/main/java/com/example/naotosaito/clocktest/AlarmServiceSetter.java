@@ -2,8 +2,10 @@ package com.example.naotosaito.clocktest;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -30,9 +32,27 @@ class AlarmServiceSetter {
             // 一番近いCalenderをAlarmManagerにセットする。
             alarmManagerSet(closestcalender);
 
+            // 明示的にReceiverを有効にする。
+            ComponentName receiver = new ComponentName(MyApplication.getContext(), FrockReceiver.class);
+            PackageManager packageManager = MyApplication.getContext().getPackageManager();
+
+            packageManager.setComponentEnabledSetting(
+                    receiver,
+                    packageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    packageManager.DONT_KILL_APP);
+
         } else {
             // クエリの結果が何も取得できなければ、現在設定されているアラーム設定をキャンセルする。
             alarmManagerCancel();
+
+            // 明示的にReceiverを無効にする。
+            ComponentName receiver = new ComponentName(MyApplication.getContext(), FrockReceiver.class);
+            PackageManager packageManager = MyApplication.getContext().getPackageManager();
+
+            packageManager.setComponentEnabledSetting(
+                    receiver,
+                    packageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    packageManager.DONT_KILL_APP);
         }
     }
 
