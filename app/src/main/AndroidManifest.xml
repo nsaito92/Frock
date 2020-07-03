@@ -3,6 +3,7 @@
     package="com.example.naotosaito.clocktest">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:name=".MyApplication"
@@ -23,6 +24,13 @@
         <receiver
             android:name=".AlarmBroadcastReceiver"
             android:process=":remote" />
+        <receiver
+            android:name=".FrockReceiver"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
 
         <service
             android:name=".AlarmService"

@@ -18,9 +18,8 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "onCreate");
-
         setContentView(R.layout.activity_call_dialog);
+
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setTitle("アラーム鳴動中")
                 .setCancelable(false)
@@ -30,11 +29,11 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
                         // アラームを終了して、Activityを終了する。
                         Intent intent = new Intent(CallAlarmDialogActivity.this, AlarmService.class);
                         stopService(intent);
-
-                        // 次のアラーム鳴動予定をチェックし、設定する。
-                        ClockUtil.alarmServiceSet();
-
                         CallAlarmDialogActivity.this.finish();
+
+                        // 次のアラーム予定の再設定する。
+                        AlarmServiceSetter setter = new AlarmServiceSetter();
+                        setter.updateAlarmService();
                     }
                 })
                 .setNeutralButton("後で", new DialogInterface.OnClickListener() {

@@ -29,28 +29,35 @@ public class AlarmService extends Service {
     // Serviceの初回起動時に、一回限りのセットアップを行う。
     @Override
     public void onCreate () {
-        Log.d(TAG, "onCreate called");
+        Log.d(TAG, "onCreate");
     }
 
     // 他のコンポーネントからstartservice()が実行された際に、呼び出されるメソッド。
     @Override
      public int onStartCommand (Intent intent, int flags, int startId) {
-        //非同期処理を行うメソッド
-        Log.d(TAG, "onStartCommand called");
-        Toast.makeText(MyApplication.getContext(),
-                getString(R.string.started_the_alarm), Toast.LENGTH_SHORT).show();
+        if (ClockUtil.isYourServiceWorking()) {
 
-        // PendingIntentによるServiceが起動したため、flagを無効化する
-        ClockUtil.setAlarmPendingIntent(false);
+            //非同期処理を行うメソッド
+            Log.d(TAG, "onStartCommand");
 
-        //音楽再生
-        audioPlay();
+            Toast.makeText(MyApplication.getContext(),
+                    getString(R.string.started_the_alarm), Toast.LENGTH_SHORT).show();
 
-        // アラーム鳴動通知ダイアログを表示
-        Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);
-        //
-        intent_alarmdialogactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent_alarmdialogactivity);
+            // PendingIntentによるServiceが起動したため、flagを無効化する
+            ClockUtil.setAlarmPendingIntent(false);
+
+            //音楽再生
+            audioPlay();
+
+            // アラーム鳴動通知ダイアログを表示
+            Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);
+            intent_alarmdialogactivity.putExtra("requestcode", ClockUtil.AlarmManagerRequestCode.ALARMSERVICE);
+            intent_alarmdialogactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+            startActivity(intent_alarmdialogactivity);
+        } else {
+            onDestroy();
+        }
 
         // Serviceが強制終了された際に、Serviceを再起動しない。
         return START_NOT_STICKY;
@@ -58,23 +65,21 @@ public class AlarmService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "onBind called");
+        Log.d(TAG, "onBind");
         return null;
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy called");
-        Toast.makeText(MyApplication.getContext(),
-                getString(R.string.stopped_the_alarm), Toast.LENGTH_SHORT).show();
-
+        Log.d(TAG, "onDestroy");
         audioStop();
 
-        // TODO Destroyされた直後に、setAlarmServiceBoolean(false)するのが一番正しい気がするので後ほど修正する。
+        Toast.makeText(MyApplication.getContext(),
+                getString(R.string.stopped_the_alarm), Toast.LENGTH_SHORT).show();
     }
 
     private boolean audioSetup() {
-        Log.d(TAG, "onCreate called");
+        Log.d(TAG, "audioSetup");
         mediaPlayer = new MediaPlayer(); // MP状態 → Idle
 
         boolean filecheck = false;
@@ -104,8 +109,7 @@ public class AlarmService extends Service {
     }
 
     private void audioPlay() {
-        Log.d(TAG, "audioPlay called");
-        Log.d(TAG, "audioPlay mediaPlayer = " + mediaPlayer);
+        Log.d(TAG, "audioPlay");
         if(mediaPlayer == null){
             // audioファイルの呼び出し
             if(audioSetup()){
@@ -115,7 +119,6 @@ public class AlarmService extends Service {
                 return;
             }
         } else {
-            Log.d(TAG, "audioPlay mediaPlayer != null");
             // 繰り返し再生する場合
             mediaPlayer.stop();
             mediaPlayer.reset();
@@ -126,12 +129,12 @@ public class AlarmService extends Service {
         // ファイルを最後まで再生したら、ループする
         mediaPlayer.setLooping(true);
         // 再生する
-        mediaPlayer.start(); // MP状態 → Started
-        Log.d(TAG, "audioPlay mediaPlayer.start = " + mediaPlayer);
+        mediaPlayer.start();
+        Log.d(TAG, "audioPlay mediaPlayer.start");
     }
 
-    public void audioStop() {
-        Log.d(TAG, "audioStop called");
+    private void audioStop() {
+        Log.d(TAG, "audioStop");
         if (mediaPlayer != null) {
             // 再生終了
             mediaPlayer.stop();

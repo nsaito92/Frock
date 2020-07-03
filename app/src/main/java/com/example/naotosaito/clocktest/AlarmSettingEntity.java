@@ -12,15 +12,15 @@ class AlarmSettingEntity {
     private static final String TAG = "AlarmSettingEntity";
 
     /** ID **/
-    protected int mId;
+    private int mId;
     /** アラーム ON/OFF **/
-    protected int mStatus;
+    private int mStatus;
     /** 時 **/
-    protected int mHour;
+    private int mHour;
     /** 分 **/
-    protected int mMinute;
+    private int mMinute;
     /** 曜日 **/
-    protected String mWeeks;
+    private String mWeeks;
 
     public AlarmSettingEntity() {
         Log.d(TAG, "");

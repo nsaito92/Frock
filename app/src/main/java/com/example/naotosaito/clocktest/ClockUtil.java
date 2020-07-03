@@ -1,18 +1,12 @@
 package com.example.naotosaito.clocktest;
 
 import android.app.ActivityManager;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 
@@ -39,6 +33,11 @@ public class ClockUtil {
 
     // アラーム設定デフォルト設定用
     final static int ALARMTIME_DEFAULT = 0;
+
+    // AlarmManager RequestCode
+    public class AlarmManagerRequestCode {
+        final static int ALARMSERVICE = 0;
+    }
 
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
     private ClockUtil() {
@@ -133,7 +132,7 @@ public class ClockUtil {
 
     /**
      * Serviceの起動状態をチェックする。
-     * @return Serviceの起動中の場合はtrue、起動していない場合はfalseを返す。
+     * @return true : Serviceの起動中、false : 起動していない。
      */
     public static boolean isYourServiceWorking() {
         Log.d(TAG, "isYourServiceWorking");
@@ -202,63 +201,63 @@ public class ClockUtil {
         return stringBuilder;
     }
 
-    /**
-     * アラームが動作するサービスの設定を行う
-     */
-    public static void alarmServiceSet() {
-        Log.d(TAG, "alarmServiceSet");
-
-        // TODO 検索結果が入るcursorを使用して、アラーム設定に使用する。
-
-        // 以下の場合、アラームサービスの起動を行わない。
-        // 1. アラーム設定のトグルボタンが無効の場合
-        // 2. アラームが鳴動中である場合
-//        if (!ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY) ||
-//                ClockUtil.isYourServiceWorking()) {
-//            return;
-//        }
-
-        // AlarmService起動用のIntent、PendingIntentを作成
-        Context context = MyApplication.getContext();
-        Intent intent = new Intent(MyApplication.getContext(), AlarmService.class);
-        int requestcode = 1;
-        PendingIntent pendingintent = PendingIntent.getService(
-                context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // TODO 各アラーム設定のPreferenceにアクセスする
-
-        // アラームを実行する時間の設定を準備
-        // TODO ユーティリティクラスにした方が良さそう
-
-        Calendar alarmCld = Calendar.getInstance();
-
-        // 曜日設定がすでに保存済みであるかチェック。
-//        if (getSelectedWeeks(ALARMTIME_WEEK_KEY) != null) {
-//            cld_alarm = ClockUtil.getAlarmCalender();
-            // TODO Prefではなく、DB情報を元にCalenderを作成する
-//        alarmCld = ClockUtil.getAlarmCalenderFromDB();
-//        }
-
-        // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
-        AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        alarmmanager.set(AlarmManager.RTC, alarmCld.getTimeInMillis(), pendingintent);
-
-        // PendingIntentをセットしたためflagを有効化する
-        ClockUtil.setAlarmPendingIntent(true);
-
-        Log.d(TAG, "The alarm was set at " + alarmCld.getTime());
-        Toast.makeText(MyApplication.getContext(),
-                "The alarm was set at " + alarmCld.getTime(),
-                Toast.LENGTH_SHORT).show();
-
-//        Log.d(TAG, "AlarmSettingTime is "
-//                + calender.YEAR
-//                + calender.MONTH
-//                + calender.DAY_OF_MONTH
-//                + calender.HOUR_OF_DAY
-//                + calender.MINUTE
-//                + calender.SECOND + " !!");
-    }
+//    /**
+//     * アラームが動作するサービスの設定を行う
+//     */
+//    public static void alarmServiceSet() {
+//        Log.d(TAG, "alarmServiceSet");
+//
+//        // TODO 検索結果が入るcursorを使用して、アラーム設定に使用する。
+//
+//        // 以下の場合、アラームサービスの起動を行わない。
+//        // 1. アラーム設定のトグルボタンが無効の場合
+//        // 2. アラームが鳴動中である場合
+////        if (!ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY) ||
+////                ClockUtil.isYourServiceWorking()) {
+////            return;
+////        }
+//
+//        // AlarmService起動用のIntent、PendingIntentを作成
+//        Context context = MyApplication.getContext();
+//        Intent intent = new Intent(MyApplication.getContext(), AlarmService.class);
+//        int requestcode = 1;
+//        PendingIntent pendingintent = PendingIntent.getService(
+//                context, requestcode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//        // TODO 各アラーム設定のPreferenceにアクセスする
+//
+//        // アラームを実行する時間の設定を準備
+//        // TODO ユーティリティクラスにした方が良さそう
+//
+//        Calendar alarmCld = Calendar.getInstance();
+//
+//        // 曜日設定がすでに保存済みであるかチェック。
+////        if (getSelectedWeeks(ALARMTIME_WEEK_KEY) != null) {
+////            cld_alarm = ClockUtil.getAlarmCalender();
+//            // TODO Prefではなく、DB情報を元にCalenderを作成する
+////        alarmCld = ClockUtil.getAlarmCalenderFromDB();
+////        }
+//
+//        // AlarmManagerのset()でAlarmManagerでセットした時間に、Serviceを起動
+//        AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+//        alarmmanager.set(AlarmManager.RTC, alarmCld.getTimeInMillis(), pendingintent);
+//
+//        // PendingIntentをセットしたためflagを有効化する
+//        ClockUtil.setAlarmPendingIntent(true);
+//
+//        Log.d(TAG, "The alarm was set at " + alarmCld.getTime());
+//        Toast.makeText(MyApplication.getContext(),
+//                "The alarm was set at " + alarmCld.getTime(),
+//                Toast.LENGTH_SHORT).show();
+//
+////        Log.d(TAG, "AlarmSettingTime is "
+////                + calender.YEAR
+////                + calender.MONTH
+////                + calender.DAY_OF_MONTH
+////                + calender.HOUR_OF_DAY
+////                + calender.MINUTE
+////                + calender.SECOND + " !!");
+//    }
 
     /**
      * アラームが動作する曜日設定のPreferenceの配列を文字列に変換・保存
@@ -303,11 +302,9 @@ public class ClockUtil {
      */
     public static String[] convertStringToArray(String string) {
         Log.d(TAG, "convertStringToArray");
-        Log.d(TAG, "convert : " + string);
 
         // 渡された文字列が非null、文字数が0以上の場合、文字列を分割して返却する。
         if (string != null && string.length() != 0 ) {
-            Log.d(TAG, "stringitem.split = " + string.split(","));
             return string.split(",");
         } else {
             return null;
@@ -329,7 +326,17 @@ public class ClockUtil {
         return todayCalender;
     }
 
-//    /**
+    /**
+     * 今日の曜日情報を返却する。
+     * @return
+     */
+    public static int isTodayWeek() {
+        int week = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+        Log.d(TAG, "isTodayWeek = " + week);
+        return week;
+    }
+
+    //    /**
 //     * Preference情報を元にアラームが動作予定のCalender情報を作成し、返す。
 //     * @return アラームが動作予定のCalender情報
 //     */
@@ -383,81 +390,6 @@ public class ClockUtil {
 //    }
 
     /**
-     * DB設定を元に、アラームを実行する時間のCalender設定を返却する。
-     * @return
-     */
-    public static Calendar getAlarmCalenderFromDB() {
-
-        //TODO フルスクラッチ予定。
-
-//        // 1. DBから曜日設定を取得。
-//        // 2. 曜日設定と今日の日時を確認して、鳴動するべき日付を確認して、Calenderに当て込む。
-//        // 3. DBから日時設定を取得。
-//        // 4. 日時設定を、Calenderクラスに当て込む。
-//        // 5. Calenderをreturn
-//
-//        // 戻り値となるアラーム鳴動予定を入れるCalender
-        Calendar alarmCld = Calendar.getInstance();
-//
-//        // 今日のCalender
-//        Calendar todayCld = getTodayCalender();
-//
-//        // Helperインスタンス取得
-//        FrockSettingsOpenHelper settingshelper =
-//                new FrockSettingsOpenHelper(MyApplication.getContext().getApplicationContext());
-//
-////        // TODO とりあえず、一行目のアラーム設定を検索。
-////        FrockSettingsHelperController controller = new FrockSettingsHelperController();
-////        Cursor cursor = controller.getCursor("1");
-////        cursor.moveToFirst();
-//
-//        // 選択された曜日データを取得
-//        String alm_week[] = convertStringToArray(cursor.getString(4));
-//        Log.d(TAG, "alm_week = " + Arrays.toString(alm_week));
-//
-//        // 比較用のCalender格納用配列
-//        ArrayList<Calendar> cldlist = new ArrayList<>();
-//
-//        // 永続化されている曜日データを元に、鳴動予定のCalenderを一通り作成する。
-//        for (String i : alm_week) {
-//
-//            // 永続化されているデータを元にするCalender
-//            Calendar dbCld = Calendar.getInstance();
-//            dbCld.set(Calendar.HOUR_OF_DAY, cursor.getInt(2));   // 時
-//            dbCld.set(Calendar.MINUTE, cursor.getInt(3));        // 分
-//            dbCld.set(Calendar.SECOND, 0);                                   // 秒
-//
-//            // Calenderクラスでは、曜日は0からではなく1から始まっているため、1+して処理する。
-//            dbCld.set(Calendar.DAY_OF_WEEK, Integer.parseInt(i) + 1); //曜日
-//            Log.d(TAG,"dbCld.compareTo(todayCld) = " + dbCld.compareTo(todayCld));
-//
-//            if (dbCld.compareTo(todayCld) >= 0) {
-//                // 今日か、今週中の場合は設定された時刻通りにアラームを設定する。
-//            } else if (dbCld.compareTo(todayCld) < 0) {
-//                // 過ぎてしまっている場合は、来週になるようにCalenderを調整。
-//                dbCld.add(Calendar.DATE, DAY_OF_WEEK);
-//            }
-//            cldlist.add(dbCld);
-//        }
-//
-//        // returmするcalendarの初期値を指定。
-//        alarmCld = cldlist.get(0);
-//
-//        // 設定されたCalenderを比較していき、一番今日に近いCalenderはどれか確認する。
-//        for (int i=0; i<cldlist.size(); i++) {
-//            if (alarmCld.after(cldlist.get(i))) {
-//                Log.d("NSAITOTEST","alarmCld update");
-//                alarmCld = cldlist.get(i);
-//            }
-//        }
-//        Log.d(TAG, "getAlarmCalender() return = " + alarmCld.getTime());
-//
-//        cursor.close();
-
-        return alarmCld;
-    }
-
-    /**
      * 受け取ったカレンダーの文字列情報を、ユーザーが読み取れる様に整形する。
      * @param string
      * @return
@@ -503,5 +435,35 @@ public class ClockUtil {
             }
         }
         return stringBuilder.toString();
+    }
+
+    /**
+     * トースト表示を行う。
+     * @param message 表示するメッセージ
+     */
+    public static void ToastShow(String message) {
+        Toast.makeText(MyApplication.getContext(),
+                message,
+                Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 渡されたCalenderのリストから、最も現在時間に近いCalenderを返す。
+     * @param validCalenderList
+     */
+    public static Calendar isClosestCalender(ArrayList<Calendar> validCalenderList) {
+        Log.d(TAG, "isClosestCalender");
+        Calendar closestCalender = Calendar.getInstance();
+
+        for (int i=0; i<validCalenderList.size(); i++) {
+            if (i == 0) {
+                closestCalender = validCalenderList.get(i);
+            } else if (i > 0) {
+                if (validCalenderList.get(i).before(closestCalender)) {
+                    closestCalender = validCalenderList.get(i);
+                }
+            }
+        }
+        return closestCalender;
     }
 }

@@ -2,7 +2,6 @@ package com.example.naotosaito.clocktest;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.DatabaseUtils;
 import android.media.AudioManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -55,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // DBを読み込み、アラーム設定を行う。
-                ClockUtil.alarmServiceSet();
+//                ClockUtil.alarmServiceSet();
             }
         });
 
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // 次のアラームを設定。
-                ClockUtil.alarmServiceSet();
+//                ClockUtil.alarmServiceSet();
             }
         });
 
@@ -134,6 +133,10 @@ public class MainActivity extends AppCompatActivity {
                         FrockSettingsHelperController controller = new FrockSettingsHelperController();
                         Log.d(TAG, "entity.getmId() = " + entity.getmId());
                         controller.selectDelete(String.valueOf(entity.getmId()));
+
+                        // サービスの起動予定を取り消されたので、AlarmManagerにセットする内容を更新。
+                        AlarmServiceSetter setter = new AlarmServiceSetter();
+                        setter.updateAlarmService();
 
                         // DBに変更があったので、Entityリストを更新。
                         loadAlarmSettingEntityList();
