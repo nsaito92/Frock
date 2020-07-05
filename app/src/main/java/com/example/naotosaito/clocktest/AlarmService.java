@@ -49,11 +49,14 @@ public class AlarmService extends Service {
             //音楽再生
             audioPlay();
 
+            // 通知を表示する
+            NotificationManagerController controller = new NotificationManagerController(MyApplication.getContext());
+            controller.createNotificationAlarmRinging();
+
             // アラーム鳴動通知ダイアログを表示
             Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);
-            intent_alarmdialogactivity.putExtra("requestcode", ClockUtil.AlarmManagerRequestCode.ALARMSERVICE);
+            intent_alarmdialogactivity.putExtra("requestcode", ClockUtil.PendingIntentRequestCode.ALARMSERVICE);
             intent_alarmdialogactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
             startActivity(intent_alarmdialogactivity);
         } else {
             onDestroy();
@@ -73,6 +76,10 @@ public class AlarmService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
         audioStop();
+
+        // 通知削除
+        NotificationManagerController controller = new NotificationManagerController(MyApplication.getContext());
+        controller.notificationCansel(NotificationManagerController.NotificationID.ALARMRINGING);
 
         Toast.makeText(MyApplication.getContext(),
                 getString(R.string.stopped_the_alarm), Toast.LENGTH_SHORT).show();

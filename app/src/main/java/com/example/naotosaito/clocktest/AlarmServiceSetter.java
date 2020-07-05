@@ -68,7 +68,7 @@ class AlarmServiceSetter {
         Intent intent = new Intent(context, AlarmService.class);
 
         PendingIntent pendingintent = PendingIntent.getService(
-                context, ClockUtil.AlarmManagerRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                context, ClockUtil.PendingIntentRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // AlarmServiceの起動予定をAlarmManagerにset。
         AlarmManager alarmmanager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -91,7 +91,7 @@ class AlarmServiceSetter {
         AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmService.class);
         PendingIntent pendingintent = PendingIntent.getService(
-                context, ClockUtil.AlarmManagerRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                context, ClockUtil.PendingIntentRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         pendingintent.cancel();
         alarmmanager.cancel(pendingintent);
