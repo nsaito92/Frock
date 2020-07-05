@@ -1,7 +1,6 @@
 .gradle
 .idea
 build
-spotify-app-remote
 local.properties
 *.iml
 app/build
