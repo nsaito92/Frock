@@ -163,6 +163,12 @@ public class MainActivity extends AppCompatActivity {
 
         updateAlarmSettingsView();
         loadAlarmSettingEntityList();
+
+        // アラーム鳴動中であれば鳴動中ダイアログを表示する。
+        if (ClockUtil.isYourServiceWorking()) {
+            Intent intent = new Intent(MyApplication.getContext(), CallAlarmDialogActivity.class);
+            startActivity(intent);
+        }
     }
 
     @Override

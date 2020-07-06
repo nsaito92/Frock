@@ -2,6 +2,7 @@ package com.example.naotosaito.clocktest;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
@@ -34,9 +35,10 @@ public class ClockUtil {
     // アラーム設定デフォルト設定用
     final static int ALARMTIME_DEFAULT = 0;
 
-    // AlarmManager RequestCode
-    public class AlarmManagerRequestCode {
+    // PendingIntent RequestCode
+    public class PendingIntentRequestCode {
         final static int ALARMSERVICE = 0;
+        final static int ALARM_NOTIFICATION = 1;
     }
 
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
