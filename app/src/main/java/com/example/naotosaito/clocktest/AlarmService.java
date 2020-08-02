@@ -35,11 +35,14 @@ public class AlarmService extends Service {
     // 他のコンポーネントからstartservice()が実行された際に、呼び出されるメソッド。
     @Override
      public int onStartCommand (Intent intent, int flags, int startId) {
+        //非同期処理を行うメソッド
+        Log.d(TAG, "onStartCommand");
+
+        // 自身を監視するサービスを起動
+        Intent startServiceIntent = new Intent(this, AlarmServiceObserver.class);
+        this.startService(startServiceIntent);
+
         if (ClockUtil.isYourServiceWorking()) {
-
-            //非同期処理を行うメソッド
-            Log.d(TAG, "onStartCommand");
-
             Toast.makeText(MyApplication.getContext(),
                     getString(R.string.started_the_alarm), Toast.LENGTH_SHORT).show();
 

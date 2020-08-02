@@ -17,16 +17,16 @@ import java.util.Calendar;
 
 class AlarmServiceSetter {
     private final static String TAG = AlarmServiceSetter.class.getSimpleName();
-
+//    private static final int TIME_TO_RUN_SOOZE = 5;
+    private static final int TIME_TO_RUN_SOOZE = 1;
     /**
      * DBデータを元にアラームを設定するCalenderを取得し、AlarmManagerにセットする。
      */
     public void updateAlarmService() {
         Log.d(TAG, "updateAlarmService");
-        // DBのクエリを叩いて、ONになっているアラーム設定を取得。
-        FrockSettingsHelperController controller = new FrockSettingsHelperController();
-        Calendar closestcalender = controller.getClosestCalender();
-        Log.d(TAG, "closestcalender = " + closestcalender.getTime());
+
+        // AlarmManagerにセットするCalender
+        Calendar closestcalender = getAlarmSetCalender();
 
         if (closestcalender != null) {
             // 一番近いCalenderをAlarmManagerにセットする。
@@ -54,6 +54,49 @@ class AlarmServiceSetter {
                     packageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     packageManager.DONT_KILL_APP);
         }
+    }
+
+    /**
+     * アラームの状態に応じて必要なCalenderを生成して返却する。
+     * @return
+     */
+    private Calendar getAlarmSetCalender() {
+        Calendar alarmSetCalender;  // 返却するCalender
+
+        // スヌーズ状態をチェックして、状態によってAlarmManagerにセットするCalenderを分ける。
+        int snoozeCount = ClockUtil.getPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.SNOOZE_COUNT);
+
+        Log.d(TAG, "snoozeCount = " + snoozeCount);
+
+        // スヌーズ用カウンタが0以上、5以下の時
+        if (0 < snoozeCount && snoozeCount <= 5) {
+            alarmSetCalender = createSnoozeCalender();
+
+        } else {
+            // スヌーズカウントをリセット
+            ClockUtil.setPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.SNOOZE_COUNT, 0);
+
+            // DBのクエリを叩いて、ONになっているアラーム設定を取得。
+            FrockSettingsHelperController controller = new FrockSettingsHelperController();
+            alarmSetCalender = controller.getClosestCalender();
+        }
+        Log.d(TAG, "alarmSetCalender = " + alarmSetCalender.getTime());
+        return alarmSetCalender;
+    }
+
+
+    /**
+     * スヌーズ設定用Calenderを生成する。
+     * @return
+     */
+    private Calendar createSnoozeCalender() {
+        Log.d(TAG, "createSnoozeCalender");
+
+        // 現在時間から、5分後のcalendarを生成する。
+        Calendar calendar = ClockUtil.getTodayCalender();
+        calendar.add(Calendar.MINUTE, TIME_TO_RUN_SOOZE);
+
+        return calendar;
     }
 
     /**

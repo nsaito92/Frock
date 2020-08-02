@@ -1,7 +1,10 @@
 package com.example.naotosaito.clocktest;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,12 +17,27 @@ import android.util.Log;
 public class CallAlarmDialogActivity extends AppCompatActivity {
     private static final String TAG = "CallAlarmDialogActivity";
 
+    // アラーム鳴動終了イベント受信用receiver。
+    private BroadcastReceiver alarmRingingReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // アラーム鳴動終了イベントを受け取った場合、Activityを終了する。
+            Log.d(TAG, "receiver");
+
+            if (intent.getAction().equals(ClockUtil.BroadCast.CALL_ALARMDIALOG_FINISH)) {
+                CallAlarmDialogActivity.this.finish();
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
 
         setContentView(R.layout.activity_call_dialog);
 
+        // アラーム鳴動中ダイアログの生成
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setTitle("アラーム鳴動中")
                 .setCancelable(false)
@@ -31,19 +49,50 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
                         stopService(intent);
                         CallAlarmDialogActivity.this.finish();
 
+                        // スヌーズカウントをリセット
+                        ClockUtil.setPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.SNOOZE_COUNT, 0);
+
+                        // スヌーズ通知のキャンセル
+                        NotificationManagerController controller = new NotificationManagerController(MyApplication.getContext());
+                        controller.notificationCansel(NotificationManagerController.NotificationID.SNOOZE);
+
                         // 次のアラーム予定の再設定する。
                         AlarmServiceSetter setter = new AlarmServiceSetter();
                         setter.updateAlarmService();
                     }
                 })
                 .setNeutralButton("後で", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick (DialogInterface dialog, int which) {
+                    @Override
+                    public void onClick (DialogInterface dialog, int which) {
 
-                    // 何も行わず、Activityを終了させる。
-                    CallAlarmDialogActivity.this.finish();
-                }
+                        // 何も行わず、Activityを終了させる。
+                        CallAlarmDialogActivity.this.finish();
+                    }
                 })
                 .create().show();
+
+        // アラーム鳴動イベントの受信用リスナーの準備
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ClockUtil.BroadCast.CALL_ALARMDIALOG_FINISH);
+        registerReceiver(alarmRingingReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
+
+        // アラームサービスが終了している場合は、画面を表示しない。
+        if (!ClockUtil.isYourServiceWorking()) {
+            finish();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+
+        unregisterReceiver(alarmRingingReceiver);
     }
 }
