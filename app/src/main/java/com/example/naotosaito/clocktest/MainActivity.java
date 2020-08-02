@@ -49,35 +49,6 @@ public class MainActivity extends AppCompatActivity {
 //        FrockSettingsHelperController controller = new FrockSettingsHelperController();
 //        controller.saveData();
 
-        Button testAlarmSetButton = (Button) findViewById(R.id.db_alarmbutton);
-        testAlarmSetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // DBを読み込み、アラーム設定を行う。
-//                ClockUtil.alarmServiceSet();
-            }
-        });
-
-        //各ボタンの定義、リスナーをボタンに登録する
-        Button stopButton = (Button) findViewById(R.id.stopbutton);
-        stopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // アラーム音を再生しているServiceを終了する
-                Intent intent = new Intent(MainActivity.this, AlarmService.class);
-
-                boolean stopServiceresult = stopService(intent);
-                Log.d(TAG, "stopServiceresult = " + stopServiceresult);
-                if (!stopServiceresult) {
-                    Toast.makeText(MyApplication.getContext(),
-                            R.string.No_alarm_to_stop, Toast.LENGTH_SHORT).show();
-                }
-
-                // 次のアラームを設定。
-//                ClockUtil.alarmServiceSet();
-            }
-        });
-
         ViewGroup viewGroup = (ViewGroup)findViewById(R.id.layout);
         //アラームの音量調節を端末の調整ボタンに任せる
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
