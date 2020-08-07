@@ -21,6 +21,11 @@ import java.util.Collections;
 public class ClockUtil {
     private static final String TAG = "ClockUtil";
 
+
+    public class SharedPreferencesKey {
+        final static String SNOOZE_COUNT = "snooze_count";
+
+    }
     final static String ALARM_SERVICE_KEY = "alarmservice_boolean";
     final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";
     final static String ALARMTIME_MINUTE_KEY = "alarmtime_minute";
@@ -39,6 +44,14 @@ public class ClockUtil {
     public class PendingIntentRequestCode {
         final static int ALARMSERVICE = 0;
         final static int ALARM_NOTIFICATION = 1;
+        final static int NOTIFICATION_SNOOZE = 2;
+        final static int SNOOZE_FINISH = 3;
+    }
+
+    // BroadCast
+    public class BroadCast {
+        public static final String CALL_ALARMDIALOG_FINISH = "org.bitbucket.snaoto22.frock.CALL_ALARMDIALOG_FINISH";
+        public static final String SNOOZE_FINISH = "org.bitbucket.snaoto22.frock.SNOOZE_FINISH";
     }
 
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。

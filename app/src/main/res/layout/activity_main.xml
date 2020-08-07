@@ -25,24 +25,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <Button
-            android:layout_width="141dp"
-            android:layout_height="wrap_content"
-            android:text="アラーム停止"
-            android:id="@+id/stopbutton" />
-
-        <Button
-            android:layout_width="141dp"
-            android:layout_height="wrap_content"
-            android:text="DBからアラーム設定"
-            android:id="@+id/db_alarmbutton" />
-    </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
