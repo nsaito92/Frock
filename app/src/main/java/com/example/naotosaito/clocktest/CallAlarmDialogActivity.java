@@ -17,7 +17,10 @@ import android.util.Log;
 public class CallAlarmDialogActivity extends AppCompatActivity {
     private static final String TAG = "CallAlarmDialogActivity";
 
-    // アラーム鳴動終了イベント受信用receiver。
+    /** アラーム鳴動通知ダイアログ  */
+    private AlertDialog dialog;
+
+    /** アラーム鳴動終了イベント受信用receiver。 */
     private BroadcastReceiver alarmRingingReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -37,9 +40,46 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_call_dialog);
 
+        dialog = dialogCreate();
+
+        // アラーム鳴動イベントの受信用リスナーの準備
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ClockUtil.BroadCast.CALL_ALARMDIALOG_FINISH);
+        registerReceiver(alarmRingingReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
+
+        dialog.show();
+
+        // アラームサービスが終了している場合は、画面を表示しない。
+        if (!ClockUtil.isYourServiceWorking()) {
+            finish();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+
+        dialog.dismiss();
+
+        unregisterReceiver(alarmRingingReceiver);
+    }
+
+    /**
+     *  アラーム通知ダイアログオブジェクトを生成する。
+     * @return
+     */
+    private AlertDialog dialogCreate() {
         // アラーム鳴動中ダイアログの生成
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-        alertBuilder.setTitle("アラーム鳴動中")
+
+        return alertBuilder.setTitle("アラーム鳴動中")
                 .setCancelable(false)
                 .setPositiveButton("停止", new DialogInterface.OnClickListener() {
                     @Override
@@ -69,30 +109,6 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
                         CallAlarmDialogActivity.this.finish();
                     }
                 })
-                .create().show();
-
-        // アラーム鳴動イベントの受信用リスナーの準備
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ClockUtil.BroadCast.CALL_ALARMDIALOG_FINISH);
-        registerReceiver(alarmRingingReceiver, intentFilter);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume");
-
-        // アラームサービスが終了している場合は、画面を表示しない。
-        if (!ClockUtil.isYourServiceWorking()) {
-            finish();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy");
-
-        unregisterReceiver(alarmRingingReceiver);
+                .create();
     }
 }

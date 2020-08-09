@@ -208,8 +208,15 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     }
                 }
                 // 更新されたDBデータを元に、アラーム設定を実施。
+                ClockUtil.setPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.SNOOZE_COUNT, 0);
                 AlarmServiceSetter setter = new AlarmServiceSetter();
                 setter.updateAlarmService();
+
+                // アラーム通知が残っている可能性があるので、キャンセル。
+                NotificationManagerController notificationController = new NotificationManagerController(MyApplication.getContext());
+                notificationController.notificationCansel(
+                        NotificationManagerController.NotificationID.SNOOZE
+                );
 
                 return true;
             }
