@@ -18,6 +18,7 @@ public class FrockReceiver extends BroadcastReceiver {
 
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
             // 端末再起動時、アラーム設定はクリアされるため再度設定する。
+            ClockUtil.setPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.SNOOZE_COUNT, 0);
             AlarmServiceSetter setter = new AlarmServiceSetter();
             setter.updateAlarmService();
 

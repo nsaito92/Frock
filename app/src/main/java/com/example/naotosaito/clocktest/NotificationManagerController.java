@@ -93,8 +93,6 @@ class NotificationManagerController {
         manager.notify(NotificationID.SNOOZE, notification);
     }
 
-
-
     /**
      * 指定されたIDの通知を削除する。
      * @param id

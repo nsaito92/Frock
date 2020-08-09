@@ -17,8 +17,9 @@ import java.util.Calendar;
 
 class AlarmServiceSetter {
     private final static String TAG = AlarmServiceSetter.class.getSimpleName();
-//    private static final int TIME_TO_RUN_SOOZE = 5;
-    private static final int TIME_TO_RUN_SOOZE = 1;
+    private static final int TIME_TO_RUN_SOOZE = 5;
+//    private static final int TIME_TO_RUN_SOOZE = 1;   // test用1分後にスヌーズ設定
+
     /**
      * DBデータを元にアラームを設定するCalenderを取得し、AlarmManagerにセットする。
      */
@@ -73,7 +74,7 @@ class AlarmServiceSetter {
             alarmSetCalender = createSnoozeCalender();
 
         } else {
-            // スヌーズカウントをリセット
+            // スヌーズ回数の上限に達したため、カウントをリセット
             ClockUtil.setPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.SNOOZE_COUNT, 0);
 
             // DBのクエリを叩いて、ONになっているアラーム設定を取得。
