@@ -1,14 +1,10 @@
 package com.example.naotosaito.clocktest;
 
-import android.app.AlarmManager;
 import android.app.FragmentManager;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -18,6 +14,10 @@ import android.util.Log;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Calendar;
 
 /**
@@ -28,18 +28,20 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private static final String TAG = "AlarmPreferenceActivity";
 
     /** fragment */
-    private AlarmPreferenceFragment mFragment;
+    private AlarmPreferenceFragment mFragment = null;
     /** アラーム ON/OFFボタン */
-    private SwitchPreference alarmbutton;
+    private SwitchPreference alarmbutton = null;
     /** アラーム時間入力 */
-    private Preference btn_alarmtime_key;
+    private Preference btn_alarmtime_key = null;
     /** アラーム曜日入力 */
-    private Preference btn_alarm_start_week_key;
+    private Preference btn_alarm_start_week_key = null;
+    /** アラームに使用する音楽再生ファイル*/
+    private Preference btn_alarm_sound = null;
     /** アラーム保存ボタン */
-    private Preference btn_alarm_setting_save;
+    private Preference btn_alarm_setting_save = null;
 
     /** アラームの曜日設定ダイアログ **/
-    private AlarmWeekDialogFragment alarmWeekSetting_dialog;
+    private AlarmWeekDialogFragment alarmWeekSetting_dialog = null;
 
     /** アラーム設定 */
     private AlarmSettingEntity alarmSettingEntity;
@@ -91,18 +93,11 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                     // trueになった場合は、有効なアラーム設定がある場合は、アラーム設定を行う。
                     ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, value);
 
-                    // TODO アラームON/OFFをDBに更新する。
-//                    ClockUtil.alarmServiceSet();
-
                 } else if (!alarmbutton.isChecked()) {
                     alarmSettingEntity.setmStatus(ClockUtil.FALSE);
 
                     // falseになった場合は、アラーム鳴動予定がある場合は、無効にする。
                     ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, value);
-
-                    // TODO アラームON/OFFをDBに更新する。
-
-//                    alarmServiceCansel();
                 }
                 return alarmbutton.isChecked();
             }
@@ -113,8 +108,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
          * APIレベルが11以上の場合、PreferenceFragment#findPreferenceをコールする。
          */
         // TODO この辺の処理、同じようなこと書いているので、メソッド化したい。
-        btn_alarmtime_key = null;
-
         // ここから
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             btn_alarmtime_key = mFragment.findPreference("alarmtime_key");
@@ -133,7 +126,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         });
 
         // 曜日選択ボタンの設定
-        btn_alarm_start_week_key = null;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             btn_alarm_start_week_key = mFragment.findPreference("alarm_start_week_key");
         } else {
@@ -149,8 +141,28 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             }
         });
 
+        // アラームに使用するローカル音楽ファイルの設定
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            btn_alarm_sound = mFragment.findPreference("alarm_sound_key");
+        } else {
+            btn_alarm_sound = findPreference(getString(R.string.alarm_setting_save_key));
+        }
+        btn_alarm_sound.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+            @Override
+            public boolean onPreferenceClick(Preference pref) {
+                Log.d(TAG, "onCreate#onPreferencelick_btn_alarm_sound");
+
+                // サウンドファイルの選択は、端末のファイラーアプリに任せるため、起動Intent発行。
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("audio/*");
+                startActivityForResult(intent, ClockUtil.PendingIntentRequestCode.RESULT_PICK_SOUNDFILE);
+
+                return true;
+            }
+        });
+
         // アラーム設定保存ボタンの設定
-        btn_alarm_setting_save = null;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             btn_alarm_setting_save = mFragment.findPreference("alarm_setting_save_key");
         } else {
@@ -176,7 +188,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                                     ClockUtil.convertBoolean(alarmbutton.isChecked()),
                                     alarmSettingEntity.getmHour(),
                                     alarmSettingEntity.getmMinute(),
-                                    alarmSettingEntity.getmWeek()
+                                    alarmSettingEntity.getmWeek(),
+                                    alarmSettingEntity.getmSoundUri()
                             ))
                     {
                         Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
@@ -195,7 +208,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                                     ClockUtil.convertBoolean(alarmbutton.isChecked()),
                                     alarmSettingEntity.getmHour(),
                                     alarmSettingEntity.getmMinute(),
-                                    alarmSettingEntity.getmWeek()
+                                    alarmSettingEntity.getmWeek(),
+                                    alarmSettingEntity.getmSoundUri()
                             ))
                     {
                         Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
@@ -224,8 +238,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
         // アラーム鳴動時間、曜日設定の表示を、最新に更新。
         updateSettingsView();
-//        updateTimeView();
-//        updateWeekView();
     }
 
     @Override
@@ -277,6 +289,37 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         prefer_week.unregisterOnSharedPreferenceChangeListener(listener);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+
+        // 本ActivityのonDestroyが呼ばれた時にDialogが起動していた場合は、インスタンス解放。
+        if (alarmWeekSetting_dialog != null) {
+            alarmWeekSetting_dialog.dismiss();
+        }
+    }
+
+    /**
+     * 本Activityから他アプリを起動して、ファイルが選択後呼ばれるメソッド。
+     * @param requestCode
+     * @param resultCode
+     * @param intent
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.d(TAG, "onActivityResult");
+        Log.d(TAG, "requestCode = " + requestCode);
+        Log.d(TAG, "resultCode = " + resultCode);
+        Log.d(TAG, "intent.getData = " + intent.getData().toString());
+
+        // Intentから、URI取得
+        Uri uri = intent.getData();
+
+        // URIをString形式でキャッシュに保存。
+        alarmSettingEntity.setmSoundUri(uri.toString());
+    }
+
     /**
      * 各Preferenceが変更されたことを検知するリスナー
      * 渡されたkeyの情報でアラーム時間を設定し直す。
@@ -309,13 +352,17 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     private void updateSettingsView() {
         Log.d(TAG, "updateSettingsView");
 
+        // Preferenceボタンの読み込み。
         btn_alarmtime_key = mFragment.findPreference("alarmtime_key");
         btn_alarm_start_week_key = mFragment.findPreference("alarm_start_week_key");
+        btn_alarm_sound = mFragment.findPreference("alarm_sound_key");
 
+        // AlarmSettingEntityから各種設定の状態を取得。
         alarmbutton.setChecked(ClockUtil.convertInt(alarmSettingEntity.getmStatus()));  // status
         int spHourInt = alarmSettingEntity.getmHour();                                  // hour
         int spMinuteInt = alarmSettingEntity.getmMinute();                              // minute
         String[] week = ClockUtil.convertStringToArray(alarmSettingEntity.getmWeek());  // week
+        String soundUri = alarmSettingEntity.getmSoundUri();                            // sounduri
 
         // DBから時間情報を受け取れた時、文字列を整形してViewに反映。
         String valueOfH = String.valueOf(spHourInt);
@@ -358,6 +405,23 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             }
             // 変換した文字列を統合して、画面に表示する。
             btn_alarm_start_week_key.setSummary(stringBuilder.toString());
+
+            // 音楽ファイルのURI情報表示。
+            // URIからファイルパスが取得出来るか確認。存在している場合はURIをそのまま使用して表示。
+            Uri uri = null;
+            uri = Uri.parse(soundUri);
+
+            ContentResolverController controller = new ContentResolverController();
+
+            if (controller.isReallyFile(uri)) {
+                btn_alarm_sound.setSummary(soundUri);
+            } else {
+                // 読み取れなかった場合は、「設定無し」と表示してURI情報の削除を行う。
+                btn_alarm_sound.setSummary("設定無し");
+
+            }
+
+
         }
     }
 

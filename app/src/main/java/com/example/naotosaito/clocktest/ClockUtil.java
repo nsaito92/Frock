@@ -46,12 +46,18 @@ public class ClockUtil {
         final static int ALARM_NOTIFICATION = 1;
         final static int NOTIFICATION_SNOOZE = 2;
         final static int SNOOZE_FINISH = 3;
+        final static int RESULT_PICK_SOUNDFILE = 4;
     }
 
     // BroadCast
     public class BroadCast {
         public static final String CALL_ALARMDIALOG_FINISH = "org.bitbucket.snaoto22.frock.CALL_ALARMDIALOG_FINISH";
         public static final String SNOOZE_FINISH = "org.bitbucket.snaoto22.frock.SNOOZE_FINISH";
+    }
+
+    // PackageName
+    public class PackageNames {
+        public static final String COM_ANDROID_EXTERNALSTORAGE_DOCUMENTS = "com.android.externalstorage.documents";
     }
 
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。

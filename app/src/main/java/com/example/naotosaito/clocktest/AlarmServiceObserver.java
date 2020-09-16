@@ -10,8 +10,8 @@ import android.util.Log;
  */
 public class AlarmServiceObserver extends IntentService {
     private final String TAG = AlarmServiceObserver.class.getSimpleName();
-    private final int ALARMSERVICE_SURVIVAL_TIME = 300000;
-//    private final int ALARMSERVICE_SURVIVAL_TIME = 10000; // Test用10秒設定
+//    private final int ALARMSERVICE_SURVIVAL_TIME = 300000;
+    private final int ALARMSERVICE_SURVIVAL_TIME = 10000; // Test用10秒設定
 
     public AlarmServiceObserver() {
         super("AlarmServiceObserver");

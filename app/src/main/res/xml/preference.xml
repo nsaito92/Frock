@@ -19,6 +19,11 @@
             android:title="@string/alarm_start_week_setting"
             android:summary="@string/alarm_start_week_summary" >
         </Preference>
+        <Preference
+            android:key="@string/alarm_sound_key"
+            android:title="@string/alarm_sound_setting"
+            android:summary="@string/alarm_sound_summary" >
+        </Preference>
         <Preference android:title="@string/alarm_setting_save_name"
             android:key="@string/alarm_setting_save_key"
             android:summary="@string/alarm_setting_save_summary"/>

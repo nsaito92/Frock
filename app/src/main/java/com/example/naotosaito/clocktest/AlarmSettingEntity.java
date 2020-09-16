@@ -20,7 +20,9 @@ class AlarmSettingEntity {
     /** 分 **/
     private int mMinute;
     /** 曜日 **/
-    private String mWeeks;
+    private String mWeeks = null;
+    /** 音楽ファイルのURI **/
+    private String mSoundUri = null;
 
     public AlarmSettingEntity() {
         Log.d(TAG, "");
@@ -31,7 +33,7 @@ class AlarmSettingEntity {
         this.mMinute = ClockUtil.ALARMTIME_DEFAULT;
     }
 
-    public AlarmSettingEntity(int mId, int mStatus, int mHour, int mMinute, String mWeeks) {
+    public AlarmSettingEntity(int mId, int mStatus, int mHour, int mMinute, String mWeeks, String mSoundUri) {
         Log.d(TAG, "");
 
         this.mId = mId;
@@ -39,6 +41,7 @@ class AlarmSettingEntity {
         this.mHour = mHour;
         this.mMinute = mMinute;
         this.mWeeks = mWeeks;
+        this.mSoundUri = mSoundUri;
     }
 
     public void setmId (int id) {
@@ -79,5 +82,13 @@ class AlarmSettingEntity {
 
     public String getmWeek () {
         return mWeeks;
+    }
+
+    public void setmSoundUri (String soundUri) {
+        mSoundUri = soundUri;
+    }
+
+    public String getmSoundUri () {
+        return mSoundUri;
     }
 }

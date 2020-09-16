@@ -116,6 +116,10 @@ public class AlarmService extends Service {
             e1.printStackTrace();
         }
         return filecheck;
+
+//        Intent intent = new Intent(this, CallAlarmDialogActivity.class);
+//        intent.addCategory()
+
     }
 
     private void audioPlay() {

@@ -107,7 +107,7 @@ public class FrockSettingsHelperController {
      * @param week
      * @return
      */
-    public boolean insertData(String table_name, int status, int hour, int minute, String week) {
+    public boolean insertData(String table_name, int status, int hour, int minute, String week, String uri) {
         Log.d(TAG, "insertData");
         boolean result = true;
 
@@ -118,6 +118,7 @@ public class FrockSettingsHelperController {
         values.put(FrockSettingsOpenHelper.COLUMN_NAME_HOUR, hour);
         values.put(FrockSettingsOpenHelper.COLUMN_NAME_MINUTE, minute);
         values.put(FrockSettingsOpenHelper.COLUMN_NAME_WEEK, week);
+        values.put(FrockSettingsOpenHelper.COLUMN_NAME_SOUND, uri);
 
         db.beginTransaction();
 
@@ -141,19 +142,20 @@ public class FrockSettingsHelperController {
      * @param hour
      * @param minute
      * @param week
+     * @param uri
      */
-    public boolean updateData(String table_name, int id, int status, int hour, int minute, String week) {
+    public boolean updateData(String table_name, int id, int status, int hour, int minute, String week, String uri) {
 
         boolean result = true;
 
         getWritableDatabase();
-        Cursor cursor = getCursor(String.valueOf(id));
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_STATUS, status);
         contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_HOUR, hour);
         contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_MINUTE, minute);
         contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_WEEK, week);
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_SOUND, uri);
 
         try {
             db.update(
@@ -164,7 +166,6 @@ public class FrockSettingsHelperController {
         } catch (SQLException e) {
             result = false;
         } finally {
-            cursor.close();
             dbClose();
         }
 
@@ -210,6 +211,7 @@ public class FrockSettingsHelperController {
             entity.setmHour(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR));
             entity.setmMinute(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE));
             entity.setmWeek(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
+            entity.setmSoundUri(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_SOUND));
         } finally {
             cursor.close();
             dbClose();
@@ -236,7 +238,8 @@ public class FrockSettingsHelperController {
                             cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS),
                             cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR),
                             cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE),
-                            cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK)
+                            cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK),
+                            cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_SOUND)
                     );
 
                     alarmSettingEntityList.add(alarmSettingEntity);
