@@ -469,22 +469,27 @@ public class ClockUtil {
     }
 
     /**
-     * 渡されたCalenderのリストから、最も現在時間に近いCalenderを返す。
-     * @param validCalenderList
+     * 渡された AlarmManagerSetDataEntity のリストから、最も現在時間に近い  Entity を返す。
+     * @param alarmManagerSetDataList
      */
-    public static Calendar isClosestCalender(ArrayList<Calendar> validCalenderList) {
+    public static AlarmManagerSetDataEntity isClosestCalender(ArrayList<AlarmManagerSetDataEntity> alarmManagerSetDataList) {
         Log.d(TAG, "isClosestCalender");
-        Calendar closestCalender = Calendar.getInstance();
 
-        for (int i=0; i<validCalenderList.size(); i++) {
+        AlarmManagerSetDataEntity closestEntity = null;
+
+        for (int i=0; i<alarmManagerSetDataList.size(); i++) {
+
+            // 後続のデータの比較用に、一つ目のデータは必ずセットする。
             if (i == 0) {
-                closestCalender = validCalenderList.get(i);
+                closestEntity = alarmManagerSetDataList.get(i);
             } else if (i > 0) {
-                if (validCalenderList.get(i).before(closestCalender)) {
-                    closestCalender = validCalenderList.get(i);
+
+                // closestEntity より、早い時間の Calender であれば、そちらを採用する。
+                if (alarmManagerSetDataList.get(i).getmCalender().before(closestEntity.getmCalender())) {
+                    closestEntity = alarmManagerSetDataList.get(i);
                 }
             }
         }
-        return closestCalender;
+        return closestEntity;
     }
 }

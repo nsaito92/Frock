@@ -1,5 +1,6 @@
 package com.example.naotosaito.clocktest;
 
+import android.app.AlarmManager;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -388,13 +389,13 @@ public class FrockSettingsHelperController {
      * DBにアラームONで保存されている設定の中で、最も鳴動予定が近いCalenderを返却する。
      * @return
      */
-    public Calendar getClosestCalender() {
+    public AlarmManagerSetDataEntity getClosestCalender() {
         Log.d(TAG, "getValidCalender");
 
-        Calendar closestCalender = Calendar.getInstance();
+        AlarmManagerSetDataEntity closestEntity = null;
 
         // ONで保存されているアラーム設定のCalenderオブジェクト。
-        ArrayList<Calendar> validCalenderList = new ArrayList<>();
+        ArrayList<AlarmManagerSetDataEntity> alarmManagerSetDataList = new ArrayList<>();
 
         // ONで保存されているアラーム設定の取得依頼。
         Cursor cursor = null;
@@ -406,10 +407,17 @@ public class FrockSettingsHelperController {
             if (cursor.moveToFirst()) {
                 // DBデータを元にCalender生成
                 for (int cnt = 0; cnt < cursor.getCount(); cnt++) {
+
                     Calendar alarmCld = Calendar.getInstance();
+
+                    // DBから取得データをのset用Entity。
+                    AlarmManagerSetDataEntity entity = new AlarmManagerSetDataEntity();
 
                     // 有効になっている曜日データを取得
                     String alm_week[] = ClockUtil.convertStringToArray(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
+
+                    // DBのIDを設定
+                    entity.setmId(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID);
 
                     // 曜日ごとにCalenderを生成
                     for (int cnt2=0; cnt2<alm_week.length; cnt2++) {
@@ -438,12 +446,14 @@ public class FrockSettingsHelperController {
                         }
                     }
                     // レコードごとのAlarmManagerセット候補をセットする。
-                    validCalenderList.add(alarmCld);
+                    entity.setmCalender(alarmCld);
+                    alarmManagerSetDataList.add(entity);
+
                     cursor.moveToNext();
                 }
 
                 // 各レコードごとの最も近いアラーム設定の中で、一番近い鳴動予定を判断する。
-                closestCalender = ClockUtil.isClosestCalender(validCalenderList);
+                closestEntity = ClockUtil.isClosestCalender(alarmManagerSetDataList);
 
             } else {
                 // クエリの結果が何も取得できなければ、データなしでreturn
@@ -455,7 +465,7 @@ public class FrockSettingsHelperController {
             dbClose();
         }
 
-        return closestCalender;
+        return closestEntity;
     }
 
     /**

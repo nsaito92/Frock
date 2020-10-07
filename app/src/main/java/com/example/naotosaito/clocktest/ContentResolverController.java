@@ -8,8 +8,10 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * ContentResolverを使用した処理を行うクラス。
@@ -19,6 +21,7 @@ import java.io.FileNotFoundException;
 class ContentResolverController {
     private static final String TAG = ContentResolverController.class.getSimpleName();
     private ContentResolver contentResolver;
+    public FileInputStream inputStream = null;
 
     public ContentResolverController () {
         contentResolver = MyApplication.getContext().getContentResolver();
@@ -42,7 +45,7 @@ class ContentResolverController {
         }
 
         try {
-            FileInputStream inputStream = new FileInputStream(string);
+            inputStream = new FileInputStream(string);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return result;
@@ -87,5 +90,14 @@ class ContentResolverController {
         }
         Log.d(TAG, "filepath = " + filepath);
         return filepath;
+    }
+
+    /**
+     * FileDescriptorオブジェクトを返却する。
+     * @return
+     * @throws IOException
+     */
+    public FileDescriptor getFileDescriptor() throws IOException {
+        return inputStream.getFD();
     }
 }

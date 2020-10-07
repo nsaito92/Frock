@@ -27,11 +27,11 @@ class AlarmServiceSetter {
         Log.d(TAG, "updateAlarmService");
 
         // AlarmManagerにセットするCalender
-        Calendar closestcalender = getAlarmSetCalender();
+        AlarmManagerSetDataEntity closestEntity = getAlarmSetCalender();
 
-        if (closestcalender != null) {
+        if (closestEntity != null) {
             // 一番近いCalenderをAlarmManagerにセットする。
-            alarmManagerSet(closestcalender);
+            alarmManagerSet(closestEntity);
 
             // 明示的にReceiverを有効にする。
             ComponentName receiver = new ComponentName(MyApplication.getContext(), FrockReceiver.class);
@@ -61,8 +61,10 @@ class AlarmServiceSetter {
      * アラームの状態に応じて必要なCalenderを生成して返却する。
      * @return
      */
-    private Calendar getAlarmSetCalender() {
-        Calendar alarmSetCalender;  // 返却するCalender
+    private AlarmManagerSetDataEntity getAlarmSetCalender() {
+        // 返却するCalender
+        AlarmManagerSetDataEntity closestEntity = null;
+
 
         // スヌーズ状態をチェックして、状態によってAlarmManagerにセットするCalenderを分ける。
         int snoozeCount = ClockUtil.getPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.SNOOZE_COUNT);
@@ -71,7 +73,7 @@ class AlarmServiceSetter {
 
         // スヌーズ用カウンタが0以上、5以下の時
         if (0 < snoozeCount && snoozeCount <= 5) {
-            alarmSetCalender = createSnoozeCalender();
+            closestEntity = createSnoozeCalender();
 
         } else {
             // スヌーズ回数の上限に達したため、カウントをリセット
@@ -79,10 +81,10 @@ class AlarmServiceSetter {
 
             // DBのクエリを叩いて、ONになっているアラーム設定を取得。
             FrockSettingsHelperController controller = new FrockSettingsHelperController();
-            alarmSetCalender = controller.getClosestCalender();
+            closestEntity = controller.getClosestCalender();
         }
-        Log.d(TAG, "alarmSetCalender = " + alarmSetCalender.getTime());
-        return alarmSetCalender;
+        Log.d(TAG, "closestEntity = " + closestEntity.getmCalender().getTime());
+        return closestEntity;
     }
 
 
@@ -110,6 +112,9 @@ class AlarmServiceSetter {
         // PendingIntent生成。
         Context context = MyApplication.getContext();
         Intent intent = new Intent(context, AlarmService.class);
+
+        // TODO 試験的に1で渡す
+        intent.putExtra("COLUMN_INDEX_ID", 1);
 
         PendingIntent pendingintent = PendingIntent.getService(
                 context, ClockUtil.PendingIntentRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
