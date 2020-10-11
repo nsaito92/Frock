@@ -51,6 +51,11 @@ public class AlarmService extends Service {
             // PendingIntentによるServiceが起動したため、flagを無効化する
             ClockUtil.setAlarmPendingIntent(false);
 
+            Log.d(TAG, "intent.getIntExtra : COLUMN_INDEX_ID = " + intent.getIntExtra("COLUMN_INDEX_ID", 0));
+
+            // 最後に鳴動したアラームのindexを保存し、スヌーズの際に参照する。
+            ClockUtil.setPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.LAST_ALARM_INDEX, intent.getIntExtra("COLUMN_INDEX_ID", 0));
+
             //音楽再生
             audioPlay(intent.getIntExtra("COLUMN_INDEX_ID", 0));
 
@@ -165,7 +170,7 @@ public class AlarmService extends Service {
         FileDescriptor fileDescriptor = null;
 
 
-        // TODO  DBに永続化されている音楽ファイルの情報を取得して、FileDescriptor オブジェクトを生成する。
+        // DBに永続化されている音楽ファイルの情報を取得して、FileDescriptor オブジェクトを生成する。
         FrockSettingsHelperController controller = new FrockSettingsHelperController();
         AlarmSettingEntity entity = controller.getAlarmSettingEntity(String.valueOf(indexID));
 
@@ -174,10 +179,10 @@ public class AlarmService extends Service {
 
         ContentResolverController resolverController = new ContentResolverController();
 
-        // TODO FileDescriptor取得に完了した場合は、そちらの結果を元に音楽を再生する。
+        // FileDescriptor取得に完了した場合は、そちらの結果を元に音楽を再生する。
         if (resolverController.isReallyFile(uri)) {
             fileDescriptor = resolverController.getFileDescriptor();
-            Log.d(TAG, "Local File");
+            Log.d(TAG, "fileDescriptor = Local File");
 
         } else {
             // DB から取得取得出来なければ、assetのファイルを使用する。
@@ -189,9 +194,9 @@ public class AlarmService extends Service {
             // assetからMP3ファイルを読み込む
             AssetFileDescriptor assetFileDescriptor = assetManager.openFd(filePath);
             fileDescriptor = assetFileDescriptor.getFileDescriptor();
-            Log.d(TAG, "asset File");
+            Log.d(TAG, "fileDescriptor = asset File");
         }
-        Log.d(TAG, "return");
+
         return fileDescriptor;
     }
 }

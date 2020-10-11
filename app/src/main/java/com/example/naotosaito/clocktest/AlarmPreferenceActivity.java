@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URI;
@@ -408,20 +409,18 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
 
             // 音楽ファイルのURI情報表示。
             // URIからファイルパスが取得出来るか確認。存在している場合はURIをそのまま使用して表示。
-            Uri uri = null;
-            uri = Uri.parse(soundUri);
+            Uri uri = Uri.parse(soundUri);
 
             ContentResolverController controller = new ContentResolverController();
 
             if (controller.isReallyFile(uri)) {
-                btn_alarm_sound.setSummary(soundUri);
+                String setFileName = controller.getFileNameFromUri(uri);
+                btn_alarm_sound.setSummary(setFileName);
             } else {
                 // 読み取れなかった場合は、「設定無し」と表示してURI情報の削除を行う。
                 btn_alarm_sound.setSummary("設定無し");
 
             }
-
-
         }
     }
 

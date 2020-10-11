@@ -65,14 +65,13 @@ class AlarmServiceSetter {
         // 返却するCalender
         AlarmManagerSetDataEntity closestEntity = null;
 
-
         // スヌーズ状態をチェックして、状態によってAlarmManagerにセットするCalenderを分ける。
         int snoozeCount = ClockUtil.getPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.SNOOZE_COUNT);
 
         Log.d(TAG, "snoozeCount = " + snoozeCount);
 
-        // スヌーズ用カウンタが0以上、5以下の時
-        if (0 < snoozeCount && snoozeCount <= 5) {
+        // スヌーズ用カウンタが0以上、5未満の時
+        if (0 < snoozeCount && snoozeCount < 5) {
             closestEntity = createSnoozeCalender();
 
         } else {
@@ -89,32 +88,42 @@ class AlarmServiceSetter {
 
 
     /**
-     * スヌーズ設定用Calenderを生成する。
+     * スヌーズ設定用 AlarmManagerSetDataEntity を生成する。
      * @return
      */
-    private Calendar createSnoozeCalender() {
+    private AlarmManagerSetDataEntity createSnoozeCalender() {
         Log.d(TAG, "createSnoozeCalender");
 
-        // 現在時間から、5分後のcalendarを生成する。
-        Calendar calendar = ClockUtil.getTodayCalender();
-        calendar.add(Calendar.MINUTE, TIME_TO_RUN_SOOZE);
+        AlarmManagerSetDataEntity entity = null;
+        int id;
+        Calendar calender = null;
 
-        return calendar;
+        // Calenderは現在から5分後、アラームのIndexIDは最後に鳴動したものを使用する。
+        calender = ClockUtil.getTodayCalender();
+        calender.add(Calendar.MINUTE, TIME_TO_RUN_SOOZE);
+
+        id = ClockUtil.getPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.LAST_ALARM_INDEX);
+        Log.d(TAG, "id = " + id);
+
+        if (calender != null && id >= 0) {
+            entity = new AlarmManagerSetDataEntity(id, calender);
+        }
+
+        return entity;
     }
 
     /**
      * AlarmServiceに必要なデータを取得して、AlarmManagerに起動予定をセットする。
-     * @param calendar AlarmManagerにセットするCalender
+     * @param closestEntity AlarmManagerにセットする AlarmManagerSetDataEntity
      */
-    private void alarmManagerSet(Calendar calendar) {
+    private void alarmManagerSet(AlarmManagerSetDataEntity closestEntity) {
         Log.d(TAG, "AlarmManagerSet");
 
         // PendingIntent生成。
         Context context = MyApplication.getContext();
         Intent intent = new Intent(context, AlarmService.class);
 
-        // TODO 試験的に1で渡す
-        intent.putExtra("COLUMN_INDEX_ID", 1);
+        intent.putExtra("COLUMN_INDEX_ID", closestEntity.getmId());
 
         PendingIntent pendingintent = PendingIntent.getService(
                 context, ClockUtil.PendingIntentRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -123,10 +132,10 @@ class AlarmServiceSetter {
         AlarmManager alarmmanager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmmanager.set(
                 AlarmManager.RTC,
-                calendar.getTimeInMillis(),
+                closestEntity.getmCalender().getTimeInMillis(),
                 pendingintent);
 
-        Log.d(TAG, "Set " + calendar.getTime() + " to AlarmManager");
+        Log.d(TAG, "Set " + closestEntity.getmCalender().getTime() + " to AlarmManager");
     }
 
     /**

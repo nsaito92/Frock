@@ -24,7 +24,7 @@ public class ClockUtil {
 
     public class SharedPreferencesKey {
         final static String SNOOZE_COUNT = "snooze_count";
-
+        final static String LAST_ALARM_INDEX = "lastAlarmIndex";
     }
     final static String ALARM_SERVICE_KEY = "alarmservice_boolean";
     final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";

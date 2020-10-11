@@ -20,18 +20,13 @@ class AlarmManagerSetDataEntity {
 
     public AlarmManagerSetDataEntity() {
         Log.d(TAG, "");
-
-
-
     }
 
-    public AlarmManagerSetDataEntity(Calendar calendar) {
+    public AlarmManagerSetDataEntity(int id, Calendar calender) {
         Log.d(TAG, "");
-
-        this.mCalender = calendar;
-
+        this.mId = id;
+        this.mCalender = calender;
     }
-
 
 
     public void setmId (int id) {

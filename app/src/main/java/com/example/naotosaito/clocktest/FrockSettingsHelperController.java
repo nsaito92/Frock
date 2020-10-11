@@ -417,7 +417,7 @@ public class FrockSettingsHelperController {
                     String alm_week[] = ClockUtil.convertStringToArray(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
 
                     // DBのIDを設定
-                    entity.setmId(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID);
+                    entity.setmId(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID));
 
                     // 曜日ごとにCalenderを生成
                     for (int cnt2=0; cnt2<alm_week.length; cnt2++) {
