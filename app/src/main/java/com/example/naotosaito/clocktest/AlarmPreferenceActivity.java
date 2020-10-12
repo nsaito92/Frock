@@ -319,8 +319,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             // Intentから、URI取得
             Uri uri = intent.getData();
 
-            // URIをString形式でキャッシュに保存。
+            // URIをString形式でキャッシュに保存して、画面を更新。
             alarmSettingEntity.setmSoundUri(uri.toString());
+            updateSettingsView();
         }
     }
 
@@ -410,19 +411,20 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             // 変換した文字列を統合して、画面に表示する。
             btn_alarm_start_week_key.setSummary(stringBuilder.toString());
 
-            // 音楽ファイルのURI情報表示。
-            // URIからファイルパスが取得出来るか確認。存在している場合はURIをそのまま使用して表示。
-            Uri uri = Uri.parse(soundUri);
+            if (soundUri != null) {
+                // 音楽ファイルのURI情報表示。
+                // URIからファイルパスが取得出来るか確認。存在している場合はURIをそのまま使用して表示。
+                Uri uri = Uri.parse(soundUri);
 
-            ContentResolverController controller = new ContentResolverController();
+                ContentResolverController controller = new ContentResolverController();
 
-            if (controller.isReallyFile(uri)) {
-                String setFileName = controller.getFileNameFromUri(uri);
-                btn_alarm_sound.setSummary(setFileName);
-            } else {
-                // 読み取れなかった場合は、「設定無し」と表示してURI情報の削除を行う。
-                btn_alarm_sound.setSummary("設定無し");
-
+                if (controller.isReallyFile(uri)) {
+                    String setFileName = controller.getFileNameFromUri(uri);
+                    btn_alarm_sound.setSummary(setFileName);
+                } else {
+                    // 読み取れなかった場合は、「設定無し」と表示してURI情報の削除を行う。
+                    btn_alarm_sound.setSummary("設定無し");
+                }
             }
         }
     }
