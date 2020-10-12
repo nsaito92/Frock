@@ -312,13 +312,16 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         Log.d(TAG, "onActivityResult");
         Log.d(TAG, "requestCode = " + requestCode);
         Log.d(TAG, "resultCode = " + resultCode);
-        Log.d(TAG, "intent.getData = " + intent.getData().toString());
 
-        // Intentから、URI取得
-        Uri uri = intent.getData();
+        if (intent != null) {
+            Log.d(TAG, "intent.getData = " + intent.getData().toString());
 
-        // URIをString形式でキャッシュに保存。
-        alarmSettingEntity.setmSoundUri(uri.toString());
+            // Intentから、URI取得
+            Uri uri = intent.getData();
+
+            // URIをString形式でキャッシュに保存。
+            alarmSettingEntity.setmSoundUri(uri.toString());
+        }
     }
 
     /**
