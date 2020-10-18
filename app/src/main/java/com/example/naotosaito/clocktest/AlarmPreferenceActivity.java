@@ -319,10 +319,23 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             // Intentから、URI取得
             Uri uri = intent.getData();
 
-            // URIをString形式でキャッシュに保存して、画面を更新。
-            alarmSettingEntity.setmSoundUri(uri.toString());
-            updateSettingsView();
+            if (uri != null) {
+                // 音楽ファイルのURI情報表示。
+                alarmSettingEntity.setmSoundUri(uri.toString());
+
+                // URIからファイルパスが取得出来るか確認。存在していない場合は、entityにその旨をset。
+                ContentResolverController controller = new ContentResolverController();
+
+                if (!controller.isReallyFileAndFileDisable(alarmSettingEntity, false)) {
+                    alarmSettingEntity.setmSoundUri(FrockSettingsOpenHelper.INVALID_URI);
+                }
+            }
+        } else {
+            alarmSettingEntity.setmSoundUri(FrockSettingsOpenHelper.INVALID_URI);
         }
+
+        // URIをString形式でキャッシュに保存して、画面を更新。
+        updateSettingsView();
     }
 
     /**
@@ -411,20 +424,16 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             // 変換した文字列を統合して、画面に表示する。
             btn_alarm_start_week_key.setSummary(stringBuilder.toString());
 
-            if (soundUri != null) {
-                // 音楽ファイルのURI情報表示。
-                // URIからファイルパスが取得出来るか確認。存在している場合はURIをそのまま使用して表示。
-                Uri uri = Uri.parse(soundUri);
+            // 音楽ファイルURI。URIが無効化されていれば、「設定無し」、それ以外であればファイル名を表示。
+            if (soundUri == null || soundUri.equals(FrockSettingsOpenHelper.INVALID_URI)) {
+                btn_alarm_sound.setSummary("設定無し");
+            } else {
 
+                // URIからファイル名取得。
                 ContentResolverController controller = new ContentResolverController();
-
-                if (controller.isReallyFile(uri)) {
-                    String setFileName = controller.getFileNameFromUri(uri);
-                    btn_alarm_sound.setSummary(setFileName);
-                } else {
-                    // 読み取れなかった場合は、「設定無し」と表示してURI情報の削除を行う。
-                    btn_alarm_sound.setSummary("設定無し");
-                }
+                Uri uri = Uri.parse(soundUri);
+                String setFileName = controller.getFileNameFromUri(uri);
+                btn_alarm_sound.setSummary(setFileName);
             }
         }
     }

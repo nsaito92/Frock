@@ -102,7 +102,7 @@ public class AlarmService extends Service {
         boolean filecheck = false;
 
         try{
-            // TODO MediaPlayerにDBの保存した音楽ファイルか、assetのファイルのどちらかをsetする。
+            // MediaPlayerにDBの保存した音楽ファイルか、assetのファイルのどちらかをsetする。
             mediaPlayer.setDataSource(createFileDescriptor(indexID)); // 状態 → Initialized
 
 //            assetFileDescriptor.getStartOffset();
@@ -169,23 +169,25 @@ public class AlarmService extends Service {
 
         FileDescriptor fileDescriptor = null;
 
-
         // DBに永続化されている音楽ファイルの情報を取得して、FileDescriptor オブジェクトを生成する。
         FrockSettingsHelperController controller = new FrockSettingsHelperController();
         AlarmSettingEntity entity = controller.getAlarmSettingEntity(String.valueOf(indexID));
 
-        Uri uri = null;
-        uri = Uri.parse(entity.getmSoundUri());
+        Log.d(TAG, "entity.getmSoundUri() = " + entity.getmSoundUri()); // TODO
 
-        ContentResolverController resolverController = new ContentResolverController();
+        // entity のURIが読み取れる状態の場合、ローカルのファイルを使用する。
+        if (!entity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
+            ContentResolverController resolverController = new ContentResolverController();
 
-        // FileDescriptor取得に完了した場合は、そちらの結果を元に音楽を再生する。
-        if (resolverController.isReallyFile(uri)) {
-            fileDescriptor = resolverController.getFileDescriptor();
-            Log.d(TAG, "fileDescriptor = Local File");
+            // FileDescriptor 取得に完了した場合は、そちらの結果を元に音楽を再生する。
+            if (resolverController.isReallyFileAndFileDisable(entity, true)) {
+                fileDescriptor = resolverController.getFileDescriptor();
+                Log.d(TAG, "fileDescriptor = Local File");
+            }
+        }
 
-        } else {
-            // DB から取得取得出来なければ、assetのファイルを使用する。
+        // DB から取得取得出来なければ、assetのファイルを使用する。
+        if (fileDescriptor == null){
             AssetManager assetManager = MyApplication.getContext().getAssets();
 
             // Alarm時の音楽ファイル名を指定

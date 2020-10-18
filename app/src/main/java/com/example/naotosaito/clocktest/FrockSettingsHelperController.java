@@ -54,7 +54,7 @@ public class FrockSettingsHelperController {
     private Cursor getCursor(String position) {
         Log.d(TAG, "getCursor");
         getWritableDatabase();
-        Cursor cursor;
+        Cursor cursor = null;
 
         if (position == null) {
             cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
@@ -172,6 +172,57 @@ public class FrockSettingsHelperController {
 
         return result;
     }
+
+    /**
+     * 読み取れなかったURIをURIを無効な情報に書き換える。
+     * @param entity
+     * @return
+     */
+    public boolean disableUri(AlarmSettingEntity entity) {
+        Log.d(TAG, "disableUri");
+
+        boolean result = false;
+
+        // 既存のEntityを取得。
+        if (entity == null) {
+            Log.w(TAG, "entity == null");   // TODO
+            return result;
+        }
+
+        Log.w(TAG, "entity.getmId = " + entity.getmId());   // TODO
+
+        // 読み取れなかったURIを更新。それ以外のデータ永続化済みの状態のままとする。
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_STATUS, entity.getmStatus());
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_HOUR, entity.getmHour());
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_MINUTE, entity.getmMinute());
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_WEEK, entity.getmWeek());
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_SOUND, FrockSettingsOpenHelper.INVALID_URI);
+
+        getWritableDatabase();
+        db.beginTransaction();  // トランザクション開始
+        try {
+            int affected = 0;
+            affected = db.update(
+                        FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                        contentValues,
+                        FrockSettingsOpenHelper._ID + " = " + String.valueOf(entity.getmId()),
+                        null);
+            Log.w(TAG, "affected = " + affected);   // TODO
+            if (affected > 0) {
+                db.setTransactionSuccessful();
+                result = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();    //トランザクション完了
+            dbClose();
+        }
+        Log.w(TAG, "result = " + result);   // TODO
+        return result;
+    }
+
     /**
      * 指定された位置のDB情報を削除する。
      * @param position

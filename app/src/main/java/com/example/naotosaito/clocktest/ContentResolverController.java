@@ -31,10 +31,38 @@ class ContentResolverController {
     }
 
     /**
+     * 渡されたURIにファイルが実在しているかチェックし、存在しなかった場合は、DBから該当のデータを削除する。
+     * @param entity
+     * @param disableUri
+     */
+    public boolean isReallyFileAndFileDisable(AlarmSettingEntity entity, boolean disableUri) {
+        Log.d(TAG, "isReallyFileAndFileDelete");
+
+        boolean result = false;
+
+        Uri uri = null;
+        uri = Uri.parse(entity.getmSoundUri());
+
+        if (isReallyFile(uri)) {
+            result = true;
+        } else if (disableUri){
+            // ファイルを読み取れなかった場合は、DBの該当のURIを無効化する。
+            // 削除しないままアラームが鳴動しても、Exceptionをcatchしているためクラッシュはしないが、
+            // 無駄なExceptionを発生させないため、無効化する。
+            // disableUri フラグが立つのは、原則アラーム鳴動時のみ。
+            FrockSettingsHelperController controller = new FrockSettingsHelperController();
+            controller.disableUri(entity);
+        }
+        return result;
+    }
+
+    /**
      * 渡されたURIにファイルが実在しているかチェックする。
      * @param uri
+     * @return true : URI読み取りに成功し、 FileInputStream をインスタンスを作成出来た。
+     *         false : URI読み取りに失敗し、 FileInputStream の生成に失敗した。
      */
-    public boolean isReallyFile(Uri uri) {
+    private boolean isReallyFile(Uri uri) {
         Log.d(TAG, "isReallyFile");
 
         boolean result = false;
@@ -142,7 +170,9 @@ class ContentResolverController {
                         filename = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME));
                     }
                 } finally {
-                    cursor.close();
+                    if (cursor != null) {
+                        cursor.close();
+                    }
                 }
                 break;
 

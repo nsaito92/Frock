@@ -55,6 +55,9 @@ public class FrockSettingsOpenHelper extends SQLiteOpenHelper {
     // バリデーションチェック用定数
     public static final long ALARMSETTINGS_TABLE_MAX_RECORD = 10;
 
+    // 読み取れなかったURI設定に書き込む名前
+    public static final String INVALID_URI = "invaliduri";
+
     public FrockSettingsOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         Log.d(TAG, "");
