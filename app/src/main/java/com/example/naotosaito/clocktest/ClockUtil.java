@@ -24,7 +24,7 @@ public class ClockUtil {
 
     public class SharedPreferencesKey {
         final static String SNOOZE_COUNT = "snooze_count";
-
+        final static String LAST_ALARM_INDEX = "lastAlarmIndex";
     }
     final static String ALARM_SERVICE_KEY = "alarmservice_boolean";
     final static String ALARMTIME_HOUR_KEY = "alarmtime_hour";
@@ -46,12 +46,18 @@ public class ClockUtil {
         final static int ALARM_NOTIFICATION = 1;
         final static int NOTIFICATION_SNOOZE = 2;
         final static int SNOOZE_FINISH = 3;
+        final static int RESULT_PICK_SOUNDFILE = 4;
     }
 
     // BroadCast
     public class BroadCast {
         public static final String CALL_ALARMDIALOG_FINISH = "org.bitbucket.snaoto22.frock.CALL_ALARMDIALOG_FINISH";
         public static final String SNOOZE_FINISH = "org.bitbucket.snaoto22.frock.SNOOZE_FINISH";
+    }
+
+    // PackageName
+    public class PackageNames {
+        public static final String COM_ANDROID_EXTERNALSTORAGE_DOCUMENTS = "com.android.externalstorage.documents";
     }
 
     // 間違ってインスタンスを生成された場合、コンストラクタで例外を返す。
@@ -463,22 +469,27 @@ public class ClockUtil {
     }
 
     /**
-     * 渡されたCalenderのリストから、最も現在時間に近いCalenderを返す。
-     * @param validCalenderList
+     * 渡された AlarmManagerSetDataEntity のリストから、最も現在時間に近い  Entity を返す。
+     * @param alarmManagerSetDataList
      */
-    public static Calendar isClosestCalender(ArrayList<Calendar> validCalenderList) {
+    public static AlarmManagerSetDataEntity isClosestCalender(ArrayList<AlarmManagerSetDataEntity> alarmManagerSetDataList) {
         Log.d(TAG, "isClosestCalender");
-        Calendar closestCalender = Calendar.getInstance();
 
-        for (int i=0; i<validCalenderList.size(); i++) {
+        AlarmManagerSetDataEntity closestEntity = null;
+
+        for (int i=0; i<alarmManagerSetDataList.size(); i++) {
+
+            // 後続のデータの比較用に、一つ目のデータは必ずセットする。
             if (i == 0) {
-                closestCalender = validCalenderList.get(i);
+                closestEntity = alarmManagerSetDataList.get(i);
             } else if (i > 0) {
-                if (validCalenderList.get(i).before(closestCalender)) {
-                    closestCalender = validCalenderList.get(i);
+
+                // closestEntity より、早い時間の Calender であれば、そちらを採用する。
+                if (alarmManagerSetDataList.get(i).getmCalender().before(closestEntity.getmCalender())) {
+                    closestEntity = alarmManagerSetDataList.get(i);
                 }
             }
         }
-        return closestCalender;
+        return closestEntity;
     }
 }

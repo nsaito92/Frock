@@ -27,11 +27,11 @@ class AlarmServiceSetter {
         Log.d(TAG, "updateAlarmService");
 
         // AlarmManagerにセットするCalender
-        Calendar closestcalender = getAlarmSetCalender();
+        AlarmManagerSetDataEntity closestEntity = getAlarmSetCalender();
 
-        if (closestcalender != null) {
+        if (closestEntity != null) {
             // 一番近いCalenderをAlarmManagerにセットする。
-            alarmManagerSet(closestcalender);
+            alarmManagerSet(closestEntity);
 
             // 明示的にReceiverを有効にする。
             ComponentName receiver = new ComponentName(MyApplication.getContext(), FrockReceiver.class);
@@ -61,17 +61,18 @@ class AlarmServiceSetter {
      * アラームの状態に応じて必要なCalenderを生成して返却する。
      * @return
      */
-    private Calendar getAlarmSetCalender() {
-        Calendar alarmSetCalender;  // 返却するCalender
+    private AlarmManagerSetDataEntity getAlarmSetCalender() {
+        // 返却するCalender
+        AlarmManagerSetDataEntity closestEntity = null;
 
         // スヌーズ状態をチェックして、状態によってAlarmManagerにセットするCalenderを分ける。
         int snoozeCount = ClockUtil.getPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.SNOOZE_COUNT);
 
         Log.d(TAG, "snoozeCount = " + snoozeCount);
 
-        // スヌーズ用カウンタが0以上、5以下の時
-        if (0 < snoozeCount && snoozeCount <= 5) {
-            alarmSetCalender = createSnoozeCalender();
+        // スヌーズ用カウンタが0以上、5未満の時
+        if (0 < snoozeCount && snoozeCount < 5) {
+            closestEntity = createSnoozeCalender();
 
         } else {
             // スヌーズ回数の上限に達したため、カウントをリセット
@@ -79,37 +80,50 @@ class AlarmServiceSetter {
 
             // DBのクエリを叩いて、ONになっているアラーム設定を取得。
             FrockSettingsHelperController controller = new FrockSettingsHelperController();
-            alarmSetCalender = controller.getClosestCalender();
+            closestEntity = controller.getClosestCalender();
         }
-        Log.d(TAG, "alarmSetCalender = " + alarmSetCalender.getTime());
-        return alarmSetCalender;
+        Log.d(TAG, "closestEntity = " + closestEntity.getmCalender().getTime());
+        return closestEntity;
     }
 
 
     /**
-     * スヌーズ設定用Calenderを生成する。
+     * スヌーズ設定用 AlarmManagerSetDataEntity を生成する。
      * @return
      */
-    private Calendar createSnoozeCalender() {
+    private AlarmManagerSetDataEntity createSnoozeCalender() {
         Log.d(TAG, "createSnoozeCalender");
 
-        // 現在時間から、5分後のcalendarを生成する。
-        Calendar calendar = ClockUtil.getTodayCalender();
-        calendar.add(Calendar.MINUTE, TIME_TO_RUN_SOOZE);
+        AlarmManagerSetDataEntity entity = null;
+        int id;
+        Calendar calender = null;
 
-        return calendar;
+        // Calenderは現在から5分後、アラームのIndexIDは最後に鳴動したものを使用する。
+        calender = ClockUtil.getTodayCalender();
+        calender.add(Calendar.MINUTE, TIME_TO_RUN_SOOZE);
+
+        id = ClockUtil.getPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.LAST_ALARM_INDEX);
+        Log.d(TAG, "id = " + id);
+
+        if (calender != null && id >= 0) {
+            entity = new AlarmManagerSetDataEntity(id, calender);
+        }
+
+        return entity;
     }
 
     /**
      * AlarmServiceに必要なデータを取得して、AlarmManagerに起動予定をセットする。
-     * @param calendar AlarmManagerにセットするCalender
+     * @param closestEntity AlarmManagerにセットする AlarmManagerSetDataEntity
      */
-    private void alarmManagerSet(Calendar calendar) {
+    private void alarmManagerSet(AlarmManagerSetDataEntity closestEntity) {
         Log.d(TAG, "AlarmManagerSet");
 
         // PendingIntent生成。
         Context context = MyApplication.getContext();
         Intent intent = new Intent(context, AlarmService.class);
+
+        intent.putExtra("COLUMN_INDEX_ID", closestEntity.getmId());
 
         PendingIntent pendingintent = PendingIntent.getService(
                 context, ClockUtil.PendingIntentRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -118,10 +132,10 @@ class AlarmServiceSetter {
         AlarmManager alarmmanager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmmanager.set(
                 AlarmManager.RTC,
-                calendar.getTimeInMillis(),
+                closestEntity.getmCalender().getTimeInMillis(),
                 pendingintent);
 
-        Log.d(TAG, "Set " + calendar.getTime() + " to AlarmManager");
+        Log.d(TAG, "Set " + closestEntity.getmCalender().getTime() + " to AlarmManager");
     }
 
     /**

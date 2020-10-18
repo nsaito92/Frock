@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 
 /**
@@ -20,7 +22,7 @@ public class AlarmService extends Service {
     private static final String TAG = "AlarmService";
 
     // アラーム実行音の再生用MediaPlayer
-    private MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer = null;
 
     //Serviceクラスは抽象メソッドのため、コンストラクタとonBind()メソッドを必ず実装する必要がある
     public AlarmService() {
@@ -49,8 +51,13 @@ public class AlarmService extends Service {
             // PendingIntentによるServiceが起動したため、flagを無効化する
             ClockUtil.setAlarmPendingIntent(false);
 
+            Log.d(TAG, "intent.getIntExtra : COLUMN_INDEX_ID = " + intent.getIntExtra("COLUMN_INDEX_ID", 0));
+
+            // 最後に鳴動したアラームのindexを保存し、スヌーズの際に参照する。
+            ClockUtil.setPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.LAST_ALARM_INDEX, intent.getIntExtra("COLUMN_INDEX_ID", 0));
+
             //音楽再生
-            audioPlay();
+            audioPlay(intent.getIntExtra("COLUMN_INDEX_ID", 0));
 
             // 通知を表示する
             NotificationManagerController controller = new NotificationManagerController(MyApplication.getContext());
@@ -88,26 +95,18 @@ public class AlarmService extends Service {
                 getString(R.string.stopped_the_alarm), Toast.LENGTH_SHORT).show();
     }
 
-    private boolean audioSetup() {
+    private boolean audioSetup(int indexID) {
         Log.d(TAG, "audioSetup");
+
         mediaPlayer = new MediaPlayer(); // MP状態 → Idle
-
         boolean filecheck = false;
-        AssetManager assetManager = MyApplication.getContext().getAssets();
-
-        // Alarm時の音楽ファイル名を指定
-        String filePath = "su650.mp3";
 
         try{
-            // assetからMP3ファイルを読み込む
-            AssetFileDescriptor assetFileDescriptor = assetManager.openFd(filePath);
+            // MediaPlayerにDBの保存した音楽ファイルか、assetのファイルのどちらかをsetする。
+            mediaPlayer.setDataSource(createFileDescriptor(indexID)); // 状態 → Initialized
 
-            Log.d(TAG, "assetFileDescriptor = " + assetFileDescriptor);
-
-            // MediaPlayerに読み込んだ音楽ファイルを指定
-            mediaPlayer.setDataSource(assetFileDescriptor.getFileDescriptor()); // 状態 → Initialized
-            assetFileDescriptor.getStartOffset();
-            assetFileDescriptor.getLength();
+//            assetFileDescriptor.getStartOffset();
+//            assetFileDescriptor.getLength();
 
             // 再生準備、再生可能状態になるまでブロック
             mediaPlayer.prepare(); // MP状態 → Prepared
@@ -118,11 +117,11 @@ public class AlarmService extends Service {
         return filecheck;
     }
 
-    private void audioPlay() {
+    private void audioPlay(int indexID) {
         Log.d(TAG, "audioPlay");
         if(mediaPlayer == null){
             // audioファイルの呼び出し
-            if(audioSetup()){
+            if(audioSetup(indexID)){
                 Log.d(TAG, "read Audio File");
             } else {
                 Log.d(TAG, "Error : read Audio File");
@@ -154,5 +153,52 @@ public class AlarmService extends Service {
             mediaPlayer.release();
             mediaPlayer = null;
         }
+    }
+
+    /**
+     * アラーム用のMediaPlayerにセットするFileDescriptorを生成する。
+     * DBに永続化されている音楽ファイルもしくは、assetのファイルを使用する。
+     * @return ローカルファイル、もしくはassetファイルを元に生成したFileDescriptorオブジェクト
+     * @param indexID
+     * @throws IOException
+     */
+    public FileDescriptor createFileDescriptor(int indexID) throws IOException {
+        Log.d(TAG, "createFileDescriptor");
+
+        Log.d(TAG, "indexID = " + indexID);
+
+        FileDescriptor fileDescriptor = null;
+
+        // DBに永続化されている音楽ファイルの情報を取得して、FileDescriptor オブジェクトを生成する。
+        FrockSettingsHelperController controller = new FrockSettingsHelperController();
+        AlarmSettingEntity entity = controller.getAlarmSettingEntity(String.valueOf(indexID));
+
+        Log.d(TAG, "entity.getmSoundUri() = " + entity.getmSoundUri()); // TODO
+
+        // entity のURIが読み取れる状態の場合、ローカルのファイルを使用する。
+        if (!entity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
+            ContentResolverController resolverController = new ContentResolverController();
+
+            // FileDescriptor 取得に完了した場合は、そちらの結果を元に音楽を再生する。
+            if (resolverController.isReallyFileAndFileDisable(entity, true)) {
+                fileDescriptor = resolverController.getFileDescriptor();
+                Log.d(TAG, "fileDescriptor = Local File");
+            }
+        }
+
+        // DB から取得取得出来なければ、assetのファイルを使用する。
+        if (fileDescriptor == null){
+            AssetManager assetManager = MyApplication.getContext().getAssets();
+
+            // Alarm時の音楽ファイル名を指定
+            String filePath = "su650.mp3";
+
+            // assetからMP3ファイルを読み込む
+            AssetFileDescriptor assetFileDescriptor = assetManager.openFd(filePath);
+            fileDescriptor = assetFileDescriptor.getFileDescriptor();
+            Log.d(TAG, "fileDescriptor = asset File");
+        }
+
+        return fileDescriptor;
     }
 }

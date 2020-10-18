@@ -1,5 +1,6 @@
 package com.example.naotosaito.clocktest;
 
+import android.app.AlarmManager;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -53,7 +54,7 @@ public class FrockSettingsHelperController {
     private Cursor getCursor(String position) {
         Log.d(TAG, "getCursor");
         getWritableDatabase();
-        Cursor cursor;
+        Cursor cursor = null;
 
         if (position == null) {
             cursor = db.query(FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
@@ -107,7 +108,7 @@ public class FrockSettingsHelperController {
      * @param week
      * @return
      */
-    public boolean insertData(String table_name, int status, int hour, int minute, String week) {
+    public boolean insertData(String table_name, int status, int hour, int minute, String week, String uri) {
         Log.d(TAG, "insertData");
         boolean result = true;
 
@@ -118,6 +119,7 @@ public class FrockSettingsHelperController {
         values.put(FrockSettingsOpenHelper.COLUMN_NAME_HOUR, hour);
         values.put(FrockSettingsOpenHelper.COLUMN_NAME_MINUTE, minute);
         values.put(FrockSettingsOpenHelper.COLUMN_NAME_WEEK, week);
+        values.put(FrockSettingsOpenHelper.COLUMN_NAME_SOUND, uri);
 
         db.beginTransaction();
 
@@ -141,19 +143,20 @@ public class FrockSettingsHelperController {
      * @param hour
      * @param minute
      * @param week
+     * @param uri
      */
-    public boolean updateData(String table_name, int id, int status, int hour, int minute, String week) {
+    public boolean updateData(String table_name, int id, int status, int hour, int minute, String week, String uri) {
 
         boolean result = true;
 
         getWritableDatabase();
-        Cursor cursor = getCursor(String.valueOf(id));
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_STATUS, status);
         contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_HOUR, hour);
         contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_MINUTE, minute);
         contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_WEEK, week);
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_SOUND, uri);
 
         try {
             db.update(
@@ -164,12 +167,62 @@ public class FrockSettingsHelperController {
         } catch (SQLException e) {
             result = false;
         } finally {
-            cursor.close();
             dbClose();
         }
 
         return result;
     }
+
+    /**
+     * 読み取れなかったURIをURIを無効な情報に書き換える。
+     * @param entity
+     * @return
+     */
+    public boolean disableUri(AlarmSettingEntity entity) {
+        Log.d(TAG, "disableUri");
+
+        boolean result = false;
+
+        // 既存のEntityを取得。
+        if (entity == null) {
+            Log.w(TAG, "entity == null");   // TODO
+            return result;
+        }
+
+        Log.w(TAG, "entity.getmId = " + entity.getmId());   // TODO
+
+        // 読み取れなかったURIを更新。それ以外のデータ永続化済みの状態のままとする。
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_STATUS, entity.getmStatus());
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_HOUR, entity.getmHour());
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_MINUTE, entity.getmMinute());
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_WEEK, entity.getmWeek());
+        contentValues.put(FrockSettingsOpenHelper.COLUMN_NAME_SOUND, FrockSettingsOpenHelper.INVALID_URI);
+
+        getWritableDatabase();
+        db.beginTransaction();  // トランザクション開始
+        try {
+            int affected = 0;
+            affected = db.update(
+                        FrockSettingsOpenHelper.ALARMSETTINGS_TABLE_NAME,
+                        contentValues,
+                        FrockSettingsOpenHelper._ID + " = " + String.valueOf(entity.getmId()),
+                        null);
+            Log.w(TAG, "affected = " + affected);   // TODO
+            if (affected > 0) {
+                db.setTransactionSuccessful();
+                result = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();    //トランザクション完了
+            dbClose();
+        }
+        Log.w(TAG, "result = " + result);   // TODO
+        return result;
+    }
+
     /**
      * 指定された位置のDB情報を削除する。
      * @param position
@@ -210,6 +263,7 @@ public class FrockSettingsHelperController {
             entity.setmHour(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR));
             entity.setmMinute(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE));
             entity.setmWeek(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
+            entity.setmSoundUri(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_SOUND));
         } finally {
             cursor.close();
             dbClose();
@@ -236,7 +290,8 @@ public class FrockSettingsHelperController {
                             cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_STATUS),
                             cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_HOUR),
                             cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_MINUTE),
-                            cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK)
+                            cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK),
+                            cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_SOUND)
                     );
 
                     alarmSettingEntityList.add(alarmSettingEntity);
@@ -385,13 +440,13 @@ public class FrockSettingsHelperController {
      * DBにアラームONで保存されている設定の中で、最も鳴動予定が近いCalenderを返却する。
      * @return
      */
-    public Calendar getClosestCalender() {
+    public AlarmManagerSetDataEntity getClosestCalender() {
         Log.d(TAG, "getValidCalender");
 
-        Calendar closestCalender = Calendar.getInstance();
+        AlarmManagerSetDataEntity closestEntity = null;
 
         // ONで保存されているアラーム設定のCalenderオブジェクト。
-        ArrayList<Calendar> validCalenderList = new ArrayList<>();
+        ArrayList<AlarmManagerSetDataEntity> alarmManagerSetDataList = new ArrayList<>();
 
         // ONで保存されているアラーム設定の取得依頼。
         Cursor cursor = null;
@@ -403,10 +458,17 @@ public class FrockSettingsHelperController {
             if (cursor.moveToFirst()) {
                 // DBデータを元にCalender生成
                 for (int cnt = 0; cnt < cursor.getCount(); cnt++) {
+
                     Calendar alarmCld = Calendar.getInstance();
+
+                    // DBから取得データをのset用Entity。
+                    AlarmManagerSetDataEntity entity = new AlarmManagerSetDataEntity();
 
                     // 有効になっている曜日データを取得
                     String alm_week[] = ClockUtil.convertStringToArray(cursor.getString(FrockSettingsOpenHelper.COLUMN_INDEX_WEEK));
+
+                    // DBのIDを設定
+                    entity.setmId(cursor.getInt(FrockSettingsOpenHelper.COLUMN_INDEX_ID));
 
                     // 曜日ごとにCalenderを生成
                     for (int cnt2=0; cnt2<alm_week.length; cnt2++) {
@@ -435,12 +497,14 @@ public class FrockSettingsHelperController {
                         }
                     }
                     // レコードごとのAlarmManagerセット候補をセットする。
-                    validCalenderList.add(alarmCld);
+                    entity.setmCalender(alarmCld);
+                    alarmManagerSetDataList.add(entity);
+
                     cursor.moveToNext();
                 }
 
                 // 各レコードごとの最も近いアラーム設定の中で、一番近い鳴動予定を判断する。
-                closestCalender = ClockUtil.isClosestCalender(validCalenderList);
+                closestEntity = ClockUtil.isClosestCalender(alarmManagerSetDataList);
 
             } else {
                 // クエリの結果が何も取得できなければ、データなしでreturn
@@ -452,7 +516,7 @@ public class FrockSettingsHelperController {
             dbClose();
         }
 
-        return closestCalender;
+        return closestEntity;
     }
 
     /**
