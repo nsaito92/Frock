@@ -60,8 +60,8 @@ public class AlarmService extends Service {
             audioPlay(intent.getIntExtra("COLUMN_INDEX_ID", 0));
 
             // 通知を表示する
-            NotificationManagerController controller = new NotificationManagerController(MyApplication.getContext());
-            controller.createNotificationAlarmRinging();
+            NotificationManagerController notificationManagerController = new NotificationManagerController(MyApplication.getContext());
+            notificationManagerController.createNotificationAlarmRinging();
 
             // アラーム鳴動通知ダイアログを表示
             Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);

@@ -55,6 +55,11 @@
         <item>土曜日</item>
     </string-array>
 
+    <!-- Notification -->
+    <string name="channel_name_alarmringing">アラーム鳴動中</string>
+
+
+
     <!-- etc -->
 
 </resources>
