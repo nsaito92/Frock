@@ -20,16 +20,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".AlarmPreferenceActivity"></activity>
         <activity
-            android:name=".AlarmPreferenceActivity">
-        </activity>
-        <activity
-            android:name="com.example.naotosaito.clocktest.CallAlarmDialogActivity"
+            android:name=".CallAlarmDialogActivity"
+            android:launchMode="singleInstance"
             android:theme="@style/DialogTheme">
             <intent-filter>
                 <action android:name="org.bitbucket.snaoto22.frock.CALL_ALARMDIALOG_FINISH"></action>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".PermissionDescriptionActivity"
+            android:launchMode="standard"
+            android:exported="false"
+            android:theme="@style/DialogTheme"></activity>
 
         <receiver
             android:name=".AlarmBroadcastReceiver"

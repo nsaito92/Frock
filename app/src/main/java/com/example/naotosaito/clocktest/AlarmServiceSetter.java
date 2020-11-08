@@ -78,6 +78,10 @@ class AlarmServiceSetter {
             // スヌーズ回数の上限に達したため、カウントをリセット
             ClockUtil.setPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.SNOOZE_COUNT, 0);
 
+            // 通知のキャンセル
+            NotificationManagerController notificationManagerController = new NotificationManagerController(MyApplication.getContext());
+            notificationManagerController.notificationCansel(NotificationManagerController.NotificationID.SNOOZE);
+
             // DBのクエリを叩いて、ONになっているアラーム設定を取得。
             FrockSettingsHelperController controller = new FrockSettingsHelperController();
             closestEntity = controller.getClosestCalender();

@@ -10,6 +10,8 @@
     <string name="time">時間</string>
     <string name="week">曜日</string>
     <string name="alarm_is_ringing">アラーム鳴動中</string>
+    <string name="storage">ストレージ</string>
+    <string name="reason_storage">内部ストレージのファイル参照</string>
 
     <string name="setting_delete">設定を削除</string>
     <string name="message_setting_delete">削除しますか?</string>

@@ -1,12 +1,15 @@
 package com.example.naotosaito.clocktest;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -66,7 +69,7 @@ public class AlarmService extends Service {
             // アラーム鳴動通知ダイアログを表示
             Intent intent_alarmdialogactivity = new Intent(this, CallAlarmDialogActivity.class);
             intent_alarmdialogactivity.putExtra("requestcode", ClockUtil.PendingIntentRequestCode.ALARMSERVICE);
-            intent_alarmdialogactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent_alarmdialogactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent_alarmdialogactivity);
         } else {
             onDestroy();
@@ -169,20 +172,25 @@ public class AlarmService extends Service {
 
         FileDescriptor fileDescriptor = null;
 
-        // DBに永続化されている音楽ファイルの情報を取得して、FileDescriptor オブジェクトを生成する。
-        FrockSettingsHelperController controller = new FrockSettingsHelperController();
-        AlarmSettingEntity entity = controller.getAlarmSettingEntity(String.valueOf(indexID));
+        // ストレージ権限がある場合のみ、ファイル読み込み処理を行う。
+        int permission = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permission == PackageManager.PERMISSION_GRANTED) {
 
-        Log.d(TAG, "entity.getmSoundUri() = " + entity.getmSoundUri()); // TODO
+            // DBに永続化されている音楽ファイルの情報を取得して、FileDescriptor オブジェクトを生成する。
+            FrockSettingsHelperController controller = new FrockSettingsHelperController();
+            AlarmSettingEntity entity = controller.getAlarmSettingEntity(String.valueOf(indexID));
 
-        // entity のURIが読み取れる状態の場合、ローカルのファイルを使用する。
-        if (!entity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
-            ContentResolverController resolverController = new ContentResolverController();
+            Log.d(TAG, "entity.getmSoundUri() = " + entity.getmSoundUri()); // TODO
 
-            // FileDescriptor 取得に完了した場合は、そちらの結果を元に音楽を再生する。
-            if (resolverController.isReallyFileAndFileDisable(entity, true)) {
-                fileDescriptor = resolverController.getFileDescriptor();
-                Log.d(TAG, "fileDescriptor = Local File");
+            // entity のURIが読み取れる状態の場合、ローカルのファイルを使用する。
+            if (!entity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
+                ContentResolverController resolverController = new ContentResolverController();
+
+                // FileDescriptor 取得に完了した場合は、そちらの結果を元に音楽を再生する。
+                if (resolverController.isReallyFileAndFileDisable(entity, true)) {
+                    fileDescriptor = resolverController.getFileDescriptor();
+                    Log.d(TAG, "fileDescriptor = Local File");
+                }
             }
         }
 

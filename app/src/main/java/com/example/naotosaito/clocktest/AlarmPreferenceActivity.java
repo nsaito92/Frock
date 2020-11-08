@@ -1,15 +1,20 @@
 package com.example.naotosaito.clocktest;
 
+import android.Manifest;
 import android.app.FragmentManager;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.os.Bundle;
 import android.preference.SwitchPreference;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -153,11 +158,36 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#onPreferencelick_btn_alarm_sound");
 
-                // サウンドファイルの選択は、端末のファイラーアプリに任せるため、起動Intent発行。
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("audio/*");
-                startActivityForResult(intent, ClockUtil.PendingIntentRequestCode.RESULT_PICK_SOUNDFILE);
+                // サウンドファイルの選択は、端末のファイラーアプリに任せる。
+                // ストレージ権限が無い場合は付与処理を行い、起動Intent発行。
+                int permission = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+                if (permission == PackageManager.PERMISSION_GRANTED) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("audio/*");
+                    startActivityForResult(intent, ClockUtil.PendingIntentRequestCode.RESULT_PICK_SOUNDFILE);
+
+                } else if (ActivityCompat.shouldShowRequestPermissionRationale(AlarmPreferenceActivity.this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    // 権限が未付与だった場合は、権限説明UIを表示する必要があるかチェック。
+                    // 権限説明UIを表示する必要がある場合は、Activity起動処理を行う。
+                    Intent intent = new Intent(MyApplication.getContext(), PermissionDescriptionActivity.class);
+                    intent.putExtra(ClockUtil.IntentKey.PERMISSION_NAME, getResources().getString(R.string.storage));
+                    intent.putExtra(ClockUtil.IntentKey.REASON, getResources().getString(R.string.reason_storage));
+                    intent.putExtra(ClockUtil.IntentKey.PERMISSION, Manifest.permission.READ_EXTERNAL_STORAGE);
+                    intent.putExtra(ClockUtil.IntentKey.REQUEST_CODE, 1);
+                    startActivity(intent);
+                } else {
+                    // 権限説明UIを表示する必要無し。権限の要求処理のみ行う。
+
+                    // shouldShowRequestPermissionRationaleは、ランタイム権限要求時に「今後表示しない」を選択された場合にもfalseとなるため、
+                    // ユーザーへ設定アプリからの権限付与が必要となる旨を、トーストで通知する。
+                    ClockUtil.ToastShow("権限がありません。設定アプリより付与してください。");
+
+                    ActivityCompat.requestPermissions(AlarmPreferenceActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            1);
+                }
 
                 return true;
             }
@@ -251,25 +281,15 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-        // Preferenceの値が変更された時に呼び出されるコールバック関数をregist
-        // TODO DB移行が完了したら、修正。
-        SharedPreferences prefer_hour = getSharedPreferences("hour", MODE_PRIVATE);
-        prefer_hour.registerOnSharedPreferenceChangeListener(listener);
-
-        SharedPreferences prefer_minute = getSharedPreferences("minute", MODE_PRIVATE);
-        prefer_minute.registerOnSharedPreferenceChangeListener(listener);
-
-        SharedPreferences prefer_week = getSharedPreferences("week", MODE_PRIVATE);
-        prefer_week.registerOnSharedPreferenceChangeListener(listener);
 
         // AlarmServiceが起動中・Pending中共にない場合は、トグルボタンを更新する。
         if (!ClockUtil.isYourServiceWorking() && !ClockUtil.getAlarmPendingIntent()) {
             ClockUtil.setPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY, false);
         }
-        Log.d(TAG, "getAlarmServiceBoolean() = " + ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY));
         // アラームON/OFFボタンの状態を更新。
         alarmbutton.setChecked(ClockUtil.getPrefBoolean("alarmservice", ClockUtil.ALARM_SERVICE_KEY));
 
+        // 各設定項目の情報を更新。
         updateSettingsView();
     }
 
@@ -392,8 +412,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         if (week != null) {
             StringBuilder stringBuilder = new StringBuilder();
 
-            Log.d(TAG, "week = " + week);
-
             // 配列の値を一通りチェック
             for (int i=0; i<week.length; i++) {
                 // 配列の中身をチェック、値によって曜日の文字列に変換する。
@@ -424,16 +442,25 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             // 変換した文字列を統合して、画面に表示する。
             btn_alarm_start_week_key.setSummary(stringBuilder.toString());
 
-            // 音楽ファイルURI。URIが無効化されていれば、「設定無し」、それ以外であればファイル名を表示。
-            if (soundUri == null || soundUri.equals(FrockSettingsOpenHelper.INVALID_URI)) {
-                btn_alarm_sound.setSummary("設定無し");
+            // 音楽ファイルURI。ストレージ権限の付与状態をチェック。付与されている場合のみ、URIのチェック処理を行う。
+            int permission = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (permission == PackageManager.PERMISSION_GRANTED) {
+
+                // URIが無効化されていれば、「設定無し」、それ以外であればURIを元にファイル名取得処理を行う。
+                if (soundUri == null || soundUri.equals(FrockSettingsOpenHelper.INVALID_URI)) {
+                    btn_alarm_sound.setSummary("設定無し");
+                } else {
+
+                    // URIからファイル名取得。
+                    ContentResolverController controller = new ContentResolverController();
+                    Uri uri = Uri.parse(soundUri);
+                    String setFileName = controller.getFileNameFromUri(uri);
+                    btn_alarm_sound.setSummary(setFileName);
+                }
             } else {
 
-                // URIからファイル名取得。
-                ContentResolverController controller = new ContentResolverController();
-                Uri uri = Uri.parse(soundUri);
-                String setFileName = controller.getFileNameFromUri(uri);
-                btn_alarm_sound.setSummary(setFileName);
+                // 権限が泣いため、URIからのファイル名読み込み処理は行わない。
+                btn_alarm_sound.setSummary("設定無し");
             }
         }
     }
