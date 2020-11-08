@@ -55,6 +55,15 @@ public class ClockUtil {
         public static final String SNOOZE_FINISH = "org.bitbucket.snaoto22.frock.SNOOZE_FINISH";
     }
 
+
+    // Intent Key
+    public class IntentKey {
+        final static String PERMISSION_NAME = "PERMISSION_NAME";
+        final static String REASON = "REASON";
+        final static String PERMISSION = "PERMISSION";
+        final static String REQUEST_CODE = "REQUEST_CODE";
+    }
+
     // PackageName
     public class PackageNames {
         public static final String COM_ANDROID_EXTERNALSTORAGE_DOCUMENTS = "com.android.externalstorage.documents";

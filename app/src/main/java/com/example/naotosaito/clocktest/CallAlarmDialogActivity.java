@@ -79,7 +79,9 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
         // アラーム鳴動中ダイアログの生成
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 
-        return alertBuilder.setTitle("アラーム鳴動中")
+        return alertBuilder.setTitle("Frock")
+                .setIcon(R.mipmap.ic_launcher)
+                .setMessage("アラーム鳴動中です")
                 .setCancelable(false)
                 .setPositiveButton("停止", new DialogInterface.OnClickListener() {
                     @Override

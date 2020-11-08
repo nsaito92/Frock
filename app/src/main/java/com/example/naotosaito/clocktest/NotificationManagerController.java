@@ -127,8 +127,6 @@ class NotificationManagerController {
      */
     public void notificationCansel(int id) {
         Log.d(TAG, "notificationCansel");
-
-        NotificationManager manager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(id);
     }
 
