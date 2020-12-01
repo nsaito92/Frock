@@ -164,6 +164,8 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 if (permission == PackageManager.PERMISSION_GRANTED) {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
                     intent.setType("audio/*");
                     startActivityForResult(intent, ClockUtil.PendingIntentRequestCode.RESULT_PICK_SOUNDFILE);
 
@@ -266,9 +268,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 return true;
             }
         });
-
-        // アラーム鳴動時間、曜日設定の表示を、最新に更新。
-        updateSettingsView();
     }
 
     @Override
@@ -346,6 +345,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 // URIからファイルパスが取得出来るか確認。存在していない場合は、entityにその旨をset。
                 ContentResolverController controller = new ContentResolverController();
 
+                // 取得したURIの永続的パーミッションを得る。
+                controller.takePersistableUriPermission(uri);
+
                 if (!controller.isReallyFileAndFileDisable(alarmSettingEntity, false)) {
                     alarmSettingEntity.setmSoundUri(FrockSettingsOpenHelper.INVALID_URI);
                 }
@@ -353,9 +355,6 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
         } else {
             alarmSettingEntity.setmSoundUri(FrockSettingsOpenHelper.INVALID_URI);
         }
-
-        // URIをString形式でキャッシュに保存して、画面を更新。
-        updateSettingsView();
     }
 
     /**

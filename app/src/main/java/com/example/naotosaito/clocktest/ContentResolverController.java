@@ -1,6 +1,7 @@
 package com.example.naotosaito.clocktest;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
@@ -13,6 +14,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 
 /**
  * ContentResolverを使用した処理を行うクラス。
@@ -154,10 +156,12 @@ class ContentResolverController {
 
         switch (sheme) {
             case "content":
+                // Mediaのproviderからカラム「_display_name」のデータを取得する。
                 String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
                 Cursor cursor = null;
 
                 try {
+                    // 条件
                     cursor = contentResolver.query(
                             uri,
                             projection,
@@ -169,6 +173,9 @@ class ContentResolverController {
                     if (cursor != null && cursor.moveToFirst()) {
                         filename = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME));
                     }
+
+                } catch (SecurityException e) {
+                    e.printStackTrace();
                 } finally {
                     if (cursor != null) {
                         cursor.close();
@@ -185,5 +192,16 @@ class ContentResolverController {
         }
 
         return filename;
+    }
+
+    /**
+     * ファイラーから取得したファイルURIの永続的パーミッションを得る。
+     */
+    public void takePersistableUriPermission(Uri uri) {
+        Log.d(TAG, "takePersistableUriPermission");
+
+        if (uri != null) {
+            contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
     }
 }
