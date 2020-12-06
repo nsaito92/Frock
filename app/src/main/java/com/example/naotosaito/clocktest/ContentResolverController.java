@@ -2,6 +2,7 @@ package com.example.naotosaito.clocktest;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.UriPermission;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
@@ -15,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 /**
  * ContentResolverを使用した処理を行うクラス。
@@ -54,6 +56,10 @@ class ContentResolverController {
             // disableUri フラグが立つのは、原則アラーム鳴動時のみ。
             FrockSettingsHelperController controller = new FrockSettingsHelperController();
             controller.disableUri(entity);
+
+            // 永続的なアクセス許可設定を行なっていたURIをリリースする。
+            ContentResolverController resolverController = new ContentResolverController();
+            resolverController.releasePersistableUriPermission(Uri.parse(entity.getmSoundUri()));
         }
         return result;
     }
@@ -200,8 +206,46 @@ class ContentResolverController {
     public void takePersistableUriPermission(Uri uri) {
         Log.d(TAG, "takePersistableUriPermission");
 
-        if (uri != null) {
+        // アクセス権限未付与のURIの場合、権限付与APIを実行。
+        if (!isPersistedUriPermissions(uri)) {
             contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
+    }
+
+    /**
+     * 指定されたURIの永続的パーミッションをリリースする。
+     */
+    public void releasePersistableUriPermission(Uri uri) {
+        Log.d(TAG, "releasePersistableUriPermission");
+
+        // アクセス権限済みのURIの場合、権限リリースAPIを実行。
+        if (isPersistedUriPermissions(uri)) {
+            contentResolver.releasePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+    }
+
+    /**
+     * 渡されたURIが永続的なURI権限が保持されているかチェックする。
+     * @return true : 権限付与済み、false : 権限未付与
+     */
+    public boolean isPersistedUriPermissions(Uri uri) {
+        Log.d(TAG, "isPersistedUriPermissions");
+
+        boolean result = false;
+
+        if (uri != null) {
+            // 永続的なアクセス許可済みのURI一覧を取得。
+            List<UriPermission> uriPermissionList = contentResolver.getPersistedUriPermissions();
+
+            // 対象のURIがすでにアクセス許可済みだった場合は、true。
+            if (uriPermissionList != null) {
+                for (UriPermission uriPermission : uriPermissionList) {
+                    if (String.valueOf(uriPermission.getUri()).equals(String.valueOf(uri))) {
+                        result = true;
+                    }
+                }
+            }
+        }
+        return result;
     }
 }

@@ -212,6 +212,7 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                 String position = intent.getStringExtra("position");
 
                 FrockSettingsHelperController controller = new FrockSettingsHelperController();
+                ContentResolverController resolverController = new ContentResolverController();
 
                 // 呼び出し元が存在していた → DBの既存データを更新を行う。
                 if (position != null) {
@@ -225,6 +226,12 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                                     alarmSettingEntity.getmSoundUri()
                             ))
                     {
+                        // 権限の永続化済みでないURIに限り、許可取得したURIの永続的パーミッションを得る。
+                        if (!alarmSettingEntity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
+                            Uri uri = Uri.parse(alarmSettingEntity.getmSoundUri());
+                            resolverController.takePersistableUriPermission(uri);
+                        }
+
                         Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
                         toast.show();
                         finish();
@@ -245,6 +252,12 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                                     alarmSettingEntity.getmSoundUri()
                             ))
                     {
+                        // 権限の永続化済みでないURIに限り、許可取得したURIの永続的パーミッションを得る。
+                        if (!alarmSettingEntity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
+                            Uri uri = Uri.parse(alarmSettingEntity.getmSoundUri());
+                            resolverController.takePersistableUriPermission(uri);
+                        }
+
                         Toast toast = Toast.makeText(MyApplication.getContext(), "保存成功しました。", Toast.LENGTH_SHORT);
                         toast.show();
                         finish();
@@ -339,22 +352,20 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             Uri uri = intent.getData();
 
             if (uri != null) {
-                // 音楽ファイルのURI情報表示。
                 alarmSettingEntity.setmSoundUri(uri.toString());
 
                 // URIからファイルパスが取得出来るか確認。存在していない場合は、entityにその旨をset。
                 ContentResolverController controller = new ContentResolverController();
 
-                // 取得したURIの永続的パーミッションを得る。
-                controller.takePersistableUriPermission(uri);
+                if (controller.isReallyFileAndFileDisable(alarmSettingEntity, false)) {
 
-                if (!controller.isReallyFileAndFileDisable(alarmSettingEntity, false)) {
-                    alarmSettingEntity.setmSoundUri(FrockSettingsOpenHelper.INVALID_URI);
+                    // 音楽ファイルのURI情報表示。
+                    alarmSettingEntity.setmSoundUri(uri.toString());
+                    return;
                 }
             }
-        } else {
-            alarmSettingEntity.setmSoundUri(FrockSettingsOpenHelper.INVALID_URI);
         }
+        alarmSettingEntity.setmSoundUri(FrockSettingsOpenHelper.INVALID_URI);
     }
 
     /**
@@ -442,25 +453,26 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             btn_alarm_start_week_key.setSummary(stringBuilder.toString());
 
             // 音楽ファイルURI。ストレージ権限の付与状態をチェック。付与されている場合のみ、URIのチェック処理を行う。
+            String setFileName = null;
             int permission = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
             if (permission == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "PERMISSION_GRANTED");
 
                 // URIが無効化されていれば、「設定無し」、それ以外であればURIを元にファイル名取得処理を行う。
-                if (soundUri == null || soundUri.equals(FrockSettingsOpenHelper.INVALID_URI)) {
-                    btn_alarm_sound.setSummary("設定無し");
-                } else {
+                if (soundUri != null && !soundUri.equals(FrockSettingsOpenHelper.INVALID_URI)) {
 
                     // URIからファイル名取得。
                     ContentResolverController controller = new ContentResolverController();
                     Uri uri = Uri.parse(soundUri);
-                    String setFileName = controller.getFileNameFromUri(uri);
-                    btn_alarm_sound.setSummary(setFileName);
+                    setFileName = controller.getFileNameFromUri(uri);
                 }
-            } else {
-
-                // 権限が泣いため、URIからのファイル名読み込み処理は行わない。
-                btn_alarm_sound.setSummary("設定無し");
             }
+
+            if (setFileName == null) {
+                // 権限が泣いため、URIからのファイル名読み込み処理は行わない。
+                setFileName = "設定無し";
+            }
+            btn_alarm_sound.setSummary(setFileName);
         }
     }
 

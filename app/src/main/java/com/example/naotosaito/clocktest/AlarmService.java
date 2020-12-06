@@ -182,9 +182,11 @@ public class AlarmService extends Service {
 
             Log.d(TAG, "entity.getmSoundUri() = " + entity.getmSoundUri()); // TODO
 
-            // entity のURIが読み取れる状態の場合、ローカルのファイルを使用する。
-            if (!entity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
-                ContentResolverController resolverController = new ContentResolverController();
+            ContentResolverController resolverController = new ContentResolverController();
+
+            // entity のURIが読み取れる状態かつ、永続的な許可設定済の場合、ローカルのファイルを使用する。
+            if (!entity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)
+                    && resolverController.isPersistedUriPermissions(Uri.parse(entity.getmSoundUri()))) {
 
                 // FileDescriptor 取得に完了した場合は、そちらの結果を元に音楽を再生する。
                 if (resolverController.isReallyFileAndFileDisable(entity, true)) {
