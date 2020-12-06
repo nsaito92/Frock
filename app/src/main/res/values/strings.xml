@@ -44,6 +44,7 @@
     <string name="alarm_setting_save_name">保存</string>
     <string name="alarm_setting_save_summary">アラーム設定を保存する</string>
     <string name="alarm_setting_save_max">アラーム設定は%1$d件までです。</string>
+    <string name="alarm_setting_no_week">曜日は一つは選択してください。</string>
 
     <!-- alarm week setting dialog -->
     <string name="alarm_Week_setting_title">曜日</string>
