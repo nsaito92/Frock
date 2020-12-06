@@ -207,6 +207,12 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
             public boolean onPreferenceClick(Preference pref) {
                 Log.d(TAG, "onCreate#onPreferencelick_btn_alarm_setting_save");
 
+                // バリデーションチェックで問題なかった場合のみ、後続の処理を行う。
+                if (!ValidationCheckController.checkEntityWeeks(alarmSettingEntity)) {
+                    ClockUtil.ToastShow(MyApplication.getContext().getString(R.string.alarm_setting_no_week));
+                    return false;
+                }
+
                 // 呼び元の画面が存在しているかチェックする。
                 Intent intent = getIntent();
                 String position = intent.getStringExtra("position");
@@ -227,7 +233,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                             ))
                     {
                         // 権限の永続化済みでないURIに限り、許可取得したURIの永続的パーミッションを得る。
-                        if (!alarmSettingEntity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
+                        if (alarmSettingEntity.getmSoundUri() != null
+                            && !alarmSettingEntity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
+
                             Uri uri = Uri.parse(alarmSettingEntity.getmSoundUri());
                             resolverController.takePersistableUriPermission(uri);
                         }
@@ -253,7 +261,9 @@ public class AlarmPreferenceActivity extends PreferenceActivity {
                             ))
                     {
                         // 権限の永続化済みでないURIに限り、許可取得したURIの永続的パーミッションを得る。
-                        if (!alarmSettingEntity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
+                        if (alarmSettingEntity.getmSoundUri() != null
+                                && !alarmSettingEntity.getmSoundUri().equals(FrockSettingsOpenHelper.INVALID_URI)) {
+
                             Uri uri = Uri.parse(alarmSettingEntity.getmSoundUri());
                             resolverController.takePersistableUriPermission(uri);
                         }
