@@ -8,6 +8,7 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -43,18 +44,26 @@ public class AlarmService extends Service {
         //非同期処理を行うメソッド
         Log.d(TAG, "onStartCommand");
 
-        // 自身を監視するサービスを起動
-        Intent startServiceIntent = new Intent(this, AlarmServiceObserver.class);
-        this.startService(startServiceIntent);
-
-        if (ClockUtil.isYourServiceWorking()) {
+        if (ClockUtil.isYourServiceWorking()
+                || intent != null) {
             Toast.makeText(MyApplication.getContext(),
                     getString(R.string.started_the_alarm), Toast.LENGTH_SHORT).show();
 
+            // TODO デバッグ用に通知を表示。最後に起動した時間を通知に残す。
+            NotificationManagerController controller = new NotificationManagerController(MyApplication.getContext());
+//          controller.createNotificationDebug(100, "AlarmServieが起動しました");
+
+            if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT ) {
+                Log.d(TAG, "startForeground");
+                // TODO
+                startForeground(100, controller.createNotificationStartForegroundService("startForeground"));
+            }
+            // 自身を監視するサービスを起動
+            Intent startServiceIntent = new Intent(this, AlarmServiceObserver.class);
+            this.startService(startServiceIntent);
+
             // PendingIntentによるServiceが起動したため、flagを無効化する
             ClockUtil.setAlarmPendingIntent(false);
-
-            Log.d(TAG, "intent.getIntExtra : COLUMN_INDEX_ID = " + intent.getIntExtra("COLUMN_INDEX_ID", 0));
 
             // 最後に鳴動したアラームのindexを保存し、スヌーズの際に参照する。
             ClockUtil.setPrefInt("alarmservice", ClockUtil.SharedPreferencesKey.LAST_ALARM_INDEX, intent.getIntExtra("COLUMN_INDEX_ID", 0));
@@ -96,6 +105,11 @@ public class AlarmService extends Service {
 
         Toast.makeText(MyApplication.getContext(),
                 getString(R.string.stopped_the_alarm), Toast.LENGTH_SHORT).show();
+
+        if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT ) {
+            Log.d(TAG, "stopForeground");
+            stopForeground(true);
+        }
     }
 
     private boolean audioSetup(int indexID) {

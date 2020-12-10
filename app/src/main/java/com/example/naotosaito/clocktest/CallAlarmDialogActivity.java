@@ -87,8 +87,8 @@ public class CallAlarmDialogActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // アラームを終了して、Activityを終了する。
-                        Intent intent = new Intent(CallAlarmDialogActivity.this, AlarmService.class);
-                        stopService(intent);
+                        Intent stopIntent = new Intent(CallAlarmDialogActivity.this, AlarmService.class);
+                        stopService(stopIntent);
                         CallAlarmDialogActivity.this.finish();
 
                         // スヌーズカウントをリセット

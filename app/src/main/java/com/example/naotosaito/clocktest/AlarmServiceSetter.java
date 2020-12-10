@@ -125,20 +125,29 @@ class AlarmServiceSetter {
 
         // PendingIntent生成。
         Context context = MyApplication.getContext();
-        Intent intent = new Intent(context, AlarmService.class);
+        Intent startIntent = new Intent(context, AlarmService.class);
 
-        intent.putExtra("COLUMN_INDEX_ID", closestEntity.getmId());
+        startIntent.putExtra("COLUMN_INDEX_ID", closestEntity.getmId());
 
         PendingIntent pendingintent = PendingIntent.getService(
-                context, ClockUtil.PendingIntentRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                context, ClockUtil.PendingIntentRequestCode.ALARMSERVICE, startIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // AlarmServiceの起動予定をAlarmManagerにset。
         AlarmManager alarmmanager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmmanager.set(
-                AlarmManager.RTC,
-                closestEntity.getmCalender().getTimeInMillis(),
-                pendingintent);
 
+        // Oreo以降の場合はバッググラウンド制限がかかり、サービスが起動出来ない場合があるため、使用APIを変更する。
+        if (Build.VERSION_CODES.O <= Build.VERSION.SDK_INT) {
+            Log.d(TAG, "### AlarmService Oreo");
+            alarmmanager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC,
+                    closestEntity.getmCalender().getTimeInMillis(),
+                    pendingintent);
+        } else {
+            alarmmanager.set(
+                    AlarmManager.RTC,
+                    closestEntity.getmCalender().getTimeInMillis(),
+                    pendingintent);
+        }
         Log.d(TAG, "Set " + closestEntity.getmCalender().getTime() + " to AlarmManager");
     }
 
@@ -151,9 +160,9 @@ class AlarmServiceSetter {
         Context context = MyApplication.getContext();
 
         AlarmManager alarmmanager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmService.class);
+        Intent canselIntent = new Intent(context, AlarmService.class);
         PendingIntent pendingintent = PendingIntent.getService(
-                context, ClockUtil.PendingIntentRequestCode.ALARMSERVICE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                context, ClockUtil.PendingIntentRequestCode.ALARMSERVICE, canselIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         pendingintent.cancel();
         alarmmanager.cancel(pendingintent);
