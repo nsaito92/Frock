@@ -21,7 +21,7 @@
 
 ## 全体クラス図
 
-```
+```puml
 @startuml
 title クラス全体図
 
@@ -119,5 +119,58 @@ MainActivity -- AlarmSettingEntity
 AlarmPreferenceActivity -- AlarmSettingEntity
 
 @enduml
+
+```
+
+## 内部設計
+
+### アラーム設定機能
+
+#### シーケンス
+
+```puml
+
+@startuml
+
+title アラーム設定 シーケンス
+
+' asを使って、「actor」から、分類子の名前を変更することも出来る。
+actor       actor
+
+actor -> MainActivity: アプリ起動
+MainActivity -> MainActivity:onCreate()
+
+actor -> MainActivity:「アラーム設定」画面ボタンをタップ
+MainActivity -> AlarmPreferenceActivity:startActivity()
+AlarmPreferenceActivity -> AlarmPreferenceActivity:onCreate()
+
+alt アラーム設定新規作成
+    AlarmPreferenceActivity -> AlarmPreferenceActivity:AlarmSettingEntityオブジェクト新規作成
+else 既存アラーム設定編集
+    AlarmPreferenceActivity -> FrockSettingsHelperController:getAlarmSettingEntity()
+    FrockSettingsHelperController -> DB:アラーム設定取得
+    FrockSettingsHelperController <- DB:取得したデータでAlarmSettingEntityインスタンスを返却
+    AlarmPreferenceActivity <- FrockSettingsHelperController:AlarmSettingEntityインスタンスを返却
+end
+
+actor -> AlarmPreferenceActivity:各種設定を入力後「保存」をタップ。
+AlarmPreferenceActivity -> FrockSettingsHelperController:updateData()
+FrockSettingsHelperController -> DB:DBに書き込み。
+MainActivity <- AlarmPreferenceActivity:finish()
+
+AlarmPreferenceActivity ->AlarmServiceSetter:DBに保存したデータを元に、アラーム設定を開始
+AlarmServiceSetter -> FrockSettingsHelperController:getClosestCalender()
+AlarmServiceSetter <- FrockSettingsHelperController:AlarmManagerSetDataEntityインスタンスを返却
+AlarmServiceSetter -> AlarmManager:アラーム起動予定をset
+
+@enduml
+
+```
+
+### アラーム実行機能
+
+#### シーケンス
+
+```puml
 
 ```
