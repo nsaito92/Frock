@@ -137,32 +137,49 @@ title アラーム設定 シーケンス
 ' asを使って、「actor」から、分類子の名前を変更することも出来る。
 actor       actor
 
+activate actor
 actor -> MainActivity: アプリ起動
+activate MainActivity
 MainActivity -> MainActivity:onCreate()
 
 actor -> MainActivity:「アラーム設定」画面ボタンをタップ
 MainActivity -> AlarmPreferenceActivity:startActivity()
+activate AlarmPreferenceActivity
 AlarmPreferenceActivity -> AlarmPreferenceActivity:onCreate()
+
+'<-, ->	同期メッセージ	戻りを待つメッセージ。通常のメッセージです。
+'<--, -->	戻りメッセージ	メッセージの送り先からの戻り値
+'<<-, ->>	非同期メッセージ	同期されないメッセージ
 
 alt アラーム設定新規作成
     AlarmPreferenceActivity -> AlarmPreferenceActivity:AlarmSettingEntityオブジェクト新規作成
 else 既存アラーム設定編集
     AlarmPreferenceActivity -> FrockSettingsHelperController:getAlarmSettingEntity()
+    activate FrockSettingsHelperController
     FrockSettingsHelperController -> DB:アラーム設定取得
-    FrockSettingsHelperController <- DB:取得したデータでAlarmSettingEntityインスタンスを返却
-    AlarmPreferenceActivity <- FrockSettingsHelperController:AlarmSettingEntityインスタンスを返却
+    FrockSettingsHelperController <-- DB:1レコード分のデータを返却。
+    deactivate FrockSettingsHelperController
+    AlarmPreferenceActivity <-- FrockSettingsHelperController:取得したデータでAlarmSettingEntityインスタンスを返却
+    note left:インスタンスのプロパティを取得して、ビューに反映。
 end
 
 actor -> AlarmPreferenceActivity:各種設定を入力後「保存」をタップ。
+
 AlarmPreferenceActivity -> FrockSettingsHelperController:updateData()
+activate FrockSettingsHelperController
 FrockSettingsHelperController -> DB:DBに書き込み。
+deactivate FrockSettingsHelperController
+actor <-- AlarmPreferenceActivity:DBに保存を行ったことをトーストで通知
 MainActivity <- AlarmPreferenceActivity:finish()
 
-AlarmPreferenceActivity ->AlarmServiceSetter:DBに保存したデータを元に、アラーム設定を開始
+AlarmPreferenceActivity --> AlarmServiceSetter:DBに保存したデータを元に、アラーム予定を設定
+activate AlarmServiceSetter
 AlarmServiceSetter -> FrockSettingsHelperController:getClosestCalender()
-AlarmServiceSetter <- FrockSettingsHelperController:AlarmManagerSetDataEntityインスタンスを返却
+activate FrockSettingsHelperController
+AlarmServiceSetter <-- FrockSettingsHelperController:AlarmManagerSetDataEntityインスタンスを返却
+deactivate FrockSettingsHelperController
 AlarmServiceSetter -> AlarmManager:アラーム起動予定をset
-
+deactivate AlarmServiceSetter
 @enduml
 
 ```
